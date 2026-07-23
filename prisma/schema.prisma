@@ -1,0 +1,313 @@
+// =====================================================================
+// Gia Phả Dòng Họ Việt Nam - Prisma schema (PostgreSQL trên Supabase)
+// Cây phả hệ dùng adjacency list (bảng relationships) như bản Express cũ.
+// DATABASE_URL: transaction pooler (6543, pgbouncer) cho Vercel serverless
+// DIRECT_URL:   kết nối trực tiếp (5432) cho prisma migrate
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// =====================================================================
+// SUBSCRIPTION (gói dịch vụ) — gắn theo PROJECT (gia phả), KHÔNG theo user.
+// Một tài khoản có thể có nhiều Project với các gói khác nhau.
+// Mọi giới hạn đọc từ bảng plan_limits (data-driven) + Permission Service.
+// =====================================================================
+
+enum SubscriptionPlan {
+  FREE
+  TRIAL
+  MONTHLY
+  YEARLY
+  LIFETIME
+  GIFT_LIFETIME
+
+  @@map("subscription_plan")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+
+  @@map("subscription_status")
+}
+
+/// Một "Gia phả" = một Project. Không lưu trạng thái gói trực tiếp ở đây.
+model Project {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId        String   @map("owner_id") @db.Uuid
+  name           String
+  subscriptionId String?  @unique @map("subscription_id") @db.Uuid // con trỏ tới gói hiện hành
+  storageUsed    BigInt   @default(0) @map("storage_used")
+  storageLimit   BigInt   @default(20971520) @map("storage_limit") // 20MB, cập nhật theo gói
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  owner               Profile        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  currentSubscription Subscription?  @relation("CurrentSub", fields: [subscriptionId], references: [id], onDelete: SetNull)
+  subscriptions       Subscription[] @relation("ProjectSubs")
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+/// Lịch sử gói của một Project (bản ACTIVE mới nhất là gói hiện hành).
+model Subscription {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId       String             @map("project_id") @db.Uuid
+  plan            SubscriptionPlan   @default(FREE)
+  status          SubscriptionStatus @default(ACTIVE)
+  startDate       DateTime           @default(now()) @map("start_date") @db.Timestamptz()
+  expireDate      DateTime?          @map("expire_date") @db.Timestamptz()
+  activatedAt     DateTime?          @map("activated_at") @db.Timestamptz()
+  paymentSource   String?            @map("payment_source") // store|web|admin_gift|trial
+  paymentProvider String?            @map("payment_provider") // google_play|apple_iap|stripe|vnpay|momo|zalopay|manual
+  transactionId   String?            @unique @map("transaction_id")
+  notes           String?
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  project   Project  @relation("ProjectSubs", fields: [projectId], references: [id], onDelete: Cascade)
+  currentOf Project? @relation("CurrentSub")
+
+  @@index([projectId])
+  @@index([status, expireDate])
+  @@map("subscriptions")
+}
+
+/// Bảng giới hạn theo gói (data-driven) — seed từ lib/subscription/plans.ts.
+/// Sửa giới hạn/bán thêm dung lượng = cập nhật dữ liệu, KHÔNG sửa code.
+model PlanLimit {
+  plan              SubscriptionPlan @id
+  maxProjects       Int?             @map("max_projects")
+  maxMembers        Int?             @map("max_members")
+  storageLimitBytes BigInt           @map("storage_limit_bytes")
+  durationDays      Int?             @map("duration_days")
+  features          String[]         @default([])
+
+  @@map("plan_limits")
+}
+
+/// Hồ sơ người dùng - id trùng với auth.users.id của Supabase Auth
+/// (mật khẩu do Supabase Auth quản lý, không lưu ở đây)
+model Profile {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  fullName  String   @map("full_name")
+  role      String   @default("viewer") // 'admin' | 'editor' | 'viewer'
+  memberId  String?  @map("member_id") @db.Uuid
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  member          Member?          @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  permissions     Permission[]
+  suggestions     EditSuggestion[] @relation("SuggestionAuthor")
+  reviewedSuggest EditSuggestion[] @relation("SuggestionReviewer")
+  auditLogs       AuditLog[]
+  projects        Project[]
+
+  @@map("profiles")
+}
+
+/// Chi/nhánh dòng họ
+model Branch {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  members Member[]
+
+  @@map("branches")
+}
+
+/// Đời (thế hệ) - đánh số theo cách tính của người Việt
+model Generation {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  number      Int     @unique
+  name        String?
+  description String?
+
+  @@map("generations")
+}
+
+/// Thành viên gia phả
+model Member {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName       String    @map("full_name")
+  commonName     String?   @map("common_name")
+  gender         String    @default("other") // 'male' | 'female' | 'other'
+  birthDate      DateTime? @map("birth_date") @db.Date
+  birthDateLunar String?   @map("birth_date_lunar") // "dd/mm/yyyy[ nhuận]"
+  deathDate      DateTime? @map("death_date") @db.Date
+  deathDateLunar String?   @map("death_date_lunar") // dùng tính ngày giỗ
+  isAlive        Boolean   @default(true) @map("is_alive")
+  birthPlace     String?   @map("birth_place")
+  deathPlace     String?   @map("death_place")
+  burialPlace    String?   @map("burial_place") // an táng tại
+  education      String?
+  occupation     String?
+  title          String? // chức vụ
+  biography      String?
+  avatarUrl      String?   @map("avatar_url")
+  generation     Int?
+  branchId       String?   @map("branch_id") @db.Uuid
+  isPrivate      Boolean   @default(false) @map("is_private")
+  createdBy      String?   @map("created_by") @db.Uuid
+  updatedBy      String?   @map("updated_by") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  branch        Branch?        @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  relationsFrom Relationship[] @relation("RelFrom")
+  relationsTo   Relationship[] @relation("RelTo")
+  contributions Contribution[]
+  media         Media[]
+  profiles      Profile[]
+
+  @@index([generation])
+  @@index([branchId])
+  @@map("members")
+}
+
+/// Quan hệ giữa hai thành viên. Quy ước như bản cũ:
+/// type='father'|'mother': relatedMember là CHA/MẸ của member
+/// type='spouse': vợ/chồng (lưu 1 chiều, truy vấn 2 chiều)
+/// 'child'/'sibling' cho phép lưu tường minh (con nuôi ghi note='con nuôi')
+model Relationship {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  memberId         String   @map("member_id") @db.Uuid
+  relatedMemberId  String   @map("related_member_id") @db.Uuid
+  relationshipType String   @map("relationship_type") // father|mother|spouse|child|sibling
+  note             String?
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  member        Member @relation("RelFrom", fields: [memberId], references: [id], onDelete: Cascade)
+  relatedMember Member @relation("RelTo", fields: [relatedMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, relatedMemberId, relationshipType], map: "uq_relationship")
+  @@index([memberId])
+  @@index([relatedMemberId])
+  @@map("relationships")
+}
+
+/// Phả ký / Ngoại phả / Gia huấn / Văn tế
+model FamilyRecord {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recordType  String   @map("record_type") // pha_ky|ngoai_pha|gia_huan|van_te
+  title       String
+  content     String   @default("") // HTML đã sanitize phía server
+  attachments Json     @default("[]") // [{name,url,mime}]
+  createdBy   String?  @map("created_by") @db.Uuid
+  updatedBy   String?  @map("updated_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("family_records")
+}
+
+/// Công đức - đóng góp cho dòng họ
+model Contribution {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  memberId        String?  @map("member_id") @db.Uuid
+  contributorName String   @map("contributor_name")
+  amount          Decimal  @default(0) @db.Decimal(15, 0)
+  currency        String   @default("VND")
+  purpose         String
+  note            String?
+  contributedAt   DateTime @default(now()) @map("contributed_at") @db.Date
+  createdBy       String?  @map("created_by") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@map("contributions")
+}
+
+/// Ảnh / video / tài liệu (file lưu trên Supabase Storage)
+model Media {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  memberId    String?  @map("member_id") @db.Uuid
+  album       String?
+  mediaType   String   @map("media_type") // image|video|document
+  fileName    String   @map("file_name")
+  url         String
+  storagePath String?  @map("storage_path") // đường dẫn trong bucket để xóa
+  mimeType    String?  @map("mime_type")
+  sizeBytes   BigInt?  @map("size_bytes")
+  uploadedBy  String?  @map("uploaded_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@map("media")
+}
+
+/// Phân quyền chi tiết theo tài nguyên (bổ sung cho role)
+model Permission {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  resource  String // 'members'|'records'|'contributions'|'media'|'*'
+  level     String // 'view'|'edit'|'admin'
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resource], map: "uq_permission")
+  @@map("permissions")
+}
+
+/// Đề xuất chỉnh sửa (viewer gửi, admin duyệt)
+model EditSuggestion {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  entity     String // 'member' | 'record'
+  entityId   String?   @map("entity_id") @db.Uuid
+  payload    Json
+  status     String    @default("pending") // pending|approved|rejected
+  reviewedBy String?   @map("reviewed_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  reviewedAt DateTime? @map("reviewed_at") @db.Timestamptz()
+
+  user     Profile  @relation("SuggestionAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer Profile? @relation("SuggestionReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@map("edit_suggestions")
+}
+
+/// Nhật ký chỉnh sửa - ai làm gì, lúc nào
+model AuditLog {
+  id        BigInt   @id @default(autoincrement())
+  userId    String?  @map("user_id") @db.Uuid
+  action    String // create|update|delete|login|import|approve|reject
+  entity    String
+  entityId  String?  @map("entity_id")
+  changes   Json?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user Profile? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+/// Kho cấu hình & dữ liệu module dạng key-value (org, terms, couplet, events, graves,
+/// restoration, notices, ritualCustom...) — cầu nối nhận toàn bộ backup từ bản HTML,
+/// các module sẽ chuyển dần sang bảng riêng ở các migration sau.
+model AppState {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("app_state")
+}

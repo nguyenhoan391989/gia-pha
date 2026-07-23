@@ -1,0 +1,17 @@
+{
+  "name": "Gia Phả Dòng Họ",
+  "short_name": "Gia Phả",
+  "description": "Ứng dụng gia phả dòng họ — cây phả hệ, nhà thờ họ, mộ phần, sự kiện, quỹ công đức, trợ lý gia tộc.",
+  "lang": "vi",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F8F2E8",
+  "theme_color": "#8B0000",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
