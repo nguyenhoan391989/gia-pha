@@ -62,7 +62,7 @@ function sunLongitude(jdn: number): number {
   const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
   let DL = (1.9146 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
   DL += (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.00029 * Math.sin(dr * 3 * M);
-  let L = (L0 + DL) * dr;
+  const L = (L0 + DL) * dr;
   return L - Math.PI * 2 * Math.floor(L / (Math.PI * 2));
 }
 
