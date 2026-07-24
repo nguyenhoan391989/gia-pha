@@ -34,7 +34,7 @@ export async function loadPermissions(projectId: string, now: Date = new Date())
  * Ở đây chỉ tạo project rồi đọc lại gói FREE mà trigger vừa gắn.
  */
 export async function createProjectWithFreeSubscription(input: { ownerId: string; name: string }) {
-  return prisma.$transaction(async (tx: typeof prisma) => {
+  return prisma.$transaction(async (tx) => {
     const created = await tx.project.create({ data: { ownerId: input.ownerId, name: input.name } });
     const subscription = await tx.subscription.findFirst({ where: { projectId: created.id }, orderBy: { createdAt: 'desc' } });
     const project = await tx.project.findUnique({ where: { id: created.id } });
@@ -61,7 +61,7 @@ export async function switchPlan(input: {
 }) {
   const from = input.from ?? new Date();
   const expire = computeExpireDate(input.plan, from);
-  return prisma.$transaction(async (tx: typeof prisma) => {
+  return prisma.$transaction(async (tx) => {
     // đóng gói cũ đang active
     await tx.subscription.updateMany({ where: { projectId: input.projectId, status: 'ACTIVE' }, data: { status: 'CANCELLED', updatedAt: new Date() } });
     const sub = await tx.subscription.create({

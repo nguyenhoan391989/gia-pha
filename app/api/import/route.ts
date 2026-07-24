@@ -20,7 +20,7 @@ export const POST = handleApi(async (req: NextRequest) => {
   const plan = planImport(parsed.data);
   const replace = req.nextUrl.searchParams.get('mode') === 'replace';
 
-  const result = await prisma.$transaction(async (tx: typeof prisma) => {
+  const result = await prisma.$transaction(async (tx) => {
     if (replace) {
       await tx.relationship.deleteMany({});
       await tx.contribution.deleteMany({});
