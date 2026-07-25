@@ -7,11 +7,20 @@ const nextConfig = {
   // Không để lỗi style của ESLint (prefer-const, no-unused-vars…) chặn deploy.
   // Kiểm tra kiểu TypeScript vẫn bật (typescript.ignoreBuildErrors = false mặc định).
   eslint: { ignoreDuringBuilds: true },
-  // MỘT GIAO DIỆN DUY NHẤT: mọi trang React cũ → bản HTML 15 module (/app.html).
-  // Redirect build-time (KHÔNG dùng middleware/edge) nên không thể gây lỗi 500.
+  // MỘT GIAO DIỆN DUY NHẤT = bản HTML 15 module (public/app.html).
+  // Trang gốc "/" dùng REWRITE (phục vụ nội dung app.html ngay tại "/", URL giữ nguyên,
+  // không chuyển hướng → không thể 404). Chạy ở beforeFiles nên ưu tiên trước mọi route.
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: '/', destination: '/app.html' }],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
+  // Các trang React cũ → HTML (redirect build-time, không dùng middleware/edge → không 500).
   async redirects() {
     const pages = [
-      '/', '/members', '/members/:path*', '/tree', '/families', '/graves', '/events',
+      '/members', '/members/:path*', '/tree', '/families', '/graves', '/events',
       '/restoration', '/contributions', '/relations', '/nha-tho-ho', '/notifications',
       '/library', '/reports', '/roles', '/settings', '/settings/:path*', '/tro-ly', '/login',
     ];
