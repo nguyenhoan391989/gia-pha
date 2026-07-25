@@ -3,9 +3,9 @@ import type { MetadataRoute } from 'next';
 /** Web App Manifest - cài được lên màn hình chính như bản PWA cũ */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Gia Phả Dòng Họ Việt Nam',
-    short_name: 'Gia Phả',
-    description: 'Nền tảng số hóa gia phả truyền thống Việt Nam',
+    name: 'Gia Phả Việt Nam',
+    short_name: 'Gia Phả VN',
+    description: 'Ứng dụng quản lý gia phả chuyên nghiệp',
     lang: 'vi',
     start_url: '/',
     display: 'standalone',

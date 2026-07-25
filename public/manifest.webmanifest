@@ -1,7 +1,7 @@
 {
-  "name": "Gia Phả Dòng Họ",
-  "short_name": "Gia Phả",
-  "description": "Ứng dụng gia phả dòng họ — cây phả hệ, nhà thờ họ, mộ phần, sự kiện, quỹ công đức, trợ lý gia tộc.",
+  "name": "Gia Phả Việt Nam",
+  "short_name": "Gia Phả VN",
+  "description": "Ứng dụng quản lý gia phả chuyên nghiệp",
   "lang": "vi",
   "start_url": "/app.html",
   "scope": "/",
