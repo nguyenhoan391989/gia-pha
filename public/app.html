@@ -206,12 +206,16 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .pt-sheet .vline,.trad-wrap .vline{background:#b98a2e;height:10px;width:1.5px}
 .trad-wrap .pcard{cursor:pointer}
 /* nền truyền thống dùng chung */
-.trad-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(160,19,19,.35);box-shadow:0 8px 26px rgba(60,20,0,.15)}
-.trad-wrap .tb-svg,.pt-sheet .tb-svg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
-.trad-content{position:relative;z-index:2;padding:80px 18px 46px;padding-top:max(16.5%,120px)}
-.trad-panel{background:rgba(255,252,240,.78);border:1px solid rgba(201,151,47,.5);border-radius:12px;backdrop-filter:blur(2px);overflow:auto;padding:14px 10px;min-height:58vh;text-align:center}
+.trad-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(160,19,19,.35);box-shadow:0 8px 26px rgba(60,20,0,.15);background:#f4ead0}
+.pt-sheet .tb-svg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+/* Banner cuộn thư: dải tỉ lệ cố định (không cắt méo), tên canh đúng ô trên mọi màn hình */
+.trad-head{position:relative;width:100%;aspect-ratio:3/1;overflow:hidden;border-bottom:1px solid rgba(160,19,19,.25)}
+.trad-head .tb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.sd-name{position:absolute;left:50.3%;top:31%;transform:translate(-50%,-50%);width:27%;overflow:visible;z-index:3}
+.trad-content{position:relative;z-index:2;padding:14px 14px 40px}
+.trad-panel{background:rgba(255,252,240,.82);border:1px solid rgba(201,151,47,.5);border-radius:12px;overflow:auto;padding:14px 10px;min-height:50vh;text-align:center}
 .trad-panel .tree{transform-origin:top center;margin:0 auto}
-@media(max-width:720px){.trad-content{padding:86px 10px 66px}}
+@media(max-width:720px){.trad-content{padding:10px 8px 30px}.sd-name{width:36%}}
 /* ===== Studio phục chế ảnh ===== */
 #psWrap{position:fixed;inset:0;z-index:90;background:#17130f;display:none;flex-direction:column;color:#efe6d8}
 #psWrap.open{display:flex}
@@ -773,8 +777,13 @@ function heDelVid(i){heSyncText();heDraft.videos.splice(i,1);renderHeEditor();}
 function heSave(){heSyncText();DB.heritage[heKey]={text:heDraft.text,images:heDraft.images,videos:heDraft.videos};logAct('Đăng bài nhà thờ họ: '+heKey);save();closeModal();render();toast('Đã lưu bài');}
 window.editHeritage=editHeritage;window.heAddImg=heAddImg;window.heDelImg=heDelImg;window.heAddVid=heAddVid;window.heDelVid=heDelVid;window.heSave=heSave;
 
-function tradIMG(title){
- return `<img class="tb-svg" src="nen-truyen-thong-2x.jpg" onerror="if(this.src.indexOf('-2x')>0){this.src='nen-truyen-thong.jpg';}else{this.style.display='none';}" style="object-fit:cover"/>${ptNameSVG(title)}`;}
+const BG_IMG=`src="nen-truyen-thong-2x.jpg" onerror="if(this.src.indexOf('-2x')>0){this.src='nen-truyen-thong.jpg';}else{this.style.display='none';}"`;
+function tradIMG(title){ /* dùng cho Bản in: full ảnh 3:2, tên ở ô cuộn thư (15.4%) */
+ return `<img class="bgimg" ${BG_IMG}/>${ptNameSVG(title)}`;}
+/* Banner cho trang Sơ đồ: dải 3:1 (hiện nửa trên của ảnh), tên to canh đúng ô cuộn thư */
+function sdNameSVG(name){name=name||'';const nl=name.length;const fs=nl>26?27:nl>20?32:nl>14?38:46;
+ return `<svg class="sd-name" viewBox="0 0 400 80"><path id="sdArcN" d="M18 58 Q200 18 382 58" fill="none"/><text font-family="'Noto Serif',Georgia,serif" font-weight="800" fill="#7a1010" font-size="${fs}"><textPath href="#sdArcN" startOffset="50%" text-anchor="middle"${nl*fs*.6>372?' textLength="372" lengthAdjust="spacingAndGlyphs"':''}>${esc(name)}</textPath></text></svg>`;}
+function sdHeader(title){return `<div class="trad-head"><img class="tb-img" ${BG_IMG}/>${sdNameSVG(title)}</div>`;}
 /* ---- Nền truyền thống vẽ SVG (trống đồng, rồng, tre, tùng, viền triện, cuộn thư) ---- *//* ---- Sơ đồ gia phả (cây tương tác) ---- */
 let zoom=100;const collapsed=new Set();
 function tnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);const isC=collapsed.has(m.id);
@@ -811,7 +820,7 @@ window.openPrintTree=openPrintTree;window.closePrintTree=closePrintTree;window.p
 V.pha=()=>{const roots=DB.members.filter(m=>!m.fatherId&&(!m.spouseId||DB.members.find(x=>x.id===m.spouseId&&x.fatherId)===undefined?true:true)).filter(m=>!m.fatherId);
  const realRoots=DB.members.filter(m=>!m.fatherId&&!DB.members.some(x=>x.spouseId===m.id&&x.fatherId));
  const rts=realRoots.length?realRoots:roots;
- return `<div class="trad-wrap">${tradIMG(DB.org.display)}<div class="trad-content">
+ return `<div class="trad-wrap">${sdHeader(DB.org.display)}<div class="trad-content">
  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
    <div class="h1" style="margin:0">🌳 Sơ đồ gia phả</div>
    <span class="muted" style="font-size:12px" title="Bấm một người để xem hồ sơ · bấm − để thu gọn nhánh">Theo dòng cha · ${DB.members.length} thành viên</span>
