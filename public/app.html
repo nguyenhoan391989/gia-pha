@@ -198,12 +198,14 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .tree{display:inline-flex;flex-direction:column;align-items:center;transform-origin:top left}
 .tnode{display:flex;flex-direction:column;align-items:center;position:relative}
 .pcard{display:inline-flex;flex-direction:column;align-items:center;gap:5px;background:var(--accent);border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;font-weight:600;cursor:pointer}
-.pcname{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:1px;line-height:1.18;max-height:160px;text-align:start}
+.pcname{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.5px;line-height:1.12;height:132px;font-size:13px;text-align:start;overflow:hidden}
 .pcyr{font-weight:400;opacity:.8;font-size:.8em;letter-spacing:0}
 .pcard:hover{border-color:var(--gold)}
 .pcard.root{background:var(--primary);color:#fff;border-color:var(--gold)}
 .pcard .av{width:24px;height:24px;border-radius:50%;background:rgba(212,175,55,.3);display:grid;place-items:center;font-size:11px;overflow:hidden}.pcard .av img{width:100%;height:100%;object-fit:cover}
-.kids{display:flex;gap:14px;margin-top:16px;position:relative}
+.kids{display:flex;gap:14px;margin-top:16px;position:relative;align-items:flex-start}
+.kids-top{margin-top:0}
+.kids-top::before{display:none}
 .kids::before{content:'';position:absolute;top:-8px;left:0;right:0;height:1px;background:var(--border)}
 .vline{width:1px;height:8px;background:var(--border)}
 .cbtn{width:16px;height:16px;border-radius:50%;border:1px solid var(--gold);background:#fff;color:var(--primary);font-size:10px;line-height:1;cursor:pointer;margin-top:2px}
@@ -869,7 +871,7 @@ function ptBgPick(ev){const f=ev.target.files[0];if(!f)return;const r=new FileRe
 function ptBgDel(){DB.settings.printBg='';save();renderPrintTree();toast('Đã bỏ ảnh nền');}
 window.openPrintTree=openPrintTree;window.closePrintTree=closePrintTree;window.ptZoom=ptZoom;window.ptBgPick=ptBgPick;window.ptBgDel=ptBgDel;
 V.pha=()=>{const rts=treeRoots();
- return `<div class="pha-poster">${sdHeader(DB.org.display)}
+ return `<div class="pha-poster">
  <div class="pha-toolbar">
    <span class="pha-title">🌳 Sơ đồ gia phả</span>
    <span class="muted" style="font-size:12px">Theo dòng cha · ${DB.members.length} thành viên · bấm tên để xem hồ sơ</span>
@@ -880,8 +882,9 @@ V.pha=()=>{const rts=treeRoots();
    <button class="btn btn-o btn-sm" onclick="phaReset()" title="Về vừa khung">⤢ Vừa khung</button>
    <button class="btn btn-p btn-sm" onclick="openPrintTree()">🖨 Bản in treo tường</button>
  </div>
+ ${sdHeader(DB.org.display)}
  <div class="pha-view" id="phaView" onwheel="phaWheel(event)" onmousedown="phaDown(event)" ontouchstart="phaTouchStart(event)" ontouchmove="phaTouchMove(event)">
-   <div class="pha-scene" id="phaScene" style="transform:translate(${phaX}px,${phaY}px) scale(${phaZ/100})"><div class="tree">${rts.map(tnode).join('')}</div></div>
+   <div class="pha-scene" id="phaScene" style="transform:translate(${phaX}px,${phaY}px) scale(${phaZ/100})"><div class="tree"><div class="kids kids-top">${rts.map(tnode).join('')}</div></div></div>
    <div class="pha-hint">🖱 Lăn chuột: phóng to · Kéo: di chuyển</div>
  </div></div>`;};
 
