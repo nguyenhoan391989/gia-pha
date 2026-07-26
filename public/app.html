@@ -430,7 +430,7 @@ function tlabel(key,fallback){const t=DB.terms||{};if(key==='branchL1')return t.
 const CRUD={
   members:{title:'Thành viên',icon:'👤',store:'members',
     columns:[['name','Họ tên'],['birthYear','Năm sinh'],['gender','Giới tính'],['branchL1','_b1'],['branch','_b2'],['generation','_gen']],
-    fields:[['name','Họ và tên *','text'],['gender','Giới tính','select',['Nam','Nữ']],['birthYear','Năm sinh','number'],['deathYear','Năm mất','number'],['alive','Còn sống','check'],['birthPlace','Nơi sinh','text'],['occupation','Nghề nghiệp','text'],['phone','Điện thoại','text'],['email','Email','text'],['address','Địa chỉ','text'],['generation','_gen','number'],['branchL1','_b1','select',brL1Opts],['branch','_b2','select',brOpts],['fatherId','Cha','selectId',memOpts],['spouseId','Vợ/Chồng','selectId',memOpts],['avatar','Ảnh chân dung','image'],['bio','Tiểu sử','textarea']]},
+    fields:[['name','Họ và tên *','text'],['gender','Giới tính','select',['Nam','Nữ']],['birthYear','Năm sinh','number'],['deathYear','Năm mất','number'],['deathAnniv','Ngày giỗ (âm lịch)','text'],['alive','Còn sống','check'],['birthPlace','Nơi sinh','text'],['occupation','Nghề nghiệp','text'],['phone','Điện thoại','text'],['email','Email','text'],['address','Địa chỉ','text'],['generation','_gen','number'],['branchL1','_b1','select',brL1Opts],['branch','_b2','select',brOpts],['fatherId','Cha','selectId',memOpts],['spouseId','Vợ/Chồng','selectId',memOpts],['avatar','Ảnh chân dung','image'],['bio','Tiểu sử','textarea']]},
   events:{title:'Sự kiện',icon:'📅',store:'events',
     columns:[['date','Ngày'],['title','Sự kiện'],['type','Loại'],['location','Địa điểm']],
     fields:[['title','Tên sự kiện *','text'],['date','Ngày (dd/mm/yyyy)','text'],['type','Loại','select',['Giỗ tổ','Họp họ','Lễ tế','Mừng thọ','Tang lễ']],['location','Địa điểm','text'],['note','Ghi chú','textarea']]},
@@ -468,6 +468,7 @@ function renderCrud(key){const c=CRUD[key];const rows=DB[c.store];
 const MEM_HMAP={'ho ten':'name','hoten':'name','ho va ten':'name','ten':'name','ho ten day du':'name',
  'gioi tinh':'gender','gioitinh':'gender','nam sinh':'birthYear','namsinh':'birthYear',
  'nam mat':'deathYear','nammat':'deathYear','noi sinh':'birthPlace','que quan':'birthPlace',
+ 'ngay gio':'deathAnniv','gio':'deathAnniv','ngay thang gio':'deathAnniv','ngay/thang gio':'deathAnniv','ngay gio am lich':'deathAnniv','ngay gio (am lich)':'deathAnniv',
  'nghe nghiep':'occupation','dien thoai':'phone','so dien thoai':'phone','sdt':'phone',
  'email':'email','dia chi':'address','doi':'generation','doi thu':'generation','the he':'generation','the':'generation',
  'nganh':'branchL1','chi':'branch','phai':'branch','nhanh':'branch','toc':'branch',
@@ -485,11 +486,11 @@ function arrToObjs(arr){if(!arr||!arr.length)return [];const hs=arr[0].map(memMa
 function memNum(v){const n=String(v==null?'':v).replace(/\D/g,'');return n?+n:'';}
 function memFromRow(o){const g=stripVN(String(o.gender||'')).toLowerCase();
  return {name:String(o.name||'').trim(),gender:g.indexOf('nu')===0?'Nữ':'Nam',
-  birthYear:memNum(o.birthYear),deathYear:memNum(o.deathYear),birthPlace:String(o.birthPlace||'').trim(),
+  birthYear:memNum(o.birthYear),deathYear:memNum(o.deathYear),deathAnniv:String(o.deathAnniv||'').trim(),birthPlace:String(o.birthPlace||'').trim(),
   occupation:String(o.occupation||'').trim(),phone:String(o.phone||'').trim(),email:String(o.email||'').trim(),
   address:String(o.address||'').trim(),generation:memNum(o.generation),branchL1:String(o.branchL1||'').trim(),
   branch:String(o.branch||'').trim(),bio:String(o.bio||'').trim(),avatar:'',
-  alive:!String(o.deathYear||'').trim(),fatherId:0,spouseId:0,
+  alive:!(String(o.deathYear||'').trim()||String(o.deathAnniv||'').trim()),fatherId:0,spouseId:0,
   _father:String(o._father||'').trim(),_spouse:String(o._spouse||'').trim()};}
 let memImportData=null;
 function memImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập danh sách thành viên</h3>
@@ -516,9 +517,9 @@ function memImportCommit(){if(!memImportData||!memImportData.length){toast('Chư
  const byName=(n)=>{n=stripVN(String(n||'')).toLowerCase().trim();if(!n)return 0;const x=DB.members.find(o=>stripVN(o.name).toLowerCase().trim()===n);return x?x.id:0;};
  added.forEach(a=>{if(a.f)a.rec.fatherId=byName(a.f);if(a.s){const sid=byName(a.s);if(sid){a.rec.spouseId=sid;const sp=DB.members.find(o=>o.id===sid);if(sp&&!sp.spouseId)sp.spouseId=a.rec.id;}}});
  memImportData=null;logAct('Nhập '+added.length+' thành viên từ file');save();closeModal();render();toast('Đã nhập '+added.length+' thành viên');}
-function memTemplate(){const headers=[T.b1,T.b2,T.gen,'Cha','Họ tên','Giới tính','Năm sinh','Năm mất','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ','Tiểu sử','Vợ/Chồng'];
- const ex=['Ngành Trưởng','Chi 1','2','Nguyễn Văn Tổ','Nguyễn Văn A','Nam','1950','','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','Trưởng chi 1','Lê Thị B'];
- const ex2=['','Chi 1','2','','Lê Thị B','Nữ','1952','','Hà Nội','Nội trợ','','','Hà Nội','','Nguyễn Văn A'];
+function memTemplate(){const headers=[T.b1,T.b2,T.gen,'Cha','Họ tên','Giới tính','Năm sinh','Năm mất','Ngày giỗ (âm lịch)','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ','Tiểu sử','Vợ/Chồng'];
+ const ex=['Ngành Trưởng','Chi 1','2','Nguyễn Văn Tổ','Nguyễn Văn A','Nam','1950','1990','2/2','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','Trưởng chi 1','Lê Thị B'];
+ const ex2=['','Chi 1','2','','Lê Thị B','Nữ','1952','','','Hà Nội','Nội trợ','','','Hà Nội','','Nguyễn Văn A'];
  const csv='﻿'+[headers,ex,ex2].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='mau-danh-sach-thanh-vien.csv';a.click();toast('Đã tải file mẫu — mở bằng Excel, điền rồi Lưu dạng CSV/Excel');}
 window.memImport=memImport;window.memImportFile=memImportFile;window.memImportCommit=memImportCommit;window.memTemplate=memTemplate;
@@ -549,7 +550,7 @@ function del(key,id){if(!confirm('Xóa bản ghi này?'))return;const c=CRUD[key
 window.openForm=openForm;window.closeModal=closeModal;window.saveForm=saveForm;window.del=del;window.imgPick=imgPick;
 
 function viewMember(id){const m=DB.members.find(x=>x.id===id);if(!m)return;
-  const rows=[['Họ tên',m.name],['Giới tính',m.gender],['Năm sinh',m.birthYear||'—'],['Trạng thái',m.alive?'Còn sống':'Đã mất'+(m.deathYear?' ('+m.deathYear+')':'')],['Nơi sinh',m.birthPlace||'—'],['Nghề nghiệp',m.occupation||'—'],['Điện thoại',m.phone||'—'],['Email',m.email||'—'],['Địa chỉ',m.address||'—'],[T.gen,m.generation||'—'],[T.b1,m.branchL1||'—'],[T.b2,m.branch||'—'],['Cha',memName(m.fatherId)||'—'],['Vợ/Chồng',memName(m.spouseId)||'—']];
+  const rows=[['Họ tên',m.name],['Giới tính',m.gender],['Năm sinh',m.birthYear||'—'],['Trạng thái',m.alive?'Còn sống':'Đã mất'+(m.deathYear?' ('+m.deathYear+')':'')],['Ngày giỗ',m.deathAnniv||'—'],['Nơi sinh',m.birthPlace||'—'],['Nghề nghiệp',m.occupation||'—'],['Điện thoại',m.phone||'—'],['Email',m.email||'—'],['Địa chỉ',m.address||'—'],[T.gen,m.generation||'—'],[T.b1,m.branchL1||'—'],[T.b2,m.branch||'—'],['Cha',memName(m.fatherId)||'—'],['Vợ/Chồng',memName(m.spouseId)||'—']];
   const kids=DB.members.filter(x=>x.fatherId===id).map(x=>x.name);
   document.getElementById('modalBox').innerHTML=`<h3>Hồ sơ thành viên</h3>
    <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
@@ -1657,7 +1658,7 @@ V.report=()=>{const byGen={},byBr={};DB.members.forEach(m=>{byGen[m.generation]=
  <div class="two" style="margin-top:12px"><div class="card pad"><div class="h3">Thành viên theo ${esc(T.gen.toLowerCase())}</div>${gens.map(g=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(T.gen)} ${g}</span><span class="muted">${byGen[g]}</span></div><div class="bar"><i style="width:${byGen[g]/mx*100}%"></i></div></div>`).join('')}</div>
  <div class="card pad"><div class="h3">Tài chính công đức</div><table><tr><td>Tổng thu</td><td class="right" style="color:#0f6e56;font-weight:700">${vnd(thu)}</td></tr><tr><td>Tổng chi</td><td class="right" style="color:var(--primary);font-weight:700">${vnd(chi)}</td></tr><tr><td>Số dư</td><td class="right" style="font-weight:700">${vnd(thu-chi)}</td></tr></table>
    <div class="h3" style="margin-top:12px">Theo ${esc(T.b2.toLowerCase())}</div>${Object.keys(byBr).map(b=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0"><span>${esc(b)}</span><span class="muted">${byBr[b]}</span></div>`).join('')}</div></div>`;};
-function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
+function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Ngày giỗ (âm lịch)',m=>m.deathAnniv],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
  const rows=DB.members.map(m=>cols.map(c=>`"${String(c[1](m)??'').replace(/"/g,'""')}"`).join(','));
  const csv='﻿'+head.join(',')+'\n'+rows.join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='thanh-vien.csv';a.click();toast('Đã xuất CSV');}
 window.exportCsv=exportCsv;
