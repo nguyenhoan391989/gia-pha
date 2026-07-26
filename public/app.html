@@ -516,9 +516,9 @@ function memImportCommit(){if(!memImportData||!memImportData.length){toast('Chư
  const byName=(n)=>{n=stripVN(String(n||'')).toLowerCase().trim();if(!n)return 0;const x=DB.members.find(o=>stripVN(o.name).toLowerCase().trim()===n);return x?x.id:0;};
  added.forEach(a=>{if(a.f)a.rec.fatherId=byName(a.f);if(a.s){const sid=byName(a.s);if(sid){a.rec.spouseId=sid;const sp=DB.members.find(o=>o.id===sid);if(sp&&!sp.spouseId)sp.spouseId=a.rec.id;}}});
  memImportData=null;logAct('Nhập '+added.length+' thành viên từ file');save();closeModal();render();toast('Đã nhập '+added.length+' thành viên');}
-function memTemplate(){const headers=['Họ tên','Giới tính','Năm sinh','Năm mất','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ',T.gen,T.b1,T.b2,'Cha','Vợ/Chồng','Tiểu sử'];
- const ex=['Nguyễn Văn A','Nam','1950','','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','2','Ngành Trưởng','Chi 1','Nguyễn Văn Tổ','Lê Thị B','Trưởng chi 1'];
- const ex2=['Lê Thị B','Nữ','1952','','Hà Nội','Nội trợ','','','Hà Nội','2','','Chi 1','','Nguyễn Văn A',''];
+function memTemplate(){const headers=[T.b1,T.b2,T.gen,'Cha','Họ tên','Giới tính','Năm sinh','Năm mất','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ','Tiểu sử','Vợ/Chồng'];
+ const ex=['Ngành Trưởng','Chi 1','2','Nguyễn Văn Tổ','Nguyễn Văn A','Nam','1950','','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','Trưởng chi 1','Lê Thị B'];
+ const ex2=['','Chi 1','2','','Lê Thị B','Nữ','1952','','Hà Nội','Nội trợ','','','Hà Nội','','Nguyễn Văn A'];
  const csv='﻿'+[headers,ex,ex2].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='mau-danh-sach-thanh-vien.csv';a.click();toast('Đã tải file mẫu — mở bằng Excel, điền rồi Lưu dạng CSV/Excel');}
 window.memImport=memImport;window.memImportFile=memImportFile;window.memImportCommit=memImportCommit;window.memTemplate=memTemplate;
@@ -1657,8 +1657,8 @@ V.report=()=>{const byGen={},byBr={};DB.members.forEach(m=>{byGen[m.generation]=
  <div class="two" style="margin-top:12px"><div class="card pad"><div class="h3">Thành viên theo ${esc(T.gen.toLowerCase())}</div>${gens.map(g=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(T.gen)} ${g}</span><span class="muted">${byGen[g]}</span></div><div class="bar"><i style="width:${byGen[g]/mx*100}%"></i></div></div>`).join('')}</div>
  <div class="card pad"><div class="h3">Tài chính công đức</div><table><tr><td>Tổng thu</td><td class="right" style="color:#0f6e56;font-weight:700">${vnd(thu)}</td></tr><tr><td>Tổng chi</td><td class="right" style="color:var(--primary);font-weight:700">${vnd(chi)}</td></tr><tr><td>Số dư</td><td class="right" style="font-weight:700">${vnd(thu-chi)}</td></tr></table>
    <div class="h3" style="margin-top:12px">Theo ${esc(T.b2.toLowerCase())}</div>${Object.keys(byBr).map(b=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0"><span>${esc(b)}</span><span class="muted">${byBr[b]}</span></div>`).join('')}</div></div>`;};
-function exportCsv(){const cols=['name','gender','birthYear','deathYear','generation','branchL1','branch','occupation','phone','address'];const head=['Họ tên','Giới tính','Năm sinh','Năm mất',T.gen,T.b1,T.b2,'Nghề nghiệp','Điện thoại','Địa chỉ'];
- const rows=DB.members.map(m=>cols.map(c=>`"${String(m[c]??'').replace(/"/g,'""')}"`).join(','));
+function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
+ const rows=DB.members.map(m=>cols.map(c=>`"${String(c[1](m)??'').replace(/"/g,'""')}"`).join(','));
  const csv='﻿'+head.join(',')+'\n'+rows.join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='thanh-vien.csv';a.click();toast('Đã xuất CSV');}
 window.exportCsv=exportCsv;
 
