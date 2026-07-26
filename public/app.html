@@ -197,7 +197,9 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .treewrap{overflow:auto;padding:10px}
 .tree{display:inline-flex;flex-direction:column;align-items:center;transform-origin:top left}
 .tnode{display:flex;flex-direction:column;align-items:center;position:relative}
-.pcard{display:inline-flex;align-items:center;gap:7px;background:var(--accent);border:1px solid var(--border);border-radius:9px;padding:5px 9px;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer}
+.pcard{display:inline-flex;flex-direction:column;align-items:center;gap:5px;background:var(--accent);border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;font-weight:600;cursor:pointer}
+.pcname{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:1px;line-height:1.18;max-height:160px;text-align:start}
+.pcyr{font-weight:400;opacity:.8;font-size:.8em;letter-spacing:0}
 .pcard:hover{border-color:var(--gold)}
 .pcard.root{background:var(--primary);color:#fff;border-color:var(--gold)}
 .pcard .av{width:24px;height:24px;border-radius:50%;background:rgba(212,175,55,.3);display:grid;place-items:center;font-size:11px;overflow:hidden}.pcard .av img{width:100%;height:100%;object-fit:cover}
@@ -234,6 +236,16 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .trad-content{position:relative;z-index:2;padding:14px 14px 40px}
 .trad-panel{position:relative;background:radial-gradient(90% 70% at 50% 40%,#fbf4df 0%,#f4e8c8 60%,#eddfba 100%);border:12px solid #a01313;box-shadow:inset 0 0 0 3px #d4af37,inset 0 0 0 9px #a01313,0 8px 26px rgba(60,20,0,.18);border-radius:8px;overflow:auto;padding:26px 16px;min-height:56vh;text-align:center}
 .trad-panel .tree{transform-origin:top center;margin:0 auto}
+/* ===== Sơ đồ gia phả kiểu POSTER (module 3): cây nằm trên nền giấy cổ, có zoom/kéo ===== */
+.pha-poster{position:relative;border-radius:10px;overflow:hidden;border:12px solid #a01313;box-shadow:inset 0 0 0 3px #d4af37,inset 0 0 0 9px #a01313,0 8px 26px rgba(60,20,0,.2);background:radial-gradient(120% 90% at 50% 26%,#fbf4df 0%,#f3e5c2 62%,#e9d9b2 100%)}
+.pha-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 14px;position:relative;z-index:2;background:rgba(255,250,235,.72);border-bottom:1px solid rgba(201,151,47,.4)}
+.pha-title{font-weight:800;color:var(--primary);font-size:15px}
+.pha-view{position:relative;height:66vh;min-height:420px;overflow:hidden;cursor:grab;touch-action:none;z-index:1}
+.pha-view.grabbing{cursor:grabbing}
+.pha-view.grabbing *{cursor:grabbing}
+.pha-scene{position:absolute;left:0;top:0;padding:24px;will-change:transform;transform-origin:0 0}
+.pha-scene .tree{margin:0}
+.pha-hint{position:absolute;right:12px;bottom:10px;z-index:3;font-size:11.5px;color:#7a5a2a;background:rgba(255,250,235,.8);border:1px solid rgba(201,151,47,.5);border-radius:20px;padding:3px 10px;pointer-events:none}
 @media(max-width:720px){.trad-content{padding:10px 8px 30px}.sd-name{width:36%}}
 /* ===== Studio phục chế ảnh ===== */
 #psWrap{position:fixed;inset:0;z-index:90;background:#17130f;display:none;flex-direction:column;color:#efe6d8}
@@ -801,32 +813,47 @@ const BG_IMG=`src="nen-truyen-thong-2x.jpg" onerror="if(this.src.indexOf('-2x')>
 function tradIMG(title){ /* dùng cho Bản in: full ảnh 3:2, tên ở ô cuộn thư (15.4%) */
  return `<img class="bgimg" ${BG_IMG}/>${ptNameSVG(title)}`;}
 /* Banner cho trang Sơ đồ: dải 3:1 (hiện nửa trên của ảnh), tên to canh đúng ô cuộn thư */
-function sdNameSVG(name){name=name||'';const nl=name.length;const fs=nl>26?27:nl>20?32:nl>14?38:46;
- return `<svg class="sd-name" viewBox="0 0 400 80"><path id="sdArcN" d="M18 58 Q200 18 382 58" fill="none"/><text font-family="'Noto Serif',Georgia,serif" font-weight="800" fill="#7a1010" font-size="${fs}"><textPath href="#sdArcN" startOffset="50%" text-anchor="middle"${nl*fs*.6>372?' textLength="372" lengthAdjust="spacingAndGlyphs"':''}>${esc(name)}</textPath></text></svg>`;}
+function sdNameSVG(name){name=name||'';const nl=[...name].length;const fs=nl>24?22:nl>18?27:nl>13?33:nl>9?40:48;
+ const maxW=300,natural=nl*fs*.6,tl=natural>maxW?` textLength="${maxW}" lengthAdjust="spacingAndGlyphs"`:'';
+ return `<svg class="sd-name" viewBox="0 0 400 80"><path id="sdArcN" d="M52 56 Q200 26 348 56" fill="none"/><text font-family="'Noto Serif',Georgia,serif" font-weight="800" fill="#7a1010" font-size="${fs}"><textPath href="#sdArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
 function sdHeader(title){return `<div class="trad-head"><img class="tb-img" ${BG_IMG}/>${sdNameSVG(title)}</div>`;}
 /* ---- Nền truyền thống vẽ SVG (trống đồng, rồng, tre, tùng, viền triện, cuộn thư) ---- *//* ---- Sơ đồ gia phả (cây tương tác) ---- */
 let zoom=100;const collapsed=new Set();
 function tnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);const isC=collapsed.has(m.id);
- const card=(x,root)=>`<span class="pcard ${root?'root':''}" onclick="viewMember(${x.id})"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span>${esc(x.name)}${x.birthYear?` <span style="font-weight:400;opacity:.8">(${x.birthYear})</span>`:''}</span>`;
+ const card=(x,root)=>`<span class="pcard ${root?'root':''}" onclick="viewMember(${x.id})"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${esc(x.name)}${x.birthYear?`<span class="pcyr">(${x.birthYear})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:var(--gold)">⚭</span>'+card(sp);
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
  if(kids.length){out+=`<button class="cbtn" onclick="tglCol(${m.id})">${isC?'+':'−'}</button>`;if(!isC){out+=`<span class="vline"></span><div class="kids">${kids.map(tnode).join('')}</div>`;}}
  return out+`</div>`;}
 function tglCol(id){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);render();}
 window.tglCol=tglCol;
+/* ---- Zoom + kéo (pan) cho Sơ đồ gia phả module 3 ---- */
+let phaZ=65,phaX=24,phaY=16,_phaDrag=null,_phaPinch=null;
+function _phaApply(){const s=document.getElementById('phaScene');if(s)s.style.transform='translate('+phaX+'px,'+phaY+'px) scale('+(phaZ/100)+')';const z=document.getElementById('phaZ');if(z)z.textContent=Math.round(phaZ)+'%';}
+function _phaZoomAt(nz,cx,cy){nz=Math.max(20,Math.min(300,nz));const k=nz/phaZ;phaX=cx-(cx-phaX)*k;phaY=cy-(cy-phaY)*k;phaZ=nz;_phaApply();}
+function phaZoom(d){const v=document.getElementById('phaView');_phaZoomAt(phaZ+d,v?v.clientWidth/2:0,v?v.clientHeight/2:0);}
+function phaReset(){phaZ=65;phaX=24;phaY=16;_phaApply();}
+function phaWheel(e){e.preventDefault();const r=e.currentTarget.getBoundingClientRect();_phaZoomAt(phaZ*(e.deltaY<0?1.12:0.89),e.clientX-r.left,e.clientY-r.top);}
+function phaDown(e){if(e.button!==0)return;_phaDrag={x:e.clientX,y:e.clientY,ox:phaX,oy:phaY};e.currentTarget.classList.add('grabbing');document.addEventListener('mousemove',_phaMove);document.addEventListener('mouseup',_phaUp);}
+function _phaMove(e){if(!_phaDrag)return;phaX=_phaDrag.ox+(e.clientX-_phaDrag.x);phaY=_phaDrag.oy+(e.clientY-_phaDrag.y);_phaApply();}
+function _phaUp(){_phaDrag=null;const v=document.getElementById('phaView');if(v)v.classList.remove('grabbing');document.removeEventListener('mousemove',_phaMove);document.removeEventListener('mouseup',_phaUp);}
+function phaTouchStart(e){if(e.touches.length===2){const[a,b]=e.touches;_phaPinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:phaZ};_phaDrag=null;}else if(e.touches.length===1){_phaDrag={x:e.touches[0].clientX,y:e.touches[0].clientY,ox:phaX,oy:phaY};}}
+function phaTouchMove(e){e.preventDefault();const r=e.currentTarget.getBoundingClientRect();if(e.touches.length===2&&_phaPinch){const[a,b]=e.touches;const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);_phaZoomAt(_phaPinch.z*d/_phaPinch.d,(a.clientX+b.clientX)/2-r.left,(a.clientY+b.clientY)/2-r.top);}else if(e.touches.length===1&&_phaDrag){phaX=_phaDrag.ox+(e.touches[0].clientX-_phaDrag.x);phaY=_phaDrag.oy+(e.touches[0].clientY-_phaDrag.y);_phaApply();}}
+window.phaZoom=phaZoom;window.phaReset=phaReset;window.phaWheel=phaWheel;window.phaDown=phaDown;window.phaTouchStart=phaTouchStart;window.phaTouchMove=phaTouchMove;
 /* ---- Bản in treo tường ---- */
 let ptz=100;
 function treeRoots(){const rr=DB.members.filter(m=>!m.fatherId&&!DB.members.some(x=>x.spouseId===m.id&&x.fatherId));return rr.length?rr:DB.members.filter(m=>!m.fatherId);}
 function pnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);
- const card=(x,root)=>`<span class="pcard ${root?'root':''}"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span>${esc(x.name)}${x.birthYear?` <span style="font-weight:400;opacity:.85">(${x.birthYear}${x.alive===false?'–'+(x.deathYear||''):''})</span>`:''}</span>`;
+ const card=(x,root)=>`<span class="pcard ${root?'root':''}"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${esc(x.name)}${x.birthYear?`<span class="pcyr">(${x.birthYear}${x.alive===false?'–'+(x.deathYear||''):''})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:#b98a2e">⚭</span>'+card(sp);
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
  if(kids.length)out+=`<span class="vline"></span><div class="kids">${kids.map(pnode).join('')}</div>`;
  return out+`</div>`;}
-function ptNameSVG(name){name=name||'';const nl=name.length;const fs=nl>26?17:nl>20?21:nl>14?25:31;
+function ptNameSVG(name){name=name||'';const nl=[...name].length;const fs=nl>24?15:nl>18?19:nl>13?23:nl>9?27:31;
+ const maxW=300,natural=nl*fs*.62,tl=natural>maxW?` textLength="${maxW}" lengthAdjust="spacingAndGlyphs"`:'';
  return `<svg viewBox="0 0 400 80" style="position:absolute;left:50.3%;top:15.4%;transform:translate(-50%,-50%);width:23.6%;overflow:visible;z-index:3">
- <path id="ptArcN" d="M18 58 Q200 22 382 58" fill="none"/>
- <text font-family="'Noto Serif',Georgia,serif" font-weight="800" font-size="${fs}" fill="#7a1010"><textPath href="#ptArcN" startOffset="50%" text-anchor="middle"${nl*fs*.62>360?' textLength="360" lengthAdjust="spacingAndGlyphs"':''}>${esc(name)}</textPath></text></svg>`;}
+ <path id="ptArcN" d="M52 56 Q200 26 348 56" fill="none"/>
+ <text font-family="'Noto Serif',Georgia,serif" font-weight="800" font-size="${fs}" fill="#7a1010"><textPath href="#ptArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
 function renderPrintTree(){const s=document.getElementById('ptSheet');if(!s)return;const bg=(DB.settings&&DB.settings.printBg)||'';
  const z=document.getElementById('ptzV');if(z)z.textContent=ptz+'%';
  s.innerHTML=`${bg?`<img class="bgimg" src="${bg}"/>${ptNameSVG(DB.org.display)}`:tradIMG(DB.org.display)}
@@ -841,17 +868,21 @@ function ptZoom(d){ptz=Math.max(30,Math.min(220,ptz+d));renderPrintTree();}
 function ptBgPick(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const mx=2200,sc=Math.min(1,mx/im.width);const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);DB.settings.printBg=c.toDataURL('image/jpeg',.85);save();renderPrintTree();toast('Đã lưu ảnh nền bản in');};im.src=r.result;};r.readAsDataURL(f);}
 function ptBgDel(){DB.settings.printBg='';save();renderPrintTree();toast('Đã bỏ ảnh nền');}
 window.openPrintTree=openPrintTree;window.closePrintTree=closePrintTree;window.ptZoom=ptZoom;window.ptBgPick=ptBgPick;window.ptBgDel=ptBgDel;
-V.pha=()=>{const roots=DB.members.filter(m=>!m.fatherId&&(!m.spouseId||DB.members.find(x=>x.id===m.spouseId&&x.fatherId)===undefined?true:true)).filter(m=>!m.fatherId);
- const realRoots=DB.members.filter(m=>!m.fatherId&&!DB.members.some(x=>x.spouseId===m.id&&x.fatherId));
- const rts=realRoots.length?realRoots:roots;
- return `<div class="trad-wrap">${sdHeader(DB.org.display)}<div class="trad-content">
- <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
-   <div class="h1" style="margin:0">🌳 Sơ đồ gia phả</div>
-   <span class="muted" style="font-size:12px" title="Bấm một người để xem hồ sơ · bấm − để thu gọn nhánh">Theo dòng cha · ${DB.members.length} thành viên</span>
+V.pha=()=>{const rts=treeRoots();
+ return `<div class="pha-poster">${sdHeader(DB.org.display)}
+ <div class="pha-toolbar">
+   <span class="pha-title">🌳 Sơ đồ gia phả</span>
+   <span class="muted" style="font-size:12px">Theo dòng cha · ${DB.members.length} thành viên · bấm tên để xem hồ sơ</span>
    <span style="margin-left:auto"></span>
-   <button class="btn btn-o btn-sm" onclick="zoom=Math.max(50,zoom-10);render()">−</button><b style="align-self:center;width:44px;text-align:center">${zoom}%</b><button class="btn btn-o btn-sm" onclick="zoom=Math.min(160,zoom+10);render()">+</button>
-   <button class="btn btn-p btn-sm" onclick="openPrintTree()">🖨 Bản in treo tường</button></div>
- <div class="treewrap trad-panel"><div class="tree" style="transform:scale(${zoom/100})">${rts.map(tnode).join('')}</div></div>
+   <button class="btn btn-o btn-sm" onclick="phaZoom(-15)" title="Thu nhỏ">−</button>
+   <b id="phaZ" style="align-self:center;min-width:46px;text-align:center">${Math.round(phaZ)}%</b>
+   <button class="btn btn-o btn-sm" onclick="phaZoom(15)" title="Phóng to">+</button>
+   <button class="btn btn-o btn-sm" onclick="phaReset()" title="Về vừa khung">⤢ Vừa khung</button>
+   <button class="btn btn-p btn-sm" onclick="openPrintTree()">🖨 Bản in treo tường</button>
+ </div>
+ <div class="pha-view" id="phaView" onwheel="phaWheel(event)" onmousedown="phaDown(event)" ontouchstart="phaTouchStart(event)" ontouchmove="phaTouchMove(event)">
+   <div class="pha-scene" id="phaScene" style="transform:translate(${phaX}px,${phaY}px) scale(${phaZ/100})"><div class="tree">${rts.map(tnode).join('')}</div></div>
+   <div class="pha-hint">🖱 Lăn chuột: phóng to · Kéo: di chuyển</div>
  </div></div>`;};
 
 /* ---- Gia đình (hộ) ---- */
