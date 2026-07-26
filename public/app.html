@@ -872,7 +872,13 @@ function phaTouchMove(e){e.preventDefault();const r=e.currentTarget.getBoundingC
 window.phaZoom=phaZoom;window.phaReset=phaReset;window.phaWheel=phaWheel;window.phaDown=phaDown;window.phaTouchStart=phaTouchStart;window.phaTouchMove=phaTouchMove;window.phaAfterRender=phaAfterRender;
 /* ---- Bản in treo tường ---- */
 let ptz=100;
-function treeRoots(){const rr=DB.members.filter(m=>!m.fatherId&&!DB.members.some(x=>x.spouseId===m.id&&x.fatherId));return rr.length?rr:DB.members.filter(m=>!m.fatherId);}
+function treeRoots(){const rr=DB.members.filter(m=>{
+  if(m.fatherId)return false; // có cha → không phải gốc
+  const p=m.spouseId?DB.members.find(o=>o.id===m.spouseId):null;
+  // là vợ/chồng CƯỚI VÀO của người khác (bạn đời có cha, hoặc bạn đời được thêm trước) → không vẽ làm gốc, sẽ đứng cạnh bạn đời
+  if(p&&(p.fatherId>0||p.id<m.id))return false;
+  return true;});
+ return rr.length?rr:DB.members.filter(m=>!m.fatherId);}
 function pnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);
  const card=(x,root)=>`<span class="pcard ${root?'root':''} ${x.gender==='Nữ'?'fem':''}" data-gen="${x.generation||''}"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear}${x.alive===false?'–'+(x.deathYear||''):''})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:#b98a2e">⚭</span>'+card(sp);
