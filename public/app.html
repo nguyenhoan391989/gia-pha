@@ -203,11 +203,16 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .pcard:hover{border-color:var(--gold)}
 .pcard.root{background:linear-gradient(#c62828,#8f0f0f);color:#ffe9a8;border-color:#ffd873;box-shadow:0 0 0 1px #ffd873}
 .pcard .av{width:24px;height:24px;border-radius:50%;background:rgba(255,240,205,.22);color:#ffe9a8;display:grid;place-items:center;font-size:11px;overflow:hidden}.pcard .av img{width:100%;height:100%;object-fit:cover}
+/* Vợ / con gái: ĐẢO màu — nền vàng, chữ đỏ */
+.pcard.fem{background:linear-gradient(#f7e08a,#e3ba43);color:#8B0000;border-color:#a81414}
+.pcard.fem .av{background:rgba(160,19,19,.16);color:#8B0000}
 .kids{display:flex;gap:14px;margin-top:16px;position:relative;align-items:flex-start}
 .kids-top{margin-top:0}
 .kids-top::before{display:none}
-.kids::before{content:'';position:absolute;top:-8px;left:0;right:0;height:1px;background:var(--border)}
-.vline{width:1px;height:8px;background:var(--border)}
+.kids::before{content:'';position:absolute;top:-9px;left:0;right:0;height:2px;background:#a81414}
+.vline{width:2px;height:14px;background:#a81414}
+.kids>.tnode::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:2px;height:9px;background:#a81414}
+.kids-top>.tnode::before{display:none}
 .cbtn{width:16px;height:16px;border-radius:50%;border:1px solid var(--gold);background:#fff;color:var(--primary);font-size:10px;line-height:1;cursor:pointer;margin-top:2px}
 /* ===== Bản in treo tường (sơ đồ trên nền khung cổ) ===== */
 #printWrap{position:fixed;inset:0;z-index:80;background:#39322e;display:none;overflow:auto}
@@ -225,8 +230,10 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .pt-sheet .pcard,.trad-wrap .pcard{background:linear-gradient(#a81414,#7a0e0e);border:1.5px solid #e0b84a;color:#f7e08a;cursor:default;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .pt-sheet .pcard.root,.trad-wrap .pcard.root{background:linear-gradient(#8B0000,#6d0d0d);color:#ffe9a8;border-color:#d4af37}
 .pt-sheet .pcard .av,.trad-wrap .pcard .av{background:rgba(255,240,205,.2);color:#ffe9a8}
-.pt-sheet .kids::before,.trad-wrap .kids::before{background:#b98a2e}
-.pt-sheet .vline,.trad-wrap .vline{background:#b98a2e;height:10px;width:1.5px}
+.pt-sheet .pcard.fem,.trad-wrap .pcard.fem{background:linear-gradient(#f7e08a,#e3ba43);color:#8B0000;border-color:#a81414}
+.pt-sheet .pcard.fem .av,.trad-wrap .pcard.fem .av{background:rgba(160,19,19,.16);color:#8B0000}
+.pt-sheet .kids::before,.trad-wrap .kids::before{background:#a81414;height:2px}
+.pt-sheet .vline,.trad-wrap .vline{background:#a81414;height:14px;width:2px}
 .trad-wrap .pcard{cursor:pointer}
 /* nền truyền thống dùng chung */
 .trad-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(160,19,19,.35);box-shadow:0 8px 26px rgba(60,20,0,.15);background:#f4ead0}
@@ -508,7 +515,7 @@ function memFromRow(o){const g=stripVN(String(o.gender||'')).toLowerCase();
   address:String(o.address||'').trim(),generation:memNum(o.generation),branchL1:String(o.branchL1||'').trim(),
   branch:String(o.branch||'').trim(),bio:String(o.bio||'').trim(),avatar:'',
   alive:!(String(o.deathYear||'').trim()||String(o.deathAnniv||'').trim()),fatherId:0,spouseId:0,
-  _father:String(o._father||'').trim(),_spouse:String(o._spouse||'').trim()};}
+  _father:String(o._father||'').trim(),_spouse:String(o._spouse||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim()};}
 let memImportData=null;
 function memImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập danh sách thành viên</h3>
  <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>, dòng đầu là tiêu đề cột. Bấm <b>⬇ Mẫu Excel</b> để tải file mẫu đúng định dạng. Cột <b>Cha</b> và <b>Vợ/Chồng</b> điền <b>họ tên</b> (khớp người đã có hoặc trong cùng file).</p>
@@ -532,8 +539,15 @@ function memImportCommit(){if(!memImportData||!memImportData.length){toast('Chư
  const added=[];
  memImportData.forEach(m=>{const rec=Object.assign({id:nextId(DB.members)},m);delete rec._father;delete rec._spouse;DB.members.push(rec);added.push({rec,f:m._father,s:m._spouse});});
  const byName=(n)=>{n=stripVN(String(n||'')).toLowerCase().trim();if(!n)return 0;const x=DB.members.find(o=>stripVN(o.name).toLowerCase().trim()===n);return x?x.id:0;};
- added.forEach(a=>{if(a.f)a.rec.fatherId=byName(a.f);if(a.s){const sid=byName(a.s);if(sid){a.rec.spouseId=sid;const sp=DB.members.find(o=>o.id===sid);if(sp&&!sp.spouseId)sp.spouseId=a.rec.id;}}});
- memImportData=null;logAct('Nhập '+added.length+' thành viên từ file');save();closeModal();render();toast('Đã nhập '+added.length+' thành viên');}
+ let spouseAdded=0;
+ added.forEach(a=>{if(a.f)a.rec.fatherId=byName(a.f);
+  if(a.s){let sid=byName(a.s);
+   if(!sid){/* Vợ/chồng chưa có trong danh sách → TẠO MỚI để module Gia đình + sơ đồ hiển thị cặp */
+    const sg=/thi/.test(stripVN(a.s).toLowerCase())?'Nữ':/van/.test(stripVN(a.s).toLowerCase())?'Nam':(a.rec.gender==='Nam'?'Nữ':'Nam');
+    const sp={id:nextId(DB.members),name:a.s,gender:sg,birthYear:'',deathYear:'',deathAnniv:'',alive:a.rec.alive,birthPlace:'',occupation:'',phone:'',email:'',address:'',generation:a.rec.generation,branchL1:a.rec.branchL1,branch:a.rec.branch,fatherId:0,spouseId:a.rec.id,avatar:'',bio:'Vợ/chồng của '+a.rec.name};
+    DB.members.push(sp);sid=sp.id;spouseAdded++;}
+   a.rec.spouseId=sid;const sp2=DB.members.find(o=>o.id===sid);if(sp2&&!sp2.spouseId)sp2.spouseId=a.rec.id;}});
+ memImportData=null;logAct('Nhập '+added.length+' thành viên từ file'+(spouseAdded?' (+'+spouseAdded+' vợ/chồng)':''));save();closeModal();render();toast('Đã nhập '+added.length+' thành viên'+(spouseAdded?' và tạo '+spouseAdded+' vợ/chồng':''));}
 function memTemplate(){const headers=[T.b1,T.b2,T.gen,'Cha','Họ tên','Giới tính','Năm sinh','Năm mất','Ngày giỗ (âm lịch)','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ','Tiểu sử','Vợ/Chồng'];
  const ex=['Ngành Trưởng','Chi 1','2','Nguyễn Văn Tổ','Nguyễn Văn A','Nam','1950','1990','2/2','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','Trưởng chi 1','Lê Thị B'];
  const ex2=['','Chi 1','2','','Lê Thị B','Nữ','1952','','','Hà Nội','Nội trợ','','','Hà Nội','','Nguyễn Văn A'];
@@ -827,7 +841,7 @@ let zoom=100;const collapsed=new Set();
 /* Tên chữ ngang, MỖI DÒNG 1 CHỮ (tách theo dấu cách) */
 function vname(n){return String(n||'').trim().split(/\s+/).filter(Boolean).map(esc).join('<br>');}
 function tnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);const isC=collapsed.has(m.id);
- const card=(x,root)=>`<span class="pcard ${root?'root':''}" data-gen="${x.generation||''}" onclick="viewMember(${x.id})"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear})</span>`:''}</span></span>`;
+ const card=(x,root)=>`<span class="pcard ${root?'root':''} ${x.gender==='Nữ'?'fem':''}" data-gen="${x.generation||''}" onclick="viewMember(${x.id})"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:var(--gold)">⚭</span>'+card(sp);
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
  if(kids.length){out+=`<button class="cbtn" onclick="tglCol(${m.id})">${isC?'+':'−'}</button>`;if(!isC){out+=`<span class="vline"></span><div class="kids">${kids.map(tnode).join('')}</div>`;}}
@@ -860,7 +874,7 @@ window.phaZoom=phaZoom;window.phaReset=phaReset;window.phaWheel=phaWheel;window.
 let ptz=100;
 function treeRoots(){const rr=DB.members.filter(m=>!m.fatherId&&!DB.members.some(x=>x.spouseId===m.id&&x.fatherId));return rr.length?rr:DB.members.filter(m=>!m.fatherId);}
 function pnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);
- const card=(x,root)=>`<span class="pcard ${root?'root':''}" data-gen="${x.generation||''}"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear}${x.alive===false?'–'+(x.deathYear||''):''})</span>`:''}</span></span>`;
+ const card=(x,root)=>`<span class="pcard ${root?'root':''} ${x.gender==='Nữ'?'fem':''}" data-gen="${x.generation||''}"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear}${x.alive===false?'–'+(x.deathYear||''):''})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:#b98a2e">⚭</span>'+card(sp);
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
  if(kids.length)out+=`<span class="vline"></span><div class="kids">${kids.map(pnode).join('')}</div>`;
