@@ -17,6 +17,17 @@ const nextConfig = {
       fallback: [],
     };
   },
+  // HTML trang chủ đổi theo mỗi lần deploy → cấm CDN giữ bản cũ (luôn revalidate).
+  // Nếu không, "/" bị kẹt bản cache cũ (tên/OG cũ) dù đã deploy bản mới.
+  async headers() {
+    const noCacheHtml = [
+      { key: 'Cache-Control', value: 'public, max-age=0, s-maxage=0, must-revalidate' },
+    ];
+    return [
+      { source: '/', headers: noCacheHtml },
+      { source: '/app.html', headers: noCacheHtml },
+    ];
+  },
   // Các trang React cũ → HTML (redirect build-time, không dùng middleware/edge → không 500).
   async redirects() {
     const pages = [
