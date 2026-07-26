@@ -845,9 +845,10 @@ function phaAfterRender(){requestAnimationFrame(()=>{if(!_phaFitted)phaFit();pha
 /* Số đời ở đầu mỗi hàng — đặt trong scene nên tự phóng/kéo theo cây */
 function phaGenLabels(){const sc=document.getElementById('phaScene');if(!sc)return;
  sc.querySelectorAll('.gen-label').forEach(e=>e.remove());
- const best={};sc.querySelectorAll('.pcard[data-gen]').forEach(c=>{const g=c.getAttribute('data-gen');if(!g)return;if(best[g]===undefined||c.offsetTop<best[g])best[g]=c.offsetTop;});
- const T2=(typeof T!=='undefined'&&T.gen)?T.gen:'Đời';const H=84;
- Object.keys(best).forEach(g=>{const d=document.createElement('div');d.className='gen-label';d.textContent=T2+' '+g;d.style.top=(best[g]+24+H/2)+'px';sc.appendChild(d);});}
+ const scr=sc.getBoundingClientRect(),scale=(phaZ||100)/100,best={};
+ sc.querySelectorAll('.pcard[data-gen]').forEach(c=>{const g=c.getAttribute('data-gen');if(!g)return;const r=c.getBoundingClientRect();const y=(r.top-scr.top)/scale;if(best[g]===undefined||y<best[g].y)best[g]={y:y,h:r.height/scale};});
+ const T2=(typeof T!=='undefined'&&T.gen)?T.gen:'Đời';
+ Object.keys(best).forEach(g=>{const d=document.createElement('div');d.className='gen-label';d.textContent=T2+' '+g;d.style.top=(best[g].y+best[g].h/2)+'px';sc.appendChild(d);});}
 function phaWheel(e){e.preventDefault();const r=e.currentTarget.getBoundingClientRect();_phaZoomAt(phaZ*(e.deltaY<0?1.12:0.89),e.clientX-r.left,e.clientY-r.top);}
 function phaDown(e){if(e.button!==0)return;_phaDrag={x:e.clientX,y:e.clientY,ox:phaX,oy:phaY};e.currentTarget.classList.add('grabbing');document.addEventListener('mousemove',_phaMove);document.addEventListener('mouseup',_phaUp);}
 function _phaMove(e){if(!_phaDrag)return;phaX=_phaDrag.ox+(e.clientX-_phaDrag.x);phaY=_phaDrag.oy+(e.clientY-_phaDrag.y);_phaApply();}
