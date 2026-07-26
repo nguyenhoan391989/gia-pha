@@ -515,7 +515,7 @@ function memFromRow(o){const g=stripVN(String(o.gender||'')).toLowerCase();
   address:String(o.address||'').trim(),generation:memNum(o.generation),branchL1:String(o.branchL1||'').trim(),
   branch:String(o.branch||'').trim(),bio:String(o.bio||'').trim(),avatar:'',
   alive:!(String(o.deathYear||'').trim()||String(o.deathAnniv||'').trim()),fatherId:0,spouseId:0,
-  _father:String(o._father||'').trim(),_spouse:String(o._spouse||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim()};}
+  _father:String(o._father||'').replace(/^\s*con\s+(trai|gái|gai|gái)\s+\d+\s+/i,'').replace(/\([^)]*\)/g,'').trim(),_spouse:String(o._spouse||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim()};}
 let memImportData=null;
 function memImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập danh sách thành viên</h3>
  <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>, dòng đầu là tiêu đề cột. Bấm <b>⬇ Mẫu Excel</b> để tải file mẫu đúng định dạng. Cột <b>Cha</b> và <b>Vợ/Chồng</b> điền <b>họ tên</b> (khớp người đã có hoặc trong cùng file).</p>
