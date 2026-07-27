@@ -442,7 +442,7 @@ let histPast=[],histFuture=[],histLast=null;
 function save(){if(histLast!==null){histPast.push(histLast);if(histPast.length>100)histPast.shift();histFuture=[];}histLast=JSON.stringify(DB);
  try{localStorage.setItem(KEY,histLast);}
  catch(e){toast('⚠ Bộ nhớ trình duyệt gần đầy — dữ liệu mới nhất CHƯA lưu được! Hãy Sao lưu JSON (Cài đặt → Dữ liệu) và xóa bớt ảnh/video trong Thư viện, Nhà thờ họ.');}
- updateUndoBar();}
+ updateUndoBar();if(typeof syncMaybe==='function')syncMaybe();}
 function doUndo(){if(!histPast.length)return;histFuture.push(histLast);const p=histPast.pop();DB=JSON.parse(p);histLast=p;localStorage.setItem(KEY,JSON.stringify(DB));selObj=null;render();updateUndoBar();toast('Đã hoàn tác');}
 function doRedo(){if(!histFuture.length)return;histPast.push(histLast);const n=histFuture.pop();DB=JSON.parse(n);histLast=n;localStorage.setItem(KEY,JSON.stringify(DB));selObj=null;render();updateUndoBar();toast('Đã làm lại');}
 function updateUndoBar(){const u=document.getElementById('ubU'),r=document.getElementById('ubR');if(u)u.disabled=!histPast.length;if(r)r.disabled=!histFuture.length;}
@@ -1829,7 +1829,7 @@ V.settings=()=>{let body='';
    <div class="field"><label>Quy tắc đánh số ${esc(T.gen.toLowerCase())}</label><textarea id="gpGen" rows="2">${esc(DB.clan.genRule)}</textarea></div>
    <div class="field"><label>Quy tắc đặt mã thành viên</label><textarea id="gpCode" rows="2">${esc(DB.clan.codeRule)}</textarea></div>
    <button class="btn btn-p" onclick="saveGp()">Lưu</button>`;
- else if(setTab==='data')body=`<p class="muted" style="margin-bottom:10px">Dữ liệu lưu trong trình duyệt máy này. Sao lưu ra file để chuyển máy / phòng khi xóa cache.</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
+ else if(setTab==='data')body=syncPanel()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file (dùng khi chuyển máy hoặc chưa bật đồng bộ).</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
  else if(setTab==='log')body=DB.activity.slice(0,50).map(a=>`<div class="row"><span class="muted" style="font-size:12px;width:150px">${esc(a.time)}</span><span>${esc(a.action)}</span></div>`).join('')||'<p class="muted">Chưa có nhật ký.</p>';
  else body=`<div class="field"><label>Nhà cung cấp AI</label><select id="aiP"><option ${DB.settings.ai.provider==='Chưa cấu hình'?'selected':''}>Chưa cấu hình</option><option ${DB.settings.ai.provider==='OpenAI (GPT)'?'selected':''}>OpenAI (GPT)</option><option ${DB.settings.ai.provider==='Anthropic (Claude)'?'selected':''}>Anthropic (Claude)</option></select></div><div class="field"><label>API Key</label><input class="input" id="aiK" type="password" value="${esc(DB.settings.ai.key)}"/></div><p class="muted" style="font-size:12px">Khóa lưu trong máy, dùng cho hỏi đáp AI khi deploy server.</p><button class="btn btn-p" onclick="saveAi()">Lưu</button>`;
  return `<div class="h1">⚙️ Cài đặt</div><div class="tabs">${STABS.map(t=>`<span class="chip ${setTab===t[0]?'on':''}" onclick="setTab='${t[0]}';render()">${t[1]}</span>`).join('')}</div><div class="card pad">${body}</div>`;};
@@ -1884,6 +1884,69 @@ window.saveCouplet=saveCouplet;
 function cpSyncSize(){if(DB.couplet&&DB.couplet.free&&DB.couplet.objects){const v=cpFormValues();DB.couplet.objects.forEach(o=>{if(o.id==='daitu'){o.size=v.sizeDT;o.ls=v.spaceDT;}else if(o.id==='left'||o.id==='right')o.size=v.sizeCau;});}updateCpPreview();}
 window.cpSyncSize=cpSyncSize;
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+/* ================== ĐỒNG BỘ NHIỀU MÁY (mã dòng họ + mật khẩu) ==================
+   Vé đăng nhập lưu ở máy này; mọi thao tác đi qua API của app (không giữ khoá server). */
+const SKEY='giapha_sync_v1';
+function syncGet(){try{return JSON.parse(localStorage.getItem(SKEY)||'null')||null;}catch(e){return null;}}
+function syncSet(v){v?localStorage.setItem(SKEY,JSON.stringify(v)):localStorage.removeItem(SKEY);}
+async function syncApi(path,body){
+ const r=await fetch('/api/book/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+ let j={};try{j=await r.json();}catch(e){}
+ if(!r.ok||j.ok===false)throw new Error(j.error||('Lỗi kết nối ('+r.status+')'));
+ return j;}
+function syncPanel(){const s=syncGet();
+ if(!s)return `<div class="card pad" style="border-color:var(--gold)">
+  <div class="h3">☁ Đồng bộ cả dòng họ (nhiều máy / điện thoại)</div>
+  <p class="muted" style="font-size:12.5px;margin:6px 0 10px">Bật đồng bộ để mọi người trong họ cùng xem <b>một dữ liệu chung</b>: sửa ở máy tính, điện thoại thấy ngay. Truy cập bằng <b>mã dòng họ + mật khẩu</b>, không cần email.</p>
+  <div class="two">
+   <div><div class="h3" style="font-size:14px">Đã có mã dòng họ → Vào sổ</div>
+    <div class="field"><label>Mã dòng họ</label><input id="skCode" placeholder="VD: NGUYEN-AN-HOA"/></div>
+    <div class="field"><label>Mật khẩu</label><input id="skPass" type="password" placeholder="Mật khẩu trưởng tộc hoặc mật khẩu xem"/></div>
+    <button class="btn btn-p" onclick="syncLogin()">🔑 Vào sổ chung</button></div>
+   <div><div class="h3" style="font-size:14px">Chưa có → Tạo sổ mới</div>
+    <div class="field"><label>Mã dòng họ (chữ không dấu, số, gạch ngang)</label><input id="skNCode" placeholder="NGUYEN-AN-HOA"/></div>
+    <div class="field"><label>Tên sổ</label><input id="skNName" value="${esc(DB.org.display||'Sổ gia phả')}"/></div>
+    <div class="field"><label>Mật khẩu quản trị (trưởng tộc — được sửa)</label><input id="skNAdmin" type="password" placeholder="từ 6 ký tự"/></div>
+    <div class="field"><label>Mật khẩu cho cả họ (chỉ xem — để trống nếu không cần)</label><input id="skNMem" type="password"/></div>
+    <button class="btn btn-p" onclick="syncCreate()">➕ Tạo sổ & đưa dữ liệu hiện tại lên</button></div>
+  </div></div>`;
+ const isAd=s.role==='admin';
+ return `<div class="card pad" style="border-color:var(--gold)">
+  <div class="h3">☁ Đồng bộ: <span style="color:var(--primary)">${esc(s.code)}</span> <span class="badge ${isAd?'badge-gold':''}">${isAd?'Trưởng tộc · được sửa':'Chỉ xem'}</span> ${s.plan?`<span class="badge badge-ok">Gói ${esc(s.plan)}</span>`:''}</div>
+  <p class="muted" style="font-size:12.5px;margin:6px 0 10px">${s.name?esc(s.name)+' · ':''}Bản trên máy chủ: <b>v${s.version||1}</b>${s.updatedAt?' · cập nhật '+esc(new Date(s.updatedAt).toLocaleString('vi-VN')):''}</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+   <button class="btn btn-p" onclick="syncPull()">⬇ Tải về máy này</button>
+   ${isAd?`<button class="btn btn-p" onclick="syncPush()">⬆ Đưa lên máy chủ</button>`:''}
+   <label class="btn btn-o" style="cursor:pointer;align-self:center"><input type="checkbox" ${s.auto?'checked':''} onchange="syncAuto(this.checked)" style="margin-right:6px"/>Tự đưa lên khi sửa</label>
+   <button class="btn btn-o" onclick="syncOut()">Đăng xuất sổ</button></div>
+  ${isAd?'':'<p class="muted" style="font-size:12px;margin-top:8px">Bạn đang ở chế độ chỉ xem. Muốn sửa dữ liệu chung, hãy dùng mật khẩu quản trị của trưởng tộc.</p>'}
+ </div>`;}
+async function syncCreate(){const code=(document.getElementById('skNCode')||{}).value||'',name=(document.getElementById('skNName')||{}).value||'',ap=(document.getElementById('skNAdmin')||{}).value||'',mp=(document.getElementById('skNMem')||{}).value||'';
+ try{toast('Đang tạo sổ…');const r=await syncApi('create',{code,name,adminPass:ap,memberPass:mp,data:DB});
+  syncSet({token:r.token,code:code.trim().toUpperCase(),role:r.role,plan:r.plan,name,version:1,auto:true});
+  toast('Đã tạo sổ chung — dữ liệu đã lên máy chủ');render();}catch(e){alert('Không tạo được sổ: '+e.message);}}
+async function syncLogin(){const code=(document.getElementById('skCode')||{}).value||'',pass=(document.getElementById('skPass')||{}).value||'';
+ try{toast('Đang kiểm tra…');const r=await syncApi('login',{code,pass});
+  syncSet({token:r.token,code:code.trim().toUpperCase(),role:r.role,plan:r.plan,name:r.name,version:r.version,auto:r.role==='admin'});
+  toast('Vào sổ thành công ('+(r.role==='admin'?'trưởng tộc':'chỉ xem')+')');
+  if(confirm('Tải dữ liệu từ máy chủ về máy này ngay? (dữ liệu đang có trên máy này sẽ bị thay thế)'))await syncPull();else render();
+ }catch(e){alert('Không vào được sổ: '+e.message);}}
+async function syncPull(){const s=syncGet();if(!s)return;
+ try{toast('Đang tải về…');const r=await syncApi('pull',{token:s.token});
+  if(r.data&&typeof r.data==='object'&&Object.keys(r.data).length){DB=r.data;for(const k in SEED)if(!(k in DB))DB[k]=structuredClone(SEED[k]);T=DB.terms||T;localStorage.setItem(KEY,JSON.stringify(DB));}
+  syncSet(Object.assign(s,{role:r.role,plan:r.plan,name:r.name,version:r.version,updatedAt:r.updatedAt}));
+  toast('Đã tải dữ liệu chung về máy này');render();}catch(e){alert('Không tải được: '+e.message);}}
+async function syncPush(quiet){const s=syncGet();if(!s||s.role!=='admin')return;
+ try{if(!quiet)toast('Đang đưa lên…');
+  const r=await syncApi('push',{token:s.token,data:DB,baseVersion:s.version,by:(typeof curRole==='function'?curRole():'')});
+  syncSet(Object.assign(s,{version:r.version,updatedAt:r.updatedAt}));
+  if(!quiet){toast('Đã lưu lên máy chủ (v'+r.version+')');render();}
+ }catch(e){if(!quiet)alert('Không lưu được: '+e.message);else toast('⚠ Chưa đồng bộ được: '+e.message);}}
+function syncAuto(on){const s=syncGet();if(!s)return;s.auto=!!on;syncSet(s);toast(on?'Đã bật tự đồng bộ':'Đã tắt tự đồng bộ');}
+function syncOut(){if(!confirm('Đăng xuất khỏi sổ chung? Dữ liệu trên máy này vẫn giữ nguyên.'))return;syncSet(null);toast('Đã đăng xuất sổ');render();}
+let _syncT=null;
+function syncMaybe(){const s=syncGet();if(!s||!s.auto||s.role!=='admin')return;clearTimeout(_syncT);_syncT=setTimeout(()=>syncPush(true),1500);}
+window.syncCreate=syncCreate;window.syncLogin=syncLogin;window.syncPull=syncPull;window.syncPush=syncPush;window.syncAuto=syncAuto;window.syncOut=syncOut;
 function backup(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gia-pha-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Đã tải file sao lưu');}
 function restore(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{DB=JSON.parse(r.result);save();toast('Đã phục hồi');render();}catch(e){toast('File không hợp lệ');}};r.readAsText(f);}
 function resetDb(){if(!confirm('Xóa hết dữ liệu hiện tại, về dữ liệu mẫu?'))return;DB=structuredClone(SEED);save();toast('Đã đặt lại mẫu');render();}
