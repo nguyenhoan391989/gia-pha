@@ -23,9 +23,17 @@ const nextConfig = {
     const noCacheHtml = [
       { key: 'Cache-Control', value: 'public, max-age=0, s-maxage=0, must-revalidate' },
     ];
+    // sw.js và /api/version phải LUÔN mới, nếu không người dùng kẹt ở bản cũ.
+    const noStore = [
+      { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, max-age=0' },
+      { key: 'CDN-Cache-Control', value: 'no-store' },
+      { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
+    ];
     return [
       { source: '/', headers: noCacheHtml },
       { source: '/app.html', headers: noCacheHtml },
+      { source: '/sw.js', headers: [...noStore, { key: 'Service-Worker-Allowed', value: '/' }] },
+      { source: '/api/version', headers: noStore },
     ];
   },
   // Các trang React cũ → HTML (redirect build-time, không dùng middleware/edge → không 500).

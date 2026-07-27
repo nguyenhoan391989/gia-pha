@@ -26,11 +26,58 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Gia Phả Việt Nam"/>
-<script>if('serviceWorker' in navigator){
- window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(reg){reg.update&&reg.update();}).catch(function(){});});
- var __swReloaded=false;
- navigator.serviceWorker.addEventListener('controllerchange',function(){if(__swReloaded)return;__swReloaded=true;location.reload();});
-}</script>
+<script>
+/* ===== LUÔN CHẠY BẢN MỚI NHẤT =====
+   Mỗi lần deploy, /api/version đổi (Vercel tự sinh theo commit). App so sánh định kỳ:
+   thấy khác → tự dọn cache, cập nhật Service Worker và nạp lại. Người dùng không phải
+   xoá cache hay bấm gì. Dữ liệu vẫn an toàn vì lưu ở localStorage. */
+(function(){
+ var CUR=null,busy=false;
+ function nowVer(){return fetch('/api/version',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});}
+ function doUpdate(){
+  if(busy)return;busy=true;
+  try{ if(window.showUpdateToast)window.showUpdateToast(); }catch(e){}
+  var jobs=[];
+  if(window.caches&&caches.keys)jobs.push(caches.keys().then(function(k){return Promise.all(k.map(function(n){return caches.delete(n);}));}).catch(function(){}));
+  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)
+   jobs.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.update().catch(function(){});}));}).catch(function(){}));
+  Promise.all(jobs).then(function(){setTimeout(function(){location.reload();},600);});
+ }
+ function check(){
+  // Không làm phiền khi đang mở hộp thoại / đang sửa dở
+  var m=document.getElementById('modal');
+  if(m&&m.classList&&m.classList.contains('open'))return;
+  nowVer().then(function(j){
+   if(!j||!j.v)return;
+   if(CUR===null){CUR=j.v;return;}
+   if(j.v!==CUR)doUpdate();
+  });
+ }
+ window.addEventListener('load',function(){
+  nowVer().then(function(j){if(j&&j.v)CUR=j.v;});
+  setInterval(check,60000);                    // kiểm tra mỗi phút
+ });
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)check();}); // quay lại tab là kiểm tra
+ window.addEventListener('focus',check);
+ window.addEventListener('online',check);
+
+ if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(reg){
+    reg.update&&reg.update();
+    setInterval(function(){reg.update&&reg.update();},60000);
+    if(reg.waiting)reg.waiting.postMessage('SKIP_WAITING');
+    reg.addEventListener&&reg.addEventListener('updatefound',function(){
+     var nw=reg.installing;if(!nw)return;
+     nw.addEventListener('statechange',function(){if(nw.state==='installed'&&navigator.serviceWorker.controller)nw.postMessage('SKIP_WAITING');});
+    });
+   }).catch(function(){});
+  });
+  var __swReloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){if(__swReloaded)return;__swReloaded=true;location.reload();});
+ }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@500;600;700&family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@700&family=Ma+Shan+Zheng&family=Long+Cang&family=Zhi+Mang+Xing&family=Liu+Jian+Mao+Cao&family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet"/>
 <style>
@@ -490,6 +537,8 @@ function nextId(arr){return arr.reduce((m,x)=>Math.max(m,x.id||0),0)+1;}
 function vnd(n){return (Number(n)||0).toLocaleString('vi-VN')+' đ';}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function toast(msg){const t=document.createElement('div');t.textContent=msg;document.getElementById('toast').appendChild(t);setTimeout(()=>t.remove(),2600);}
+/* Báo cho người dùng biết app đang tự cập nhật lên bản mới */
+window.showUpdateToast=function(){try{const t=document.createElement('div');t.textContent='🔄 Đã có bản mới — đang cập nhật…';t.style.cssText='background:#8B0000;color:#f7e08a;border:1px solid #d4af37';document.getElementById('toast').appendChild(t);}catch(e){}};
 function ini(n){const p=String(n||'').trim().split(/\s+/);return ((p[0]?.[0]||'')+(p[p.length-1]?.[0]||'')).toUpperCase();}
 function memName(id){const m=DB.members.find(x=>x.id===id);return m?m.name:'';}
 
