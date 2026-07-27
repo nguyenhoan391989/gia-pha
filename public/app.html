@@ -657,7 +657,15 @@ function crudMatch(key,r,q){
  let hay=Object.keys(r).filter(k=>k!=='avatar'&&k!=='id'&&k!=='name').map(k=>r[k]).join(' ');
  if(key==='members')hay+=' '+[memName(r.fatherId),memName(r.motherId),memName(r.spouseId)].join(' ');
  return stripVN(String(hay)).toLowerCase().indexOf(n)>=0;}
-function crudRows(key){const c=CRUD[key];return DB[c.store].filter(r=>crudMatch(key,r,crudQ[key]||''));}
+function crudRows(key){const c=CRUD[key];const q=crudQ[key]||'';
+ const rows=DB[c.store].filter(r=>crudMatch(key,r,q));
+ if(!q)return rows;
+ /* Xếp theo độ liên quan: khớp đúng tên → tên bắt đầu bằng từ khóa → tên có chứa → còn lại */
+ const n=stripVN(q).toLowerCase().trim();
+ const score=(r)=>{const nm=stripVN(String(r.name||'')).toLowerCase();
+  if(nm===n)return 0; if(nm.startsWith(n))return 1; if(nm.indexOf(n)>=0)return 2;
+  if(n.split(/\s+/).every(p=>nm.indexOf(p)>=0))return 3; return 4;};
+ return rows.map((r,i)=>[score(r),i,r]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]).map(x=>x[2]);}
 function renderCrud(key){const c=CRUD[key];const all=DB[c.store];const q=crudQ[key]||'';
  return `<div class="h1">${c.icon} ${c.title}</div>
   <div class="toolbar">
