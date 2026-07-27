@@ -134,8 +134,18 @@ export async function createBook(args: {
   });
   if (error) throw new Error(error.message);
   const id = String(data);
+
+  // Sổ mới được DÙNG THỬ (TRIAL) theo đúng cấu hình gói — để dòng họ đưa ngay
+  // toàn bộ dữ liệu lên mà không vướng giới hạn 5 thành viên của FREE.
+  const days = PLAN_LIMITS.TRIAL.durationDays ?? 30;
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+  let plan: Plan = 'TRIAL';
+  const { error: eUp } = await sb.from('family_books')
+    .update({ plan: 'TRIAL', plan_expires: expires }).eq('id', id);
+  if (eUp) plan = 'FREE'; // không nâng được thì vẫn dùng FREE, không chặn việc tạo sổ
+
   const ticket: Ticket = { id, code, role: 'admin', exp: Date.now() + 30 * 24 * 60 * 60 * 1000 };
-  return { ok: true as const, id, token: signTicket(ticket), role: 'admin' as BookRole, plan: 'FREE' as Plan };
+  return { ok: true as const, id, token: signTicket(ticket), role: 'admin' as BookRole, plan, planExpires: expires };
 }
 
 /** Tải sổ về (ai có vé hợp lệ đều tải được — kể cả chỉ xem). */
