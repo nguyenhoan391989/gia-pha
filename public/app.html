@@ -180,7 +180,15 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .tho-center .eye{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(212,175,55,.92);font-weight:600}
 .tho-center h1{font-size:33px;color:var(--gold);margin:8px 0;text-shadow:0 1px 8px rgba(0,0,0,.35)}
 .tho-center p{color:rgba(255,255,255,.86)}
-@media(max-width:720px){.cauic{display:none}.tho-frame{padding:12px}.hoanhphi{padding:12px 22px}.hoanhphi .hp-text{font-size:32px}.tho-center h1{font-size:23px}}
+/* Mobile/iPad: VẪN HIỆN 2 câu đối (chỉ thu nhỏ cho vừa màn hình) — không ẩn như trước */
+@media(max-width:720px){.tho-frame{padding:12px 8px}.hoanhphi{padding:12px 22px}.hoanhphi .hp-text{font-size:32px}.tho-center h1{font-size:23px}
+ .tho-mid{gap:7px}
+ .cauic{padding:10px 5px;min-width:0;border-radius:9px}
+ .cauic .han{font-size:calc(var(--cau,29px) * .62)}
+ .cauic .med{width:15px;height:15px}
+ .cauic::before{left:2px}.cauic::after{right:2px}
+ .tho-center{padding:6px 2px}}
+@media(max-width:420px){.cauic .han{font-size:calc(var(--cau,29px) * .5)}.hoanhphi .hp-text{font-size:26px}.tho-center h1{font-size:20px}}
 .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}@media(min-width:720px){.quick{grid-template-columns:repeat(6,1fr)}}
 .quick a{text-align:center;padding:12px 4px;border-radius:10px;border:1px solid var(--border);background:var(--card)}.quick a:hover{background:var(--accent)}
 .quick .qi{font-size:22px}.quick div{font-size:11.5px;font-weight:600;color:var(--primary);margin-top:3px}
@@ -835,9 +843,10 @@ const BG_IMG=`src="nen-truyen-thong-2x.jpg" onerror="if(this.src.indexOf('-2x')>
 function tradIMG(title){ /* dùng cho Bản in: full ảnh 3:2, tên ở ô cuộn thư (15.4%) */
  return `<img class="bgimg" ${BG_IMG}/>${ptNameSVG(title)}`;}
 /* Banner cho trang Sơ đồ: dải 3:1 (hiện nửa trên của ảnh), tên to canh đúng ô cuộn thư */
-function sdNameSVG(name){name=name||'';const nl=[...name].length;const fs=nl>24?22:nl>18?27:nl>13?33:nl>9?40:48;
- const maxW=300,natural=nl*fs*.6,tl=natural>maxW?` textLength="${maxW}" lengthAdjust="spacingAndGlyphs"`:'';
- return `<svg class="sd-name" viewBox="0 0 400 80"><path id="sdArcN" d="M52 56 Q200 26 348 56" fill="none"/><text font-family="'Noto Serif',Georgia,serif" font-weight="800" fill="#7a1010" font-size="${fs}"><textPath href="#sdArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
+function sdNameSVG(name){name=name||'';const nl=Math.max(1,[...name].length);
+ const TARGET=330,fs=Math.max(14,Math.min(46,TARGET/(nl*.6)));
+ const natural=nl*fs*.6,tl=natural>TARGET?` textLength="${TARGET}" lengthAdjust="spacingAndGlyphs"`:'';
+ return `<svg class="sd-name" viewBox="0 0 400 80"><path id="sdArcN" d="M40 58 Q200 24 360 58" fill="none"/><text font-family="'Noto Serif',Georgia,serif" font-weight="800" fill="#7a1010" font-size="${fs.toFixed(1)}"><textPath href="#sdArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
 function sdHeader(title){return `<div class="trad-head"><img class="tb-img" ${BG_IMG}/>${sdNameSVG(title)}</div>`;}
 /* ---- Nền truyền thống vẽ SVG (trống đồng, rồng, tre, tùng, viền triện, cuộn thư) ---- *//* ---- Sơ đồ gia phả (cây tương tác) ---- */
 let zoom=100;const collapsed=new Set();
@@ -888,11 +897,13 @@ function pnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
  if(kids.length)out+=`<span class="vline"></span><div class="kids">${kids.map(pnode).join('')}</div>`;
  return out+`</div>`;}
-function ptNameSVG(name){name=name||'';const nl=[...name].length;const fs=nl>24?15:nl>18?19:nl>13?23:nl>9?27:31;
- const maxW=300,natural=nl*fs*.62,tl=natural>maxW?` textLength="${maxW}" lengthAdjust="spacingAndGlyphs"`:'';
- return `<svg viewBox="0 0 400 80" style="position:absolute;left:50.3%;top:15.4%;transform:translate(-50%,-50%);width:23.6%;overflow:visible;z-index:3">
- <path id="ptArcN" d="M52 56 Q200 26 348 56" fill="none"/>
- <text font-family="'Noto Serif',Georgia,serif" font-weight="800" font-size="${fs}" fill="#7a1010"><textPath href="#ptArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
+function ptNameSVG(name){name=name||'';const nl=Math.max(1,[...name].length);
+ /* Tự canh: cỡ chữ = bề rộng lòng cuộn thư / số chữ → ít chữ thì TO, nhiều chữ thì nhỏ lại, luôn vừa khung */
+ const TARGET=330,fs=Math.max(13,Math.min(44,TARGET/(nl*.62)));
+ const natural=nl*fs*.62,tl=natural>TARGET?` textLength="${TARGET}" lengthAdjust="spacingAndGlyphs"`:'';
+ return `<svg viewBox="0 0 400 80" style="position:absolute;left:50.3%;top:15.4%;transform:translate(-50%,-50%);width:26%;overflow:visible;z-index:3">
+ <path id="ptArcN" d="M40 58 Q200 24 360 58" fill="none"/>
+ <text font-family="'Noto Serif',Georgia,serif" font-weight="800" font-size="${fs.toFixed(1)}" fill="#7a1010"><textPath href="#ptArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
 function renderPrintTree(){const s=document.getElementById('ptSheet');if(!s)return;const bg=(DB.settings&&DB.settings.printBg)||'';
  const z=document.getElementById('ptzV');if(z)z.textContent=ptz+'%';
  ptPanX=0;ptPanY=0;
