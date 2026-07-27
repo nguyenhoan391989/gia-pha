@@ -15,11 +15,24 @@ import { PLAN_LIMITS, PERPETUAL_PLANS, isValidPlan, type Plan } from '@/lib/subs
 
 export type BookRole = 'admin' | 'member';
 
+/**
+ * Chuẩn hoá Project URL: chỉ giữ phần gốc `https://xxxx.supabase.co`.
+ * Người dùng hay dán thừa dấu "/" cuối hoặc thừa đuôi "/rest/v1" → Supabase báo
+ * "Invalid path specified in request URL". Hàm này cắt sạch phần thừa đó.
+ */
+export function normalizeSupabaseUrl(raw: string) {
+  const s = String(raw || '').trim().replace(/^["']|["']$/g, '');
+  try { return new URL(s).origin; } catch { return s.replace(/\/+$/, ''); }
+}
+
 /** Client Supabase quyền service role — TUYỆT ĐỐI không dùng ở phía client. */
 function admin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error('Chưa cấu hình Supabase (NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).');
+  const url = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL || '');
+  const key = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  if (!url || !key) throw new Error('Chưa cấu hình Supabase trên Vercel (thiếu NEXT_PUBLIC_SUPABASE_URL hoặc SUPABASE_SERVICE_ROLE_KEY). Vào Vercel → Settings → Environment Variables, thêm biến rồi Redeploy.');
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)$/i.test(url)) {
+    throw new Error(`Project URL không đúng dạng: "${url}". Phải là https://xxxxx.supabase.co (không kèm /rest/v1, không dấu / ở cuối).`);
+  }
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
@@ -104,7 +117,13 @@ export async function createBook(args: {
   if (!args.adminPass || args.adminPass.length < 6) {
     return { ok: false as const, reason: 'WEAK_PASSWORD' as const };
   }
-  const { data: exists } = await sb.from('family_books').select('id').eq('code', code).maybeSingle();
+  const { data: exists, error: eEx } = await sb.from('family_books').select('id').eq('code', code).maybeSingle();
+  if (eEx) {
+    if (/relation .*family_books.* does not exist|schema cache/i.test(eEx.message)) {
+      throw new Error('Chưa tạo bảng trong Supabase. Hãy chạy file supabase/SQL-DONG-BO.sql ở SQL Editor (Bước 2).');
+    }
+    throw new Error(eEx.message);
+  }
   if (exists) return { ok: false as const, reason: 'CODE_TAKEN' as const };
 
   const { data, error } = await sb.rpc('fn_create_book', {
