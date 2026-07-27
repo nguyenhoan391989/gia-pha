@@ -62,7 +62,7 @@ revoke all on public.family_books from anon, authenticated;
 -- Hàm kiểm tra mật khẩu (băm bcrypt) — gọi từ server
 create or replace function public.fn_check_book_password(p_code text, p_pass text)
 returns table(id uuid, name text, role text, plan text, plan_expires timestamptz, version bigint)
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   return query
   select b.id, b.name,
@@ -83,7 +83,7 @@ revoke all on function public.fn_check_book_password(text, text) from anon, auth
 create or replace function public.fn_create_book(
   p_code text, p_name text, p_admin_pass text, p_member_pass text, p_data jsonb
 ) returns uuid
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare v_id uuid;
 begin
   insert into public.family_books (code, name, admin_pass_hash, member_pass_hash, data, member_count)
@@ -105,7 +105,7 @@ revoke all on function public.fn_create_book(text, text, text, text, jsonb) from
 create or replace function public.fn_set_book_password(
   p_id uuid, p_which text, p_new_pass text
 ) returns void
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   if p_which = 'admin' then
     update public.family_books set admin_pass_hash = crypt(p_new_pass, gen_salt('bf')) where id = p_id;
