@@ -376,6 +376,29 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .empty{text-align:center;padding:40px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 @media print{#sidebar,#mtop,.toolbar,footer{display:none!important}main{max-width:none}}
+/* ===== MENU THEO NHÓM (gập/mở) ===== */
+.ngrp{margin-top:2px}
+.ghead{width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border:none;background:none;color:rgba(255,255,255,.72);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:8px;font-family:inherit}
+.ghead:hover{background:rgba(212,175,55,.1);color:var(--gold)}
+.ghead .gname{flex:1;text-align:left}
+.ghead .gcar{font-size:10px;opacity:.75}
+.ngrp .gbody{display:none;padding-left:6px;border-left:2px solid rgba(212,175,55,.22);margin-left:18px}
+.ngrp.open .gbody{display:block;animation:sl .18s ease}
+.ngrp.open .ghead{color:var(--gold)}
+/* ===== TRANG CHỦ: BẢNG ĐIỀU KHIỂN ===== */
+.hgrp{margin-top:18px}
+.hgrp-h{display:flex;align-items:baseline;gap:10px;margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid rgba(160,19,19,.18)}
+.hgrp-h b{font-family:'Noto Serif',Georgia,serif;color:var(--primary);font-size:16.5px}
+.hgrp-h span{color:var(--muted);font-size:12px}
+.mcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.mcard{display:flex;gap:11px;align-items:flex-start;text-align:left;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition:.15s;font-family:inherit;width:100%}
+.mcard:hover{border-color:var(--gold);box-shadow:0 5px 16px rgba(139,0,0,.13);transform:translateY(-2px)}
+.mcard:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.mcard .mi{width:38px;height:38px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:19px;background:linear-gradient(#fdf3dc,#f6e6bf);border:1px solid rgba(201,151,47,.45)}
+.mcard .mt{font-weight:700;color:var(--primary);font-size:13.5px;line-height:1.25}
+.mcard .md{color:var(--muted);font-size:11.5px;line-height:1.45;margin-top:2px}
+.mcard .mb{margin-top:5px;display:inline-block;font-size:11px;font-weight:700;color:#7a5a2a;background:rgba(212,175,55,.2);border-radius:20px;padding:1px 8px}
+@media(max-width:520px){.mcards{grid-template-columns:1fr 1fr;gap:8px}.mcard{flex-direction:column;gap:7px;padding:11px}.mcard .md{display:none}}
 /* ===== MÀN HÌNH ĐĂNG NHẬP ===== */
 #authWrap{position:fixed;inset:0;z-index:95;display:none;overflow:auto;background:radial-gradient(130% 120% at 50% 0%,#7c1414 0%,#8B0000 45%,#4a0000 100%)}
 #authWrap.open{display:block}
@@ -551,7 +574,7 @@ function tlabel(key,fallback){const t=DB.terms||{};if(key==='branchL1')return t.
 const CRUD={
   members:{title:'Thành viên',icon:'👤',store:'members',
     columns:[['name','Họ tên'],['birthYear','Năm sinh'],['gender','Giới tính'],['branchL1','_b1'],['branch','_b2'],['generation','_gen']],
-    fields:[['name','Họ và tên *','text'],['gender','Giới tính','select',['Nam','Nữ']],['birthYear','Năm sinh','number'],['deathYear','Năm mất','number'],['deathAnniv','Ngày giỗ (âm lịch)','text'],['alive','Còn sống','check'],['birthPlace','Nơi sinh','text'],['occupation','Nghề nghiệp','text'],['phone','Điện thoại','text'],['email','Email','text'],['address','Địa chỉ','text'],['generation','_gen','number'],['branchL1','_b1','select',brL1Opts],['branch','_b2','select',brOpts],['fatherId','Cha','selectId',memOpts],['spouseId','Vợ/Chồng','selectId',memOpts],['avatar','Ảnh chân dung','image'],['bio','Tiểu sử','textarea']]},
+    fields:[['name','Họ và tên *','text'],['gender','Giới tính','select',['Nam','Nữ']],['birthYear','Năm sinh','number'],['deathYear','Năm mất','number'],['deathAnniv','Ngày giỗ (âm lịch)','text'],['alive','Còn sống','check'],['birthPlace','Nơi sinh','text'],['occupation','Nghề nghiệp','text'],['phone','Điện thoại','text'],['email','Email','text'],['address','Địa chỉ','text'],['generation','_gen','number'],['branchL1','_b1','select',brL1Opts],['branch','_b2','select',brOpts],['fatherId','Cha','selectId',memOpts],['motherId','Mẹ','selectId',memOpts],['spouseId','Vợ/Chồng','selectId',memOpts],['avatar','Ảnh chân dung','image'],['bio','Tiểu sử','textarea']]},
   events:{title:'Sự kiện',icon:'📅',store:'events',
     columns:[['date','Ngày'],['title','Sự kiện'],['type','Loại'],['location','Địa điểm']],
     fields:[['title','Tên sự kiện *','text'],['date','Ngày (dd/mm/yyyy)','text'],['type','Loại','select',['Giỗ tổ','Họp họ','Lễ tế','Mừng thọ','Tang lễ']],['location','Địa điểm','text'],['note','Ghi chú','textarea']]},
@@ -594,7 +617,9 @@ const MEM_HMAP={'ho ten':'name','hoten':'name','ho va ten':'name','ten':'name','
  'nghe nghiep':'occupation','dien thoai':'phone','so dien thoai':'phone','sdt':'phone',
  'email':'email','dia chi':'address','doi':'generation','doi thu':'generation','the he':'generation','the':'generation',
  'nganh':'branchL1','chi':'branch','phai':'branch','nhanh':'branch','toc':'branch',
- 'cha':'_father','bo':'_father','ten cha':'_father','vo/chong':'_spouse','vo chong':'_spouse','vochong':'_spouse',
+ 'cha':'_father','bo':'_father','ten cha':'_father','ba':'_father','thay':'_father',
+ 'me':'_mother','ten me':'_mother','mau':'_mother','me de':'_mother','u':'_mother',
+ 'vo/chong':'_spouse','vo chong':'_spouse','vochong':'_spouse',
  'ban doi':'_spouse','vo':'_spouse','chong':'_spouse','tieu su':'bio','ghi chu':'bio','ghichu':'bio'};
 function memMapHeader(h){const k=stripVN(String(h||'')).toLowerCase().trim();if(MEM_HMAP[k])return MEM_HMAP[k];
  if(k===stripVN(T.b1).toLowerCase())return 'branchL1';if(k===stripVN(T.b2).toLowerCase())return 'branch';if(k===stripVN(T.gen).toLowerCase())return 'generation';return null;}
@@ -613,7 +638,9 @@ function memFromRow(o){const g=stripVN(String(o.gender||'')).toLowerCase();
   address:String(o.address||'').trim(),generation:memNum(o.generation),branchL1:String(o.branchL1||'').trim(),
   branch:String(o.branch||'').trim(),bio:String(o.bio||'').trim(),avatar:'',
   alive:(function(){const a=stripVN(String(o._alive||'')).toLowerCase();if(/mat|chet|qua doi|deceased|died/.test(a))return false;if(/song|con|alive|yes/.test(a))return true;return !(String(o.deathYear||'').trim()||String(o.deathAnniv||'').trim());})(),fatherId:0,spouseId:0,
-  _father:String(o._father||'').replace(/^\s*con\s+(trai|gái|gai|gái)\s+\d+\s+/i,'').replace(/\([^)]*\)/g,'').trim(),_spouse:String(o._spouse||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim()};}
+  _father:String(o._father||'').replace(/^\s*con\s+(trai|gái|gai|gái)\s+\d+\s+/i,'').replace(/\([^)]*\)/g,'').trim(),
+  _mother:String(o._mother||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim(),
+  _spouse:String(o._spouse||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim()};}
 let memImportData=null;
 function memImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập danh sách thành viên</h3>
  <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>, dòng đầu là tiêu đề cột. Bấm <b>⬇ Mẫu Excel</b> để tải file mẫu đúng định dạng. Cột <b>Cha</b> và <b>Vợ/Chồng</b> điền <b>họ tên</b> (khớp người đã có hoặc trong cùng file).</p>
@@ -635,10 +662,16 @@ function memImportParse(objs){const prev=document.getElementById('memImpPrev'),b
  prev.innerHTML='✅ Đọc được <b>'+list.length+'</b> thành viên. VD: '+list.slice(0,3).map(m=>esc(m.name)+(m.birthYear?' ('+m.birthYear+')':'')).join(', ')+(list.length>3?'…':'')+'<br>Bấm <b>Nhập</b> để thêm vào danh sách.';btn.disabled=false;}
 function memImportCommit(){if(!memImportData||!memImportData.length){toast('Chưa có dữ liệu');return;}
  const added=[];
- memImportData.forEach(m=>{const rec=Object.assign({id:nextId(DB.members)},m);delete rec._father;delete rec._spouse;DB.members.push(rec);added.push({rec,f:m._father,s:m._spouse});});
+ memImportData.forEach(m=>{const rec=Object.assign({id:nextId(DB.members)},m);delete rec._father;delete rec._mother;delete rec._spouse;DB.members.push(rec);added.push({rec,f:m._father,mo:m._mother,s:m._spouse});});
  const byName=(n)=>{n=stripVN(String(n||'')).toLowerCase().trim();if(!n)return 0;const x=DB.members.find(o=>stripVN(o.name).toLowerCase().trim()===n);return x?x.id:0;};
  let spouseAdded=0;
  added.forEach(a=>{if(a.f)a.rec.fatherId=byName(a.f);
+  if(a.mo){let mid=byName(a.mo);
+   if(!mid){/* Mẹ chưa có trong danh sách → tạo mới, và ghép làm vợ của cha nếu có cha */
+    const mm={id:nextId(DB.members),name:a.mo,gender:'Nữ',birthYear:'',deathYear:'',deathAnniv:'',alive:a.rec.alive,birthPlace:'',occupation:'',phone:'',email:'',address:'',generation:Math.max(1,(+a.rec.generation||1)-1),branchL1:a.rec.branchL1,branch:a.rec.branch,fatherId:0,motherId:0,spouseId:a.rec.fatherId||0,avatar:'',bio:'Mẹ của '+a.rec.name};
+    DB.members.push(mm);mid=mm.id;spouseAdded++;
+    if(a.rec.fatherId){const fa=DB.members.find(o=>o.id===a.rec.fatherId);if(fa&&!fa.spouseId)fa.spouseId=mid;}}
+   a.rec.motherId=mid;}
   if(a.s){let sid=byName(a.s);
    if(!sid){/* Vợ/chồng chưa có trong danh sách → TẠO MỚI để module Gia đình + sơ đồ hiển thị cặp */
     const sg=/thi/.test(stripVN(a.s).toLowerCase())?'Nữ':/van/.test(stripVN(a.s).toLowerCase())?'Nam':(a.rec.gender==='Nam'?'Nữ':'Nam');
@@ -646,9 +679,9 @@ function memImportCommit(){if(!memImportData||!memImportData.length){toast('Chư
     DB.members.push(sp);sid=sp.id;spouseAdded++;}
    a.rec.spouseId=sid;const sp2=DB.members.find(o=>o.id===sid);if(sp2&&!sp2.spouseId)sp2.spouseId=a.rec.id;}});
  memImportData=null;logAct('Nhập '+added.length+' thành viên từ file'+(spouseAdded?' (+'+spouseAdded+' vợ/chồng)':''));save();closeModal();render();toast('Đã nhập '+added.length+' thành viên'+(spouseAdded?' và tạo '+spouseAdded+' vợ/chồng':''));}
-function memTemplate(){const headers=[T.b1,T.b2,T.gen,'Cha','Họ tên','Giới tính','Năm sinh','Năm mất','Ngày giỗ (âm lịch)','Còn sống/Mất','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ','Tiểu sử','Vợ/Chồng'];
- const ex=['Ngành Trưởng','Chi 1','2','Nguyễn Văn Tổ','Nguyễn Văn A','Nam','1950','1990','2/2','Đã mất','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','Trưởng chi 1','Lê Thị B'];
- const ex2=['','Chi 1','2','','Lê Thị B','Nữ','1952','','','Còn sống','Hà Nội','Nội trợ','','','Hà Nội','','Nguyễn Văn A'];
+function memTemplate(){const headers=[T.b1,T.b2,T.gen,'Cha','Mẹ','Họ tên','Giới tính','Năm sinh','Năm mất','Ngày giỗ (âm lịch)','Còn sống/Mất','Nơi sinh','Nghề nghiệp','Điện thoại','Email','Địa chỉ','Tiểu sử','Vợ/Chồng'];
+ const ex=['Ngành Trưởng','Chi 1','2','Nguyễn Văn Tổ','Trần Thị Tổ','Nguyễn Văn A','Nam','1950','1990','2/2','Đã mất','Hà Nội','Giáo viên','0901234567','a@email.vn','Hà Nội','Trưởng chi 1','Lê Thị B'];
+ const ex2=['','Chi 1','2','','','Lê Thị B','Nữ','1952','','','Còn sống','Hà Nội','Nội trợ','','','Hà Nội','','Nguyễn Văn A'];
  const csv='﻿'+[headers,ex,ex2].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='mau-danh-sach-thanh-vien.csv';a.click();toast('Đã tải file mẫu — mở bằng Excel, điền rồi Lưu dạng CSV/Excel');}
 window.memImport=memImport;window.memImportFile=memImportFile;window.memImportCommit=memImportCommit;window.memTemplate=memTemplate;
@@ -679,8 +712,8 @@ function del(key,id){if(!confirm('Xóa bản ghi này?'))return;const c=CRUD[key
 window.openForm=openForm;window.closeModal=closeModal;window.saveForm=saveForm;window.del=del;window.imgPick=imgPick;
 
 function viewMember(id){const m=DB.members.find(x=>x.id===id);if(!m)return;
-  const rows=[['Họ tên',m.name],['Giới tính',m.gender],['Năm sinh',m.birthYear||'—'],['Trạng thái',m.alive?'Còn sống':'Đã mất'+(m.deathYear?' ('+m.deathYear+')':'')],['Ngày giỗ',m.deathAnniv||'—'],['Nơi sinh',m.birthPlace||'—'],['Nghề nghiệp',m.occupation||'—'],['Điện thoại',m.phone||'—'],['Email',m.email||'—'],['Địa chỉ',m.address||'—'],[T.gen,m.generation||'—'],[T.b1,m.branchL1||'—'],[T.b2,m.branch||'—'],['Cha',memName(m.fatherId)||'—'],['Vợ/Chồng',memName(m.spouseId)||'—']];
-  const kids=DB.members.filter(x=>x.fatherId===id).map(x=>x.name);
+  const rows=[['Họ tên',m.name],['Giới tính',m.gender],['Năm sinh',m.birthYear||'—'],['Trạng thái',m.alive?'Còn sống':'Đã mất'+(m.deathYear?' ('+m.deathYear+')':'')],['Ngày giỗ',m.deathAnniv||'—'],['Nơi sinh',m.birthPlace||'—'],['Nghề nghiệp',m.occupation||'—'],['Điện thoại',m.phone||'—'],['Email',m.email||'—'],['Địa chỉ',m.address||'—'],[T.gen,m.generation||'—'],[T.b1,m.branchL1||'—'],[T.b2,m.branch||'—'],['Cha',memName(m.fatherId)||'—'],['Mẹ',memName(m.motherId)||'—'],['Vợ/Chồng',memName(m.spouseId)||'—']];
+  const kids=DB.members.filter(x=>x.fatherId===id||x.motherId===id).map(x=>x.name);
   document.getElementById('modalBox').innerHTML=`<h3>Hồ sơ thành viên</h3>
    <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
      <div class="dot" style="width:64px;height:64px;font-size:20px">${m.avatar?`<img src="${m.avatar}"/>`:ini(m.name)}</div>
@@ -884,11 +917,35 @@ document.addEventListener('keydown',function(e){const t=(e.target.tagName||'').t
 
 V.home=()=>{const m=DB.members.length,f=DB.branches.length,g=new Set(DB.members.map(x=>x.generation)).size,e=DB.events.length;
  return heroHTML(DB.couplet)+`
- <div class="card" style="margin-top:12px"><div class="quick">${[['pha','🌳','Sơ đồ'],['nhatho','🏛️','Nhà thờ họ'],['graves','⚱️','Mộ phần'],['events','📅','Sự kiện'],['fund','💰','Công đức'],['notices','🔔','Thông báo']].map(q=>`<a onclick="go('${q[0]}')"><div class="qi">${q[1]}</div><div>${q[2]}</div></a>`).join('')}</div></div>
+ <div class="card" style="margin-top:12px"><div class="quick">${[['pha','🌳','Sơ đồ'],['members','👤','Thành viên'],['nhatho','🏛️','Nhà thờ họ'],['events','📅','Sự kiện'],['fund','💰','Công đức'],['ai','🏮','Trợ lý']].map(q=>`<a onclick="go('${q[0]}')"><div class="qi">${q[1]}</div><div>${q[2]}</div></a>`).join('')}</div></div>
  <div class="grid st4" style="margin-top:12px"><div class="card frame-gold stat"><div class="n">${m}</div><div class="l">Thành viên</div></div><div class="card frame-gold stat"><div class="n">${f}</div><div class="l">${T.b2}</div></div><div class="card frame-gold stat"><div class="n">${g}</div><div class="l">${T.gen}</div></div><div class="card frame-gold stat"><div class="n">${e}</div><div class="l">Sự kiện</div></div></div>
  <div class="two" style="margin-top:12px">
    <div class="card pad"><div class="h3">📅 Sự kiện sắp tới</div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted">Chưa có.</p>'}</div>
-   <div class="card pad"><div class="h3">🔔 Thông báo mới</div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted">Chưa có.</p>'}</div></div>`;};
+   <div class="card pad"><div class="h3">🔔 Thông báo mới</div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted">Chưa có.</p>'}</div></div>
+ ${homeModules()}`;};
+/* Bảng điều khiển: ĐỦ mọi module, chia nhóm, kèm số liệu thật để biết chỗ nào có gì */
+function homeCount(k){try{
+  if(k==='members')return DB.members.length+' người';
+  if(k==='pha'){const g=new Set(DB.members.map(x=>x.generation)).size;return g+' '+String(T.gen).toLowerCase();}
+  if(k==='families'){const s=new Set();let n=0;DB.members.forEach(m=>{if(m.spouseId&&!s.has(m.id)&&!s.has(m.spouseId)){s.add(m.id);s.add(m.spouseId);n++;}});return n+' hộ';}
+  if(k==='graves')return (DB.graves||[]).length+' mộ';
+  if(k==='events')return (DB.events||[]).length+' sự kiện';
+  if(k==='restoration')return (DB.restoration||[]).length+' công trình';
+  if(k==='fund')return (DB.fund||[]).length+' giao dịch';
+  if(k==='notices')return (DB.notices||[]).length+' tin';
+  if(k==='library')return (DB.photos||[]).length+' ảnh';
+  if(k==='roles')return roleList().length+' vai trò';
+}catch(e){}return '';}
+function homeModules(){
+ return `<div style="margin-top:22px"><div class="h3" style="margin-bottom:2px">📚 Toàn bộ chức năng</div>
+  <div class="muted" style="font-size:12.5px;margin-bottom:4px">Bấm vào ô bất kỳ để mở. Menu bên trái cũng chia theo các nhóm này.</div>`+
+ NAVG.map(g=>`<div class="hgrp">
+   <div class="hgrp-h"><b>${g.icon} ${esc(g.name)}</b><span>${esc(g.desc)}</span></div>
+   <div class="mcards">${g.items.map(([k,l,e,d])=>{const c=homeCount(k);
+     return `<button class="mcard" onclick="go('${k}')" title="${esc(d||l)}">
+      <span class="mi">${e}</span>
+      <span><span class="mt">${esc(l)}</span><span class="md">${esc(d||'')}</span>${c?`<span class="mb">${esc(c)}</span>`:''}</span></button>`;}).join('')}</div>
+  </div>`).join('')+`</div>`;}
 
 /* ---- Nhà thờ họ (rail chuyển nội dung) ---- */
 const HSEC=[['intro','Giới thiệu'],['history','Lịch sử dòng họ'],['thuyto','Câu chuyện Thủy tổ'],['giahuan','Gia huấn'],['giaquy','Gia quy'],['sacphong','Sắc phong'],['images','Hình ảnh']];
@@ -937,9 +994,12 @@ function sdNameSVG(name){name=name||'';const nl=Math.max(1,[...name].length);
 function sdHeader(title){return `<div class="trad-head"><img class="tb-img" ${BG_IMG}/>${sdNameSVG(title)}</div>`;}
 /* ---- Nền truyền thống vẽ SVG (trống đồng, rồng, tre, tùng, viền triện, cuộn thư) ---- *//* ---- Sơ đồ gia phả (cây tương tác) ---- */
 let zoom=100;const collapsed=new Set();
+/* Con của một người: theo dòng cha; nếu chỉ biết mẹ (không rõ cha) thì xếp dưới mẹ
+   → không ai bị "mồ côi" văng ra làm gốc cây. */
+function kidsOf(id){return DB.members.filter(x=>x.fatherId===id||(x.motherId===id&&!x.fatherId));}
 /* Tên chữ ngang, MỖI DÒNG 1 CHỮ (tách theo dấu cách) */
 function vname(n){return String(n||'').trim().split(/\s+/).filter(Boolean).map(esc).join('<br>');}
-function tnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);const isC=collapsed.has(m.id);
+function tnode(m){const kids=kidsOf(m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);const isC=collapsed.has(m.id);
  const card=(x,root)=>`<span class="pcard ${root?'root':''} ${x.gender==='Nữ'?'fem':''}" data-gen="${x.generation||''}" onclick="viewMember(${x.id})"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:var(--gold)">⚭</span>'+card(sp);
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
@@ -972,13 +1032,13 @@ window.phaZoom=phaZoom;window.phaReset=phaReset;window.phaWheel=phaWheel;window.
 /* ---- Bản in treo tường ---- */
 let ptz=100;
 function treeRoots(){const rr=DB.members.filter(m=>{
-  if(m.fatherId)return false; // có cha → không phải gốc
+  if(m.fatherId||m.motherId)return false; // có cha hoặc mẹ → không phải gốc
   const p=m.spouseId?DB.members.find(o=>o.id===m.spouseId):null;
   // là vợ/chồng CƯỚI VÀO của người khác (bạn đời có cha, hoặc bạn đời được thêm trước) → không vẽ làm gốc, sẽ đứng cạnh bạn đời
   if(p&&(p.fatherId>0||p.id<m.id))return false;
   return true;});
- return rr.length?rr:DB.members.filter(m=>!m.fatherId);}
-function pnode(m){const kids=DB.members.filter(x=>x.fatherId===m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);
+ return rr.length?rr:DB.members.filter(m=>!m.fatherId&&!m.motherId);}
+function pnode(m){const kids=kidsOf(m.id);const sp=DB.members.find(x=>x.id===m.spouseId&&m.spouseId);
  const card=(x,root)=>`<span class="pcard ${root?'root':''} ${x.gender==='Nữ'?'fem':''}" data-gen="${x.generation||''}"><span class="av">${x.avatar?`<img src="${x.avatar}"/>`:ini(x.name)}</span><span class="pcname">${vname(x.name)}${x.birthYear?`<br><span class="pcyr">(${x.birthYear}${x.alive===false?'–'+(x.deathYear||''):''})</span>`:''}</span></span>`;
  let couple=card(m,m.generation===1);if(sp)couple+='<span style="align-self:center;color:#b98a2e">⚭</span>'+card(sp);
  let out=`<div class="tnode"><div style="display:flex;align-items:center;gap:4px">${couple}</div>`;
@@ -1038,7 +1098,7 @@ V.pha=()=>{const rts=treeRoots();
 V.families=()=>{const couples=[];const seen=new Set();
  DB.members.forEach(m=>{if(m.spouseId&&!seen.has(m.id)&&!seen.has(m.spouseId)){seen.add(m.id);seen.add(m.spouseId);couples.push([m,DB.members.find(x=>x.id===m.spouseId)]);}});
  return `<div class="h1">🏠 Gia đình (hộ)</div><div class="sub">Các hộ gia đình theo quan hệ vợ chồng và con cái.</div>
- <div class="grid" style="grid-template-columns:1fr;gap:12px">${couples.map(([a,b])=>{const kids=DB.members.filter(x=>x.fatherId===a.id||x.fatherId===(b&&b.id));
+ <div class="grid" style="grid-template-columns:1fr;gap:12px">${couples.map(([a,b])=>{const bid=b&&b.id;const kids=DB.members.filter(x=>x.fatherId===a.id||x.motherId===a.id||(bid&&(x.fatherId===bid||x.motherId===bid)));
    return `<div class="card pad"><div class="h3">${esc(a.name)}${b?' ⚭ '+esc(b.name):''}</div>
    <div class="muted" style="font-size:12.5px">${T.gen} ${a.generation} · ${T.b2}: ${esc(a.branch||'')} · ${esc(a.address||'—')}</div>
    <div style="margin-top:8px"><b>Con cái:</b> ${kids.length?kids.map(k=>`<span class="chip" onclick="viewMember(${k.id})" style="margin:2px">${esc(k.name)}${k.birthYear?' ('+k.birthYear+')':''}</span>`).join(''):'<span class="muted">chưa có</span>'}</div></div>`;}).join('')||'<p class="muted">Chưa có hộ nào (thêm quan hệ vợ/chồng ở hồ sơ thành viên).</p>'}</div>`;};
@@ -1097,7 +1157,7 @@ V.ai=()=>{const opts=DB.members.map(m=>`<option value="${m.id}">${esc(m.name)}${
  ${hvBody()}
  ${rlBody()}
  <div class="card frame-gold pad" style="margin-top:12px"><div class="h3">🔎 Truy xuất quan hệ</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="rA" style="width:200px">${opts}</select><span>↔</span><select id="rB" style="width:200px">${opts}</select><button class="btn btn-p" onclick="findRel()">Tra cứu</button></div><div id="relResult" style="margin-top:14px"></div></div>`;};
-function anc(id){const c=[];let x=id,g=new Set();while(x&&!g.has(x)){g.add(x);c.push(x);const m=DB.members.find(o=>o.id===x);x=m?m.fatherId:0;}return c;}
+function anc(id){const c=[];let x=id,g=new Set();while(x&&!g.has(x)){g.add(x);c.push(x);const m=DB.members.find(o=>o.id===x);x=m?(m.fatherId||m.motherId||0):0;}return c;}
 function findRel(){const aid=+document.getElementById('rA').value,bid=+document.getElementById('rB').value;const a=DB.members.find(m=>m.id===aid),b=DB.members.find(m=>m.id===bid);let txt,anceName='';
  if(!a||!b)txt='Không tìm thấy.';else if(aid===bid)txt='Cùng một người.';else if(a.spouseId===bid)txt=`<b>${esc(a.name)}</b> và <b>${esc(b.name)}</b> là <b>vợ/chồng</b>.`;
  else{const ca=anc(aid),cb=anc(bid);let lca=0,da=-1,db=-1;for(let i=0;i<ca.length;i++){const j=cb.indexOf(ca[i]);if(j>=0){lca=ca[i];da=i;db=j;break;}}
@@ -1842,7 +1902,7 @@ V.report=()=>{const byGen={},byBr={};DB.members.forEach(m=>{byGen[m.generation]=
  <div class="two" style="margin-top:12px"><div class="card pad"><div class="h3">Thành viên theo ${esc(T.gen.toLowerCase())}</div>${gens.map(g=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(T.gen)} ${g}</span><span class="muted">${byGen[g]}</span></div><div class="bar"><i style="width:${byGen[g]/mx*100}%"></i></div></div>`).join('')}</div>
  <div class="card pad"><div class="h3">Tài chính công đức</div><table><tr><td>Tổng thu</td><td class="right" style="color:#0f6e56;font-weight:700">${vnd(thu)}</td></tr><tr><td>Tổng chi</td><td class="right" style="color:var(--primary);font-weight:700">${vnd(chi)}</td></tr><tr><td>Số dư</td><td class="right" style="font-weight:700">${vnd(thu-chi)}</td></tr></table>
    <div class="h3" style="margin-top:12px">Theo ${esc(T.b2.toLowerCase())}</div>${Object.keys(byBr).map(b=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0"><span>${esc(b)}</span><span class="muted">${byBr[b]}</span></div>`).join('')}</div></div>`;};
-function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Ngày giỗ (âm lịch)',m=>m.deathAnniv],['Còn sống/Mất',m=>m.alive?'Còn sống':'Đã mất'],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
+function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Mẹ',m=>memName(m.motherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Ngày giỗ (âm lịch)',m=>m.deathAnniv],['Còn sống/Mất',m=>m.alive?'Còn sống':'Đã mất'],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
  const rows=DB.members.map(m=>cols.map(c=>`"${String(c[1](m)??'').replace(/"/g,'""')}"`).join(','));
  const csv='﻿'+head.join(',')+'\n'+rows.join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='thanh-vien.csv';a.click();toast('Đã xuất CSV');}
 window.exportCsv=exportCsv;
@@ -2088,7 +2148,27 @@ function resetDb(){if(!confirm('Xóa hết dữ liệu hiện tại, về dữ l
 window.saveClan=saveClan;window.saveGp=saveGp;window.saveAi=saveAi;window.backup=backup;window.restore=restore;window.resetDb=resetDb;
 
 /* ===================== ROUTER ===================== */
-const NAV=[['home','Trang chủ','🏠'],['nhatho','Nhà thờ họ','🏛️'],['pha','Sơ đồ gia phả','🌳'],['members','Thành viên','👤'],['families','Gia đình','🏠'],['graves','Mộ phần','⚱️'],['events','Sự kiện','📅'],['restoration','Tu bổ','🔨'],['fund','Quỹ công đức','💰'],['ai','Trợ lý gia tộc','🏮'],['notices','Thông báo','🔔'],['library','Thư viện','🖼️'],['report','Báo cáo','📊'],['roles','Phân quyền','🔐'],['settings','Cài đặt','⚙️']];
+/* ===== ĐIỀU HƯỚNG THEO NHÓM =====
+   15 mục rời rạc gây ngợp → gom thành 4 nhóm theo việc người dùng thực sự làm.
+   Nhóm chứa trang đang xem sẽ tự mở; các nhóm khác thu gọn cho gọn mắt. */
+const NAVG=[
+ {id:'giapha', name:'Gia phả',      icon:'🌳', desc:'Cây phả hệ, thành viên, gia đình, mộ phần',
+  items:[['pha','Sơ đồ gia phả','🌳','Cây phả hệ toàn dòng họ'],['members','Thành viên','👤','Hồ sơ từng người'],['families','Gia đình','🏡','Các hộ theo vợ chồng – con cái'],['graves','Mộ phần','⚱️','Vị trí, tình trạng phần mộ']]},
+ {id:'nhatho', name:'Nhà thờ họ',   icon:'🏛️', desc:'Việc họ: thờ tự, sự kiện, tu bổ, công đức',
+  items:[['nhatho','Nhà thờ họ','🏛️','Hoành phi, câu đối, gia huấn'],['events','Sự kiện · Giỗ','📅','Lịch giỗ chạp, họp họ'],['restoration','Tu bổ','🔨','Công trình, tiến độ'],['fund','Quỹ công đức','💰','Thu chi, đóng góp']]},
+ {id:'tracuu', name:'Tra cứu',      icon:'🏮', desc:'Trợ lý, huyền học, thư viện tư liệu',
+  items:[['ai','Trợ lý gia tộc','🏮','Hỏi đáp, tìm quan hệ, phục chế ảnh'],['hv','Huyền học · Lịch','🔮','Can chi, tứ trụ, lịch vạn niên'],['library','Thư viện','🖼️','Ảnh, tài liệu, văn khấn']]},
+ {id:'quantri',name:'Quản trị',     icon:'⚙️', desc:'Thông báo, báo cáo, phân quyền, cài đặt',
+  items:[['notices','Thông báo','🔔','Tin tức, đề xuất của con cháu'],['report','Báo cáo','📊','Thống kê dòng họ'],['roles','Phân quyền','🔐','Vai trò và quyền hạn'],['settings','Cài đặt','⚙️','Hồ sơ, dữ liệu, đồng bộ']]},
+];
+/* Danh sách phẳng (dùng cho tiêu đề trang, kiểm tra hợp lệ) */
+const NAV=[['home','Trang chủ','🏠']].concat(NAVG.reduce((a,g)=>a.concat(g.items.map(i=>[i[0],i[1],i[2]])),[]));
+function navGroupOf(id){const g=NAVG.find(g=>g.items.some(i=>i[0]===id));return g?g.id:'';}
+/* Nhớ nhóm nào đang mở/đóng giữa các lần dùng */
+let navOpen={};try{navOpen=JSON.parse(localStorage.getItem('giapha_nav')||'{}')||{};}catch(e){navOpen={};}
+function navTgl(gid){const cur=(navOpen[gid]!==undefined)?navOpen[gid]:(navGroupOf((location.hash||'#home').slice(1))===gid);
+ navOpen[gid]=!cur;try{localStorage.setItem('giapha_nav',JSON.stringify(navOpen));}catch(e){}render();}
+window.navTgl=navTgl;
 const CRUD_ONLY=['members','graves'];
 function toggle(open){const s=document.getElementById('shell');if(open===undefined)s.classList.toggle('open');else s.classList.toggle('open',open);}
 function go(id){location.hash=id;toggle(false);render();}
@@ -2099,7 +2179,13 @@ function render(){const id=(location.hash||'#home').slice(1);const keepY=(id===l
  document.getElementById('brandType').textContent=o.type||'';
  document.getElementById('mtopTitle').textContent=o.short||o.display||'Gia Phả';
  document.getElementById('footName').textContent=o.display||'Gia Phả';
- document.getElementById('nav').innerHTML=NAV.map(([k,l,e])=>`<a class="${k===id?'on':''}" onclick="go('${k}')"><span class="em">${e}</span>${l}</a>`).join('');
+ const curG=navGroupOf(id);
+ document.getElementById('nav').innerHTML=
+  `<a class="${id==='home'?'on':''}" onclick="go('home')"><span class="em">🏠</span>Trang chủ</a>`+
+  NAVG.map(g=>{const open=(navOpen[g.id]!==undefined)?navOpen[g.id]:(g.id===curG);
+   return `<div class="ngrp ${open?'open':''}">
+    <button class="ghead" onclick="navTgl('${g.id}')" aria-expanded="${open}"><span class="em">${g.icon}</span><span class="gname">${g.name}</span><span class="gcar">${open?'▾':'▸'}</span></button>
+    <div class="gbody">${g.items.map(([k,l,e])=>`<a class="${k===id?'on':''}" onclick="go('${k}')"><span class="em">${e}</span>${l}</a>`).join('')}</div></div>`;}).join('');
  const el=document.getElementById('app');
  if(V[id])el.innerHTML=V[id]();
  else if(CRUD[id])el.innerHTML=renderCrud(id);
