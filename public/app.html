@@ -121,6 +121,13 @@ main{width:100%;max-width:1120px;margin:0 auto;padding:20px;flex:1}
 .two{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:820px){.two{grid-template-columns:1fr 1fr}}
 .side{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:820px){.side{grid-template-columns:210px 1fr}}
 .rail a{display:block;padding:9px 12px;border-radius:8px;font-size:13.5px;font-weight:500;cursor:pointer}.rail a:hover{background:var(--accent)}.rail a.on{background:var(--primary);color:var(--gold)}
+/* Điện thoại: cột mục lục thành dải cuộn ngang dính trên đầu → bấm mục nào thấy nội dung ngay, khỏi kéo */
+@media(max-width:820px){
+ .side .rail{position:sticky;top:52px;z-index:20;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px}
+ .side .rail::-webkit-scrollbar{display:none}
+ .side .rail a{flex:none;white-space:nowrap;border:1px solid var(--border);padding:7px 13px;font-size:13px}
+ .side .rail a.on{border-color:var(--gold)}
+}
 .stat{padding:16px;text-align:center}.stat .n{font-family:'Noto Serif',serif;font-size:24px;font-weight:700;color:var(--primary)}.stat .l{color:var(--muted);font-size:12.5px}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{background:var(--accent);text-align:left;padding:8px 11px;font-weight:600;color:#5a3a1a}
@@ -364,6 +371,12 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .cal .ev{background:var(--primary);color:#fff;border-radius:5px;padding:1px 4px;margin-top:2px;font-size:10.5px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cal td.today{background:rgba(212,175,55,.15)}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+/* Trên điện thoại: dải tab cuộn ngang một hàng (như Google/YouTube) thay vì xuống nhiều dòng chiếm màn hình */
+@media(max-width:720px){
+ .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+ .tabs::-webkit-scrollbar{display:none}
+ .tabs .chip{flex:none;white-space:nowrap}
+}
 #modal{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);align-items:flex-start;justify-content:center;padding:24px;overflow:auto}#modal.open{display:flex}
 #modal .box{background:var(--card);border-radius:14px;max-width:580px;width:100%;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.3)}#modal h3{color:var(--primary);margin-bottom:14px}
 #toast{position:fixed;bottom:20px;right:20px;z-index:70;display:flex;flex-direction:column;gap:8px}
@@ -376,6 +389,18 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .empty{text-align:center;padding:40px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 @media print{#sidebar,#mtop,.toolbar,footer{display:none!important}main{max-width:none}}
+/* ===== ĐI SÂU VÀO MỤC (drill-down) — chọn mục nào hiện nội dung ngay, không phải kéo ===== */
+.backbar{display:inline-flex;align-items:center;gap:6px;background:var(--accent);border:1px solid var(--border);color:var(--primary);font-weight:700;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;font-family:inherit;margin-bottom:12px}
+.backbar:hover{border-color:var(--gold);background:#fdf3dc}
+.backbar:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.drill{animation:sl .18s ease}
+.drill-h{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:linear-gradient(#fdf3dc,#f8ecc9);border:1px solid rgba(201,151,47,.5);margin-bottom:12px}
+.drill-h .di{font-size:26px;line-height:1}
+.drill-h b{display:block;color:var(--primary);font-size:16px;font-family:'Noto Serif',Georgia,serif}
+.drill-h span{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+/* Dải tab dính trên đầu khi cuộn — luôn đổi mục được, không phải kéo ngược lên */
+.tabbar{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0;margin-bottom:4px;border-bottom:1px solid var(--border)}
+@media(max-width:900px){.tabbar{top:52px}}
 /* ===== MENU THEO NHÓM (gập/mở) ===== */
 .ngrp{margin-top:2px}
 .ghead{width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border:none;background:none;color:rgba(255,255,255,.72);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:8px;font-family:inherit}
@@ -917,7 +942,6 @@ document.addEventListener('keydown',function(e){const t=(e.target.tagName||'').t
 
 V.home=()=>{const m=DB.members.length,f=DB.branches.length,g=new Set(DB.members.map(x=>x.generation)).size,e=DB.events.length;
  return heroHTML(DB.couplet)+`
- <div class="card" style="margin-top:12px"><div class="quick">${[['pha','🌳','Sơ đồ'],['members','👤','Thành viên'],['nhatho','🏛️','Nhà thờ họ'],['events','📅','Sự kiện'],['fund','💰','Công đức'],['ai','🏮','Trợ lý']].map(q=>`<a onclick="go('${q[0]}')"><div class="qi">${q[1]}</div><div>${q[2]}</div></a>`).join('')}</div></div>
  <div class="grid st4" style="margin-top:12px"><div class="card frame-gold stat"><div class="n">${m}</div><div class="l">Thành viên</div></div><div class="card frame-gold stat"><div class="n">${f}</div><div class="l">${T.b2}</div></div><div class="card frame-gold stat"><div class="n">${g}</div><div class="l">${T.gen}</div></div><div class="card frame-gold stat"><div class="n">${e}</div><div class="l">Sự kiện</div></div></div>
  <div class="two" style="margin-top:12px">
    <div class="card pad"><div class="h3">📅 Sự kiện sắp tới</div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted">Chưa có.</p>'}</div>
@@ -1239,7 +1263,9 @@ function hvP(){DB.settings.hv=DB.settings.hv||{};return Object.assign({mid:0,nam
 function hvSet(k,v){DB.settings.hv=hvP();DB.settings.hv[k]=(k==='mid'||k==='hour')?+v:v;if(k==='mid'&&+v){const m=DB.members.find(x=>x.id===+v);if(m){DB.settings.hv.name=m.name;DB.settings.hv.gender=m.gender||'Nam';if(m.birthYear&&!DB.settings.hv.date)DB.settings.hv.date=m.birthYear+'-01-01';}}save();render();}
 function hvBirth(){const p=hvP();if(!p.date)return null;const[y,m,d]=p.date.split('-').map(Number);if(!y)return null;return{y,m,d};}
 let hvTab='';
-function hvOpen(t){hvTab=t;render();}
+function hvOpen(t){hvTab=t;render();
+ /* Đưa người dùng lên đầu nội dung vừa mở — không phải kéo tìm (quan trọng trên điện thoại) */
+ requestAnimationFrame(()=>{const el=document.querySelector('.drill');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});}
 /* -------- renderer từng bộ môn -------- */
 function hvSec(t,b){return `<div class="hv-sec"><b class="h">${t}</b><div style="margin-top:4px">${b}</div></div>`;}
 function hvNeedDate(){return '<p class="muted">Cần <b>ngày sinh</b> (chọn ở thanh trên) để luận giải mục này.</p>';}
@@ -1458,8 +1484,12 @@ function hvBody(){const p=hvP();const mopts='<option value="0">— Nhập tay �
   <div class="field" style="margin:0"><label>Ngày sinh</label><input class="input" type="date" value="${esc(p.date)}" onchange="hvSet('date',this.value)"/></div>
   <div class="field" style="margin:0"><label>Giờ sinh</label><select onchange="hvSet('hour',this.value)"><option value="-1">Không rõ</option>${CHI.map((c,i)=>`<option value="${i}" ${p.hour===i?'selected':''}>${c} (${GIO_RANGE[i]})</option>`).join('')}</select></div>
   <div class="field" style="margin:0"><label>Giới tính</label><select onchange="hvSet('gender',this.value)"><option ${p.gender==='Nam'?'selected':''}>Nam</option><option ${p.gender==='Nữ'?'selected':''}>Nữ</option></select></div></div>
- <div class="hv-grid">${HV_CARDS.map(c=>`<div class="hv-card ${hvTab===c[0]?'on':''}" onclick="hvOpen('${c[0]}')"><div class="hv-ic">${c[1]}</div><div style="flex:1"><div class="t">${c[2]}</div><div class="d">${c[3]}</div></div><span style="color:var(--gold)">›</span></div>`).join('')}</div>
- ${hvTab?`<div style="margin-top:14px"><div class="h3">${cur?cur[1]+' '+cur[2]:''}</div>${detail}</div>`:HV_NOTE}</div>`;}
+ ${hvTab
+  ? `<div class="drill"><button class="backbar" onclick="hvOpen('')">‹ <span>Tất cả mục</span></button>
+     <div class="drill-h"><span class="di">${cur?cur[1]:''}</span><div><b>${cur?esc(cur[2]):''}</b><span>${cur?esc(cur[3]||''):''}</span></div></div>
+     ${detail}</div>`
+  : `<div class="hv-grid">${HV_CARDS.map(c=>`<div class="hv-card" onclick="hvOpen('${c[0]}')"><div class="hv-ic">${c[1]}</div><div style="flex:1"><div class="t">${c[2]}</div><div class="d">${c[3]}</div></div><span style="color:var(--gold)">›</span></div>`).join('')}</div>${HV_NOTE}`}
+ </div>`;}
 V.hv=()=>V.ai();
 window.hvOpen=hvOpen;window.hvSet=hvSet;window.hvVision=hvVision;window.hvTongRun=hvTong;window.hvCam=hvCam;window.hvCamStop=hvCamStop;window.hvSnap=hvSnap;
 
@@ -1583,7 +1613,7 @@ function rlBody(){const s=DB.settings;const fav=s.rlFav||[],rec=s.rlRecent||[];
  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
   <input class="input" style="flex:1;min-width:180px" placeholder="🔎 Tìm lễ, văn khấn… (VD: giao thừa, tảo mộ)" value="${esc(rlQ)}" oninput="rlQ=this.value;render()"/>
  </div>
- <div class="tabs" style="margin-bottom:10px">${RL_CATS.map(c=>`<span class="chip ${rlCat===c[0]?'on':''}" onclick="rlCat='${c[0]}';rlSel=null;render()">${c[1]}</span>`).join('')}<span class="chip ${rlCat==='fav'?'on':''}" onclick="rlCat='fav';rlSel=null;render()">⭐ Yêu thích (${fav.length})</span></div>
+ <div class="tabbar"><div class="tabs" style="margin-bottom:0">${RL_CATS.map(c=>`<span class="chip ${rlCat===c[0]?'on':''}" onclick="rlCat='${c[0]}';rlSel=null;render()">${c[1]}</span>`).join('')}<span class="chip ${rlCat==='fav'?'on':''}" onclick="rlCat='fav';rlSel=null;render()">⭐ Yêu thích (${fav.length})</span></div></div>
  <div class="hv-grid">${list.map(x=>`<div class="hv-card ${rlSel===x[0]?'on':''}" onclick="rlOpen('${x[0]}')"><div class="hv-ic">📜</div><div style="flex:1"><div class="t">${x[2]} ${fav.includes(x[0])?'⭐':''}</div><div class="d">${x[3]} · ${x[4]}</div></div><span style="color:var(--gold)">›</span></div>`).join('')||'<p class="muted">Không tìm thấy lễ phù hợp.</p>'}</div>
  ${rec.length&&!rlSel?`<div style="margin-top:10px"><span class="muted" style="font-size:12px">🕘 Xem gần đây:</span> ${rec.map(id=>{const it=rlItem(id);return it?`<span class="hv-pill" style="cursor:pointer" onclick="rlOpen('${id}')">${it[2]}</span>`:'';}).join('')}</div>`:''}
  ${detail}</div>`;}
@@ -1979,7 +2009,7 @@ V.settings=()=>{let body='';
  else if(setTab==='data')body=syncPanel()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file (dùng khi chuyển máy hoặc chưa bật đồng bộ).</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
  else if(setTab==='log')body=DB.activity.slice(0,50).map(a=>`<div class="row"><span class="muted" style="font-size:12px;width:150px">${esc(a.time)}</span><span>${esc(a.action)}</span></div>`).join('')||'<p class="muted">Chưa có nhật ký.</p>';
  else body=`<div class="field"><label>Nhà cung cấp AI</label><select id="aiP"><option ${DB.settings.ai.provider==='Chưa cấu hình'?'selected':''}>Chưa cấu hình</option><option ${DB.settings.ai.provider==='OpenAI (GPT)'?'selected':''}>OpenAI (GPT)</option><option ${DB.settings.ai.provider==='Anthropic (Claude)'?'selected':''}>Anthropic (Claude)</option></select></div><div class="field"><label>API Key</label><input class="input" id="aiK" type="password" value="${esc(DB.settings.ai.key)}"/></div><p class="muted" style="font-size:12px">Khóa lưu trong máy, dùng cho hỏi đáp AI khi deploy server.</p><button class="btn btn-p" onclick="saveAi()">Lưu</button>`;
- return `<div class="h1">⚙️ Cài đặt</div><div class="tabs">${STABS.map(t=>`<span class="chip ${setTab===t[0]?'on':''}" onclick="setTab='${t[0]}';render()">${t[1]}</span>`).join('')}</div><div class="card pad">${body}</div>`;};
+ return `<div class="h1">⚙️ Cài đặt</div><div class="tabbar"><div class="tabs" style="margin-bottom:0">${STABS.map(t=>`<span class="chip ${setTab===t[0]?'on':''}" onclick="setTab='${t[0]}';render()">${t[1]}</span>`).join('')}</div></div><div class="card pad" style="margin-top:10px">${body}</div>`;};
 function saveClan(){const d=val('orgDisplay');if(!d){toast('Nhập Tên hiển thị');return;}DB.org={type:val('orgType')||'Dòng họ',name:val('orgName'),display:d,short:val('orgShort')||d};DB.clan.name=DB.org.name;DB.clan.church=val('setChurch');DB.clan.address=val('setAddr');DB.clan.built=val('setBuilt');DB.clan.area=val('setArea');logAct('Sửa hồ sơ đơn vị: '+d);save();toast('Đã lưu');render();}
 function newProject(){const OT=['Dòng họ','Dòng tộc','Chi họ','Ngành họ','Gia đình','Khác'];
  document.getElementById('modalBox').innerHTML=`<h3>Tạo dự án mới</h3>
