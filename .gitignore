@@ -4,3 +4,9 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+# Ghi chú chứa khoá/mật khẩu — không bao giờ đẩy lên GitHub
+SUPABASE.txt
+*SUPABASE*.txt
+*khoa*.txt
+*mat-khau*.txt
