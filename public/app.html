@@ -389,6 +389,16 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .empty{text-align:center;padding:40px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 @media print{#sidebar,#mtop,.toolbar,footer{display:none!important}main{max-width:none}}
+/* ===== TRANG CHỦ: 4 ô vừa là LỐI TẮT module, vừa hiện SỐ LIỆU (tiết kiệm diện tích) ===== */
+.hero4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.h4card{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:14px 8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;transition:.15s;box-shadow:inset 0 0 0 2px rgba(212,175,55,.25)}
+.h4card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:inset 0 0 0 2px var(--gold),0 6px 18px rgba(139,0,0,.14)}
+.h4card:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.h4card .h4i{font-size:23px;line-height:1;margin-bottom:3px}
+.h4card .h4n{font-family:'Noto Serif',Georgia,serif;font-size:24px;font-weight:700;color:var(--primary);line-height:1.05}
+.h4card .h4u{font-size:11px;color:var(--muted)}
+.h4card .h4t{margin-top:4px;font-size:12.5px;font-weight:700;color:var(--primary)}
+@media(max-width:620px){.hero4{grid-template-columns:repeat(2,1fr);gap:8px}.h4card{padding:12px 6px 10px}.h4card .h4n{font-size:21px}.h4card .h4t{font-size:11.5px}}
 /* ===== ĐI SÂU VÀO MỤC (drill-down) — chọn mục nào hiện nội dung ngay, không phải kéo ===== */
 .backbar{display:inline-flex;align-items:center;gap:6px;background:var(--accent);border:1px solid var(--border);color:var(--primary);font-weight:700;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;font-family:inherit;margin-bottom:12px}
 .backbar:hover{border-color:var(--gold);background:#fdf3dc}
@@ -942,10 +952,17 @@ document.addEventListener('keydown',function(e){const t=(e.target.tagName||'').t
 
 V.home=()=>{const m=DB.members.length,f=DB.branches.length,g=new Set(DB.members.map(x=>x.generation)).size,e=DB.events.length;
  return heroHTML(DB.couplet)+`
- <div class="grid st4" style="margin-top:12px"><div class="card frame-gold stat"><div class="n">${m}</div><div class="l">Thành viên</div></div><div class="card frame-gold stat"><div class="n">${f}</div><div class="l">${T.b2}</div></div><div class="card frame-gold stat"><div class="n">${g}</div><div class="l">${T.gen}</div></div><div class="card frame-gold stat"><div class="n">${e}</div><div class="l">Sự kiện</div></div></div>
+ <div class="hero4" style="margin-top:12px">${[
+   ['pha','🌳','Sơ đồ gia phả',g,T.gen],
+   ['members','👤','Thành viên',m,'người'],
+   ['nhatho','🏛️','Nhà thờ họ',f,T.b2],
+   ['events','📅','Sự kiện · Giỗ',e,'sự kiện'],
+  ].map(q=>`<button class="h4card" onclick="go('${q[0]}')" title="Mở ${esc(q[2])}">
+    <span class="h4i">${q[1]}</span><span class="h4n">${q[3]}</span>
+    <span class="h4u">${esc(q[4])}</span><span class="h4t">${esc(q[2])}</span></button>`).join('')}</div>
  <div class="two" style="margin-top:12px">
-   <div class="card pad"><div class="h3">📅 Sự kiện sắp tới</div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted">Chưa có.</p>'}</div>
-   <div class="card pad"><div class="h3">🔔 Thông báo mới</div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted">Chưa có.</p>'}</div></div>
+   <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">📅 Sự kiện sắp tới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('events')">Xem tất cả ›</button></div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có sự kiện nào — bấm <b>Xem tất cả</b> để thêm giỗ chạp, họp họ.</p>'}</div>
+   <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">🔔 Thông báo mới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('notices')">Xem tất cả ›</button></div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có thông báo — bấm <b>Xem tất cả</b> để đăng tin cho cả họ.</p>'}</div></div>
  ${homeModules()}`;};
 /* Bảng điều khiển: ĐỦ mọi module, chia nhóm, kèm số liệu thật để biết chỗ nào có gì */
 function homeCount(k){try{
