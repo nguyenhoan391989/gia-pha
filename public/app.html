@@ -436,16 +436,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .ngrp.open .ghead{color:var(--gold)}
 /* ===== TRANG CHỦ: BẢNG ĐIỀU KHIỂN ===== */
 .hgrp{margin-top:18px}
-.hgrp-h{display:flex;align-items:baseline;gap:10px;margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid rgba(160,19,19,.18)}
-.hgrp-h b{font-family:'Noto Serif',Georgia,serif;color:var(--primary);font-size:16.5px}
-.hgrp-h span{color:var(--muted);font-size:12px}
+.hgrp-h{display:flex;align-items:center;margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid rgba(160,19,19,.18)}
+.hgrp-h b{font-family:'Noto Serif',Georgia,serif;color:var(--primary);font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .mcard{display:flex;gap:11px;align-items:flex-start;text-align:left;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition:.15s;font-family:inherit;width:100%}
 .mcard:hover{border-color:var(--gold);box-shadow:0 5px 16px rgba(139,0,0,.13);transform:translateY(-2px)}
 .mcard:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .mcard .mi{width:38px;height:38px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:19px;background:linear-gradient(#fdf3dc,#f6e6bf);border:1px solid rgba(201,151,47,.45)}
-.mcard .mt{font-weight:700;color:var(--primary);font-size:13.5px;line-height:1.25}
-.mcard .md{color:var(--muted);font-size:11.5px;line-height:1.45;margin-top:2px}
+.mcard .mt{display:block;font-weight:700;color:var(--primary);font-size:13.5px;line-height:1.25}
+.mcard .md{display:block;color:var(--muted);font-size:11.5px;line-height:1.45;margin-top:2px}
 .mcard .mb{margin-top:5px;display:inline-block;font-size:11px;font-weight:700;color:#7a5a2a;background:rgba(212,175,55,.2);border-radius:20px;padding:1px 8px}
 @media(max-width:520px){.mcards{grid-template-columns:1fr 1fr;gap:8px}.mcard{flex-direction:column;gap:7px;padding:11px}.mcard .md{display:none}}
 /* ===== MÀN HÌNH ĐĂNG NHẬP ===== */
@@ -1028,7 +1027,7 @@ function homeCount(k){try{
 function homeModules(){
  return `<div style="margin-top:22px">`+
  NAVG.map(g=>`<div class="hgrp">
-   <div class="hgrp-h"><b>${g.icon} ${esc(g.name)}</b><span>${esc(g.desc)}</span></div>
+   <div class="hgrp-h"><b>${g.icon} ${esc(g.name)}</b></div>
    <div class="mcards">${g.items.map(([k,l,e,d])=>{const c=homeCount(k);
      return `<button class="mcard" onclick="go('${k}')" title="${esc(d||l)}">
       <span class="mi">${e}</span>
