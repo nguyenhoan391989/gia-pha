@@ -1010,7 +1010,30 @@ V.home=()=>{const m=DB.members.length,f=DB.branches.length,g=new Set(DB.members.
  <div class="two" style="margin-top:12px">
    <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">📅 Sự kiện sắp tới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('events')">Xem tất cả ›</button></div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có sự kiện.</p>'}</div>
    <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">🔔 Thông báo mới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('notices')">Xem tất cả ›</button></div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có thông báo.</p>'}</div></div>
-`;};
+
+ ${homeModules()}`;};
+/* Bảng điều khiển: ĐỦ mọi module, chia nhóm, kèm số liệu thật để biết chỗ nào có gì */
+function homeCount(k){try{
+  if(k==='members')return DB.members.length+' người';
+  if(k==='pha'){const g=new Set(DB.members.map(x=>x.generation)).size;return g+' '+String(T.gen).toLowerCase();}
+  if(k==='families'){const s=new Set();let n=0;DB.members.forEach(m=>{if(m.spouseId&&!s.has(m.id)&&!s.has(m.spouseId)){s.add(m.id);s.add(m.spouseId);n++;}});return n+' hộ';}
+  if(k==='graves')return (DB.graves||[]).length+' mộ';
+  if(k==='events')return (DB.events||[]).length+' sự kiện';
+  if(k==='restoration')return (DB.restoration||[]).length+' công trình';
+  if(k==='fund')return (DB.fund||[]).length+' giao dịch';
+  if(k==='notices')return (DB.notices||[]).length+' tin';
+  if(k==='library')return (DB.photos||[]).length+' ảnh';
+  if(k==='roles')return roleList().length+' vai trò';
+}catch(e){}return '';}
+function homeModules(){
+ return `<div style="margin-top:22px">`+
+ NAVG.map(g=>`<div class="hgrp">
+   <div class="hgrp-h"><b>${g.icon} ${esc(g.name)}</b><span>${esc(g.desc)}</span></div>
+   <div class="mcards">${g.items.map(([k,l,e,d])=>{const c=homeCount(k);
+     return `<button class="mcard" onclick="go('${k}')" title="${esc(d||l)}">
+      <span class="mi">${e}</span>
+      <span><span class="mt">${esc(l)}</span><span class="md">${esc(d||'')}</span>${c?`<span class="mb">${esc(c)}</span>`:''}</span></button>`;}).join('')}</div>
+  </div>`).join('')+`</div>`;}
 /* Số hộ gia đình (cặp vợ chồng) — dùng cho ô lối tắt trang chủ */
 function homeHo(){const s=new Set();let n=0;DB.members.forEach(m=>{if(m.spouseId&&!s.has(m.id)&&!s.has(m.spouseId)){s.add(m.id);s.add(m.spouseId);n++;}});return n;}
 /* Ngày âm lịch hôm nay — hiện ngay ở ô Huyền học cho tiện xem giỗ chạp */
