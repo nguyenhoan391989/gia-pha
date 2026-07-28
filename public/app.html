@@ -320,6 +320,12 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .gen-label{position:absolute;left:2px;transform:translateY(-50%);background:linear-gradient(#a01313,#7a0e0e);color:#f5d878;border:1px solid #d4af37;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:800;white-space:nowrap;z-index:6;box-shadow:0 2px 6px rgba(0,0,0,.28)}
 .pha-sheet{position:relative;width:min(100%,1500px);margin:0 auto;aspect-ratio:3/2;background:#f6edd8;overflow:hidden;border-radius:6px;box-shadow:0 10px 34px rgba(60,20,0,.28)}
 .pha-sheet>.bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Tên trong cuốn thư. Trên điện thoại ảnh nền bị cắt hai bên (object-fit:cover) nên
+   cuốn thư to lên — phải nới bề rộng chữ theo, nếu không chữ trông rất nhỏ. */
+.pt-name{position:absolute;left:50.3%;top:15.4%;transform:translate(-50%,-50%);width:26%;overflow:visible;z-index:3}
+@media(max-width:900px){.pt-name{width:38%}}
+@media(max-width:720px){.pt-name{width:52%}}
+@media(max-width:480px){.pt-name{width:62%}}
 /* Mobile: poster khổ dọc cho vùng cây rộng hơn, dễ xem/kéo trên điện thoại */
 @media(max-width:720px){.pha-sheet{aspect-ratio:auto;height:74vh}.pt-sheet{aspect-ratio:auto;height:80vh}.pha-toolbar{gap:6px}.pha-title{font-size:14px}}
 @media(max-width:720px){.trad-content{padding:10px 8px 30px}.sd-name{width:36%}}
@@ -679,7 +685,7 @@ function renderCrud(key){const c=CRUD[key];const all=DB[c.store];const q=crudQ[k
 function crudTable(key){const c=CRUD[key];const rows=crudRows(key);const all=DB[c.store];const q=crudQ[key]||'';
   const nameLink=(r)=>(key==='members'||key==='graves')?`<a onclick="${key==='graves'?'viewGrave':'viewMember'}(${r.id})" style="color:var(--primary);font-weight:600;text-decoration:underline">${esc(r.name)}</a>`:esc(r.name);
   return `<div class="muted" style="font-size:12.5px;margin-bottom:8px">${q?`Tìm thấy <b>${rows.length}</b> trong ${all.length} bản ghi`:`${all.length} bản ghi · lưu trong trình duyệt`}</div>
-  <div class="card" style="overflow:auto">${rows.length===0?`<div class="empty">${q?`Không tìm thấy “${esc(q)}”.<br><span style="font-size:12.5px">Thử gõ ít chữ hơn hoặc bỏ dấu.</span>`:'Chưa có dữ liệu. Bấm "Thêm".'}</div>`:`<table><thead><tr>${c.columns.map(col=>`<th>${tlabel(col[0],col[1])}</th>`).join('')}<th class="right">Thao tác</th></tr></thead>
+  <div class="card" style="overflow:auto">${rows.length===0?`<div class="empty">${q?`Không tìm thấy “${esc(q)}”.`:'Chưa có dữ liệu.'}</div>`:`<table><thead><tr>${c.columns.map(col=>`<th>${tlabel(col[0],col[1])}</th>`).join('')}<th class="right">Thao tác</th></tr></thead>
   <tbody>${rows.map(r=>`<tr>${c.columns.map((col,i)=>`<td>${i===0&&(key==='members'||key==='graves')?nameLink(r):cell(r,col)}</td>`).join('')}
     <td class="right" style="white-space:nowrap">${key==='graves'?`<button class="btn btn-o btn-sm" onclick="openMedia('graves',${r.id})" title="Ảnh & video">📷</button> `:''}<button class="btn btn-o btn-sm" onclick="openForm('${key}',${r.id})">✎</button>
       <button class="btn btn-d btn-sm" onclick="del('${key}',${r.id})">🗑</button></td></tr>`).join('')}</tbody></table>`}</div>`;}
@@ -1002,37 +1008,13 @@ V.home=()=>{const m=DB.members.length,f=DB.branches.length,g=new Set(DB.members.
     <span class="h4i">${q[1]}</span><span class="h4n">${q[3]}</span>
     <span class="h4u">${esc(q[4])}</span><span class="h4t">${esc(q[2])}</span></button>`).join('')}</div>
  <div class="two" style="margin-top:12px">
-   <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">📅 Sự kiện sắp tới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('events')">Xem tất cả ›</button></div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có sự kiện nào — bấm <b>Xem tất cả</b> để thêm giỗ chạp, họp họ.</p>'}</div>
-   <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">🔔 Thông báo mới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('notices')">Xem tất cả ›</button></div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có thông báo — bấm <b>Xem tất cả</b> để đăng tin cho cả họ.</p>'}</div></div>
- ${homeModules()}`;};
+   <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">📅 Sự kiện sắp tới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('events')">Xem tất cả ›</button></div>${DB.events.slice(0,4).map(x=>`<div class="row"><span class="dot">📅</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.type)} · ${esc(x.location)}</div></span><span class="muted">${esc(x.date)}</span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có sự kiện.</p>'}</div>
+   <div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:6px">🔔 Thông báo mới<button class="btn btn-o btn-sm" style="margin-left:auto" onclick="go('notices')">Xem tất cả ›</button></div>${DB.notices.slice(0,4).map(x=>`<div class="row"><span class="dot">📌</span><span style="flex:1"><b>${esc(x.title)}</b><div class="muted" style="font-size:12px">${esc(x.tag)} · ${esc(x.date)}</div></span></div>`).join('')||'<p class="muted" style="margin:6px 0 0;font-size:12.5px">Chưa có thông báo.</p>'}</div></div>
+`;};
 /* Số hộ gia đình (cặp vợ chồng) — dùng cho ô lối tắt trang chủ */
 function homeHo(){const s=new Set();let n=0;DB.members.forEach(m=>{if(m.spouseId&&!s.has(m.id)&&!s.has(m.spouseId)){s.add(m.id);s.add(m.spouseId);n++;}});return n;}
 /* Ngày âm lịch hôm nay — hiện ngay ở ô Huyền học cho tiện xem giỗ chạp */
 function homeAm(){try{const d=new Date(),l=solar2lunar(d.getDate(),d.getMonth()+1,d.getFullYear());return l.d+'/'+l.m;}catch(e){return '—';}}
-/* Bảng điều khiển: ĐỦ mọi module, chia nhóm, kèm số liệu thật để biết chỗ nào có gì */
-function homeCount(k){try{
-  if(k==='members')return DB.members.length+' người';
-  if(k==='pha'){const g=new Set(DB.members.map(x=>x.generation)).size;return g+' '+String(T.gen).toLowerCase();}
-  if(k==='families'){const s=new Set();let n=0;DB.members.forEach(m=>{if(m.spouseId&&!s.has(m.id)&&!s.has(m.spouseId)){s.add(m.id);s.add(m.spouseId);n++;}});return n+' hộ';}
-  if(k==='graves')return (DB.graves||[]).length+' mộ';
-  if(k==='events')return (DB.events||[]).length+' sự kiện';
-  if(k==='restoration')return (DB.restoration||[]).length+' công trình';
-  if(k==='fund')return (DB.fund||[]).length+' giao dịch';
-  if(k==='notices')return (DB.notices||[]).length+' tin';
-  if(k==='library')return (DB.photos||[]).length+' ảnh';
-  if(k==='roles')return roleList().length+' vai trò';
-}catch(e){}return '';}
-function homeModules(){
- return `<div style="margin-top:22px"><div class="h3" style="margin-bottom:2px">📚 Toàn bộ chức năng</div>
-  <div class="muted" style="font-size:12.5px;margin-bottom:4px">Bấm vào ô bất kỳ để mở. Menu bên trái cũng chia theo các nhóm này.</div>`+
- NAVG.map(g=>`<div class="hgrp">
-   <div class="hgrp-h"><b>${g.icon} ${esc(g.name)}</b><span>${esc(g.desc)}</span></div>
-   <div class="mcards">${g.items.map(([k,l,e,d])=>{const c=homeCount(k);
-     return `<button class="mcard" onclick="go('${k}')" title="${esc(d||l)}">
-      <span class="mi">${e}</span>
-      <span><span class="mt">${esc(l)}</span><span class="md">${esc(d||'')}</span>${c?`<span class="mb">${esc(c)}</span>`:''}</span></button>`;}).join('')}</div>
-  </div>`).join('')+`</div>`;}
-
 /* ---- Nhà thờ họ (rail chuyển nội dung) ---- */
 const HSEC=[['intro','Giới thiệu'],['history','Lịch sử dòng họ'],['thuyto','Câu chuyện Thủy tổ'],['giahuan','Gia huấn'],['giaquy','Gia quy'],['sacphong','Sắc phong'],['images','Hình ảnh']];
 /** Chuẩn hóa 1 mục nội dung: string cũ -> {text,images,videos} */
@@ -1134,7 +1116,7 @@ function ptNameSVG(name){name=name||'';const nl=Math.max(1,[...name].length);
  /* Tự canh: cỡ chữ = bề rộng lòng cuộn thư / số chữ → ít chữ thì TO, nhiều chữ thì nhỏ lại, luôn vừa khung */
  const TARGET=330,fs=Math.max(13,Math.min(44,TARGET/(nl*.62)));
  const natural=nl*fs*.62,tl=natural>TARGET?` textLength="${TARGET}" lengthAdjust="spacingAndGlyphs"`:'';
- return `<svg viewBox="0 0 400 80" style="position:absolute;left:50.3%;top:15.4%;transform:translate(-50%,-50%);width:26%;overflow:visible;z-index:3">
+ return `<svg class="pt-name" viewBox="0 0 400 80">
  <path id="ptArcN" d="M40 58 Q200 24 360 58" fill="none"/>
  <text font-family="'Noto Serif',Georgia,serif" font-weight="800" font-size="${fs.toFixed(1)}" fill="#7a1010"><textPath href="#ptArcN" startOffset="50%" text-anchor="middle"${tl}>${esc(name)}</textPath></text></svg>`;}
 function renderPrintTree(){const s=document.getElementById('ptSheet');if(!s)return;const bg=(DB.settings&&DB.settings.printBg)||'';
@@ -1164,7 +1146,7 @@ window.openPrintTree=openPrintTree;window.closePrintTree=closePrintTree;window.p
 V.pha=()=>{const rts=treeRoots();
  return `<div class="pha-toolbar">
    <span class="pha-title">🌳 Sơ đồ gia phả</span>
-   <span class="muted" style="font-size:12px">Theo dòng cha · ${DB.members.length} thành viên · bấm tên để xem hồ sơ</span>
+   <span class="muted" style="font-size:12px">Theo dòng cha · ${DB.members.length} thành viên</span>
    <span style="margin-left:auto"></span>
    <button class="btn btn-o btn-sm" onclick="phaZoom(-15)" title="Thu nhỏ">−</button>
    <b id="phaZ" style="align-self:center;min-width:46px;text-align:center">${Math.round(phaZ)}%</b>
@@ -1176,7 +1158,6 @@ V.pha=()=>{const rts=treeRoots();
    <img class="bgimg" ${BG_IMG} onload="phaAfterRender&&phaAfterRender()"/>${ptNameSVG(DB.org.display)}
    <div class="pha-view" id="phaView" onwheel="phaWheel(event)" onmousedown="phaDown(event)" ontouchstart="phaTouchStart(event)" ontouchmove="phaTouchMove(event)">
      <div class="pha-scene" id="phaScene" style="transform:translate(${phaX}px,${phaY}px) scale(${phaZ/100})"><div class="tree"><div class="kids kids-top">${rts.map(tnode).join('')}</div></div></div>
-     <div class="pha-hint">🖱 Lăn chuột: phóng to · Kéo: di chuyển</div>
    </div>
  </div>`;};
 
