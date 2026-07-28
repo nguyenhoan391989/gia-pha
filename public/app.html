@@ -405,15 +405,33 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
-/* ===== QUỸ DÒNG HỌ ===== */
-.fund-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
-.fcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px 12px;border-radius:14px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;transition:.15s;box-shadow:inset 0 0 0 2px rgba(212,175,55,.22)}
-.fcard:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:inset 0 0 0 2px var(--gold),0 6px 18px rgba(139,0,0,.14)}
-.fcard:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.fcard .fi{font-size:26px;line-height:1}
-.fcard .fn{font-weight:700;color:var(--primary);font-size:13.5px;margin-top:5px;text-align:center}
-.fcard .fb{font-family:'Noto Serif',Georgia,serif;font-size:20px;font-weight:700;color:var(--gold-dark);margin-top:5px}
-.fcard .fl{font-size:11px;color:var(--muted)}
+/* ===== QUỸ CÔNG ĐỨC ===== */
+.fund-hero{background:linear-gradient(#8B0000,#6d0d0d);border:1px solid var(--gold);border-radius:16px;padding:18px;color:#fff}
+.fund-hero .fh-main{text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(212,175,55,.35)}
+.fund-hero .fh-main .l{display:block;color:rgba(255,255,255,.8);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase}
+.fund-hero .fh-main .v{display:block;font-family:'Noto Serif',Georgia,serif;font-size:32px;font-weight:700;color:var(--gold);margin-top:4px}
+.fund-hero .fh-sub{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.fund-hero .fh-i{text-align:center}
+.fund-hero .fh-i .l{display:block;font-size:11.5px;color:rgba(255,255,255,.75)}
+.fund-hero .fh-i .v{display:block;font-weight:700;font-size:15px;margin-top:2px}
+.fund-hero .fh-i .v.thu{color:#8fe3b8}.fund-hero .fh-i .v.chi{color:#ffb0a8}
+@media(max-width:620px){.fund-hero .fh-sub{grid-template-columns:1fr 1fr}.fund-hero .fh-main .v{font-size:25px}}
+/* Bộ lọc */
+.frow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fl{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted)}
+.fl input,.fl select{padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);font-size:13px;font-family:inherit}
+/* Biểu đồ cột theo tháng */
+.mchart{display:flex;align-items:flex-end;gap:8px;height:150px;overflow-x:auto;padding-top:6px}
+.mcol{flex:1;min-width:34px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.mcol .mbars{flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center}
+.mcol .mbars i{width:11px;border-radius:3px 3px 0 0;min-height:2px}
+.mcol .mbars i.t{background:linear-gradient(#4caf50,#0f6e56)}
+.mcol .mbars i.c{background:linear-gradient(#e57373,#a81414)}
+.mcol span{font-size:10.5px;color:var(--muted)}
+.mlegend{display:flex;gap:14px;justify-content:center;margin-top:8px;font-size:12px;color:var(--muted)}
+.mlegend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px}
+.mlegend i.t{background:#0f6e56}.mlegend i.c{background:#a81414}
+.txrow .tr img{width:34px;height:34px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:pointer}
 /* Dòng giao dịch — nhãn màu Thu/Chi rõ ràng */
 .txrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px dashed var(--border);flex-wrap:wrap}
 .txrow:last-child{border-bottom:none}
@@ -667,6 +685,20 @@ const brL1Opts=()=>['— '+ (DB.terms?DB.terms.b1:'Ngành') +' —'].concat(DB.b
 const memOpts=()=>[{v:0,t:'— Không —'}].concat(DB.members.map(m=>({v:m.id,t:m.name})));
 /** Nhãn hiển thị động theo tên gọi đã cấu hình (DB.terms). DB vẫn lưu trường chuẩn. */
 function tlabel(key,fallback){const t=DB.terms||{};if(key==='branchL1')return t.b1||'Ngành';if(key==='branch')return t.b2||'Chi';if(key==='generation')return t.gen||'Đời';return fallback;}
+/* ===================== QUỸ CÔNG ĐỨC — LÕI =====================
+   MỘT quỹ duy nhất. Phân loại bằng HẠNG MỤC Thu/Chi (quản trị tự thêm/sửa/xóa).
+   ĐẶT Ở ĐÂY (cùng khối script với CRUD) vì CRUD dùng ngay các hàm này lúc tải trang. */
+const CAT_THU_DEF=['Công đức','Đóng góp','Tài trợ','Khác'];
+const CAT_CHI_DEF=['Nhà thờ họ','Hương khói','Tu bổ - xây dựng','Giỗ tổ - lễ hội','Khuyến học','Hiếu hỷ','Người cao tuổi','Từ thiện','Mộ phần','Hoạt động dòng họ','Khác'];
+function catThu(){return (DB.fundCats&&DB.fundCats.thu&&DB.fundCats.thu.length)?DB.fundCats.thu:CAT_THU_DEF;}
+function catChi(){return (DB.fundCats&&DB.fundCats.chi&&DB.fundCats.chi.length)?DB.fundCats.chi:CAT_CHI_DEF;}
+function catAll(){return catThu().concat(catChi());}
+/* Ô "Hạng mục" gộp cả Thu và Chi, có tiền tố để dễ nhìn */
+function catOpts(){return catThu().map(x=>'↑ '+x).concat(catChi().map(x=>'↓ '+x));}
+function catClean(v){return String(v||'').replace(/^[↑↓]\s*/,'').trim();}
+function catLabel(v){const c=catClean(v);if(!c)return '—';return (catThu().indexOf(c)>=0?'↑ ':'↓ ')+c;}
+/* Danh sách hoạt động (trước gọi là Tu bổ) — để gắn khoản chi vào hoạt động */
+function resOpts(){return [['0','— Không gắn hoạt động —']].concat((DB.restoration||[]).map(r=>[String(r.id),r.name]));}
 const CRUD={
   members:{title:'Thành viên',icon:'👤',store:'members',
     columns:[['name','Họ tên'],['birthYear','Năm sinh'],['gender','Giới tính'],['branchL1','_b1'],['branch','_b2'],['generation','_gen']],
@@ -674,9 +706,14 @@ const CRUD={
   events:{title:'Sự kiện',icon:'📅',store:'events',
     columns:[['date','Ngày'],['title','Sự kiện'],['type','Loại'],['location','Địa điểm']],
     fields:[['title','Tên sự kiện *','text'],['date','Ngày (dd/mm/yyyy)','text'],['type','Loại','select',['Giỗ tổ','Họp họ','Lễ tế','Mừng thọ','Tang lễ']],['location','Địa điểm','text'],['note','Ghi chú','textarea']]},
-  fund:{title:'Quỹ dòng họ',icon:'⭐',store:'fund',
-    columns:[['date','Ngày'],['name','Nội dung/Người'],['fundId','Quỹ',fundName],['type','Loại'],['amount','Số tiền',vnd],['method','Hình thức']],
-    fields:[['name','Người / Nội dung *','text'],['fundId','Thuộc quỹ','select',fundOpts],['projectId','Thuộc công trình (nếu có)','selectId',resOpts],['type','Loại','select',['Thu','Chi']],['date','Ngày (dd/mm/yyyy)','text'],['purpose','Mục đích','text'],['amount','Số tiền (đ)','number'],['method','Hình thức','select',['Tiền mặt','Chuyển khoản']]]},
+  fund:{title:'Quỹ công đức',icon:'💰',store:'fund',
+    columns:[['date','Ngày'],['name','Nội dung'],['cat','Hạng mục',catLabel],['type','Loại'],['amount','Số tiền',vnd],['person','Người đóng/nhận']],
+    fields:[['name','Nội dung *','text'],['type','Loại','select',['Thu','Chi']],['cat','Hạng mục','select',catOpts],
+      ['amount','Số tiền (đ)','number'],['date','Ngày (dd/mm/yyyy)','text'],
+      ['person','Người đóng / nhận','text'],['approver','Người duyệt','text'],
+      ['method','Hình thức','select',['Tiền mặt','Chuyển khoản']],
+      ['projectId','Thuộc hoạt động (nếu có)','selectId',resOpts],
+      ['receipt','Chứng từ (ảnh)','image'],['note','Ghi chú','textarea']]},
   graves:{title:'Mộ phần',icon:'⚱️',store:'graves',
     columns:[['name','Họ tên'],['area','Khu mộ'],['location','Vị trí'],['year','Năm mất'],['status','Tình trạng']],
     fields:[['name','Họ tên *','text'],['area','Khu mộ','text'],['location','Vị trí (lô)','text'],['mapUrl','Bản đồ (link Google Maps / toạ độ)','text'],['year','Năm mất','number'],['status','Tình trạng','select',['Tốt','Cần tu sửa']],['manager','Người quản lý','text'],['note','Nhật ký tu sửa','textarea']]},
@@ -833,7 +870,7 @@ function openForm(key,id){const c=CRUD[key];const cur=id?(DB[c.store].find(x=>x.
   const html=c.fields.map(f=>{const[k,label0,type,opts]=f;const label=tlabel(k,label0);const val=cur[k]??'';
     if(type==='select'){const o=(typeof opts==='function'?opts():opts)||[];
       /* Ô "Thuộc quỹ" lưu bằng mã (vd 'tubo') nhưng hiển thị nhãn → so khớp qua mã */
-      const sel=(x)=>k==='fundId'?(fundIdFromLabel(x)===fundIdFromLabel(val||'')):(val===x);
+      const sel=(x)=>k==='cat'?(catClean(x)===catClean(val||'')):(val===x);
       return fld(label,`<select data-k="${k}">${o.map(x=>`<option ${sel(x)?'selected':''}>${esc(x)}</option>`).join('')}</select>`);}
     if(type==='selectId'){const o=(typeof opts==='function'?opts():opts)||[];return fld(label,`<select data-k="${k}" data-num="1">${o.map(x=>`<option value="${x.v}" ${(+val)===x.v?'selected':''}>${esc(x.t)}</option>`).join('')}</select>`);}
     if(type==='textarea')return fld(label,`<textarea data-k="${k}" rows="3">${esc(val)}</textarea>`,1);
@@ -852,7 +889,7 @@ function saveForm(key,id){const c=CRUD[key];const box=document.getElementById('m
   const nameKey=c.fields[0][0];
   if(!obj[nameKey]){toast('Vui lòng nhập '+c.fields[0][1].replace(' *',''));return;}
   /* Ô chọn quỹ hiển thị "❤️ Quỹ Công đức" → lưu về mã ngắn để không vỡ khi đổi tên quỹ */
-  if(key==='fund'&&obj.fundId)obj.fundId=fundIdFromLabel(obj.fundId);
+  if(key==='fund'&&obj.cat)obj.cat=catClean(obj.cat);
   const arr=DB[c.store];
   if(id){const i=arr.findIndex(x=>x.id===id);arr[i]={...arr[i],...obj};logAct('Sửa '+c.title+': '+obj[nameKey]);toast('Đã cập nhật');}
   else{obj.id=nextId(arr);arr.push(obj);logAct('Thêm '+c.title+': '+obj[nameKey]);toast('Đã thêm mới');}
@@ -1101,86 +1138,6 @@ function homeModules(){
       <span class="mi">${e}</span>
       <span><span class="mt">${esc(l)}</span><span class="md">${esc(d||'')}</span>${c?`<span class="mb">${esc(c)}</span>`:''}</span></button>`;}).join('')}</div>
   </div>`).join('')+`</div>`;}
-/* ===================== QUỸ DÒNG HỌ =====================
-   Nhiều quỹ trong một sổ. 4 quỹ mặc định; trưởng tộc/quản trị được thêm quỹ mới
-   hoặc đổi tên cho hợp với từng dòng họ. Giao dịch cũ (chưa gắn quỹ) tính vào Công đức. */
-const FUND_DEF=[
- {id:'congduc', icon:'❤️', name:'Quỹ Công đức'},
- {id:'tubo',    icon:'🛕', name:'Quỹ Tu bổ'},
- {id:'khuyenhoc',icon:'🎓', name:'Quỹ Khuyến học'},
- {id:'thuongnien',icon:'🌿', name:'Quỹ Hoạt động thường niên'},
-];
-function fundList(){const f=(DB.funds&&DB.funds.length)?DB.funds:FUND_DEF;return f.map(x=>Object.assign({},x));}
-/* Danh sách công trình tu bổ — để gắn khoản chi vào đúng công trình */
-function resOpts(){return [['0','— Không gắn công trình —']].concat((DB.restoration||[]).map(r=>[String(r.id),r.name]));}
-function fundOf(id){return fundList().find(f=>f.id===id)||fundList()[0];}
-function fundName(id){const f=fundList().find(x=>x.id===id);return f?f.icon+' '+f.name:fundList()[0].icon+' '+fundList()[0].name;}
-function fundOpts(){return fundList().map(f=>f.icon+' '+f.name);}
-/* Ô chọn quỹ trong biểu mẫu lưu bằng TÊN → đổi về mã để lưu gọn */
-function fundIdFromLabel(v){const f=fundList().find(x=>(x.icon+' '+x.name)===v||x.name===v||x.id===v);return f?f.id:fundList()[0].id;}
-function fundTx(id){return DB.fund.filter(f=>(f.fundId?fundIdFromLabel(f.fundId):'congduc')===id);}
-function fundSum(id){const t=fundTx(id);const thu=t.filter(x=>x.type!=='Chi').reduce((s,x)=>s+(+x.amount||0),0);
- const chi=t.filter(x=>x.type==='Chi').reduce((s,x)=>s+(+x.amount||0),0);return {thu,chi,du:thu-chi,n:t.length};}
-function fundSave(list){DB.funds=list;save();render();}
-function fundAdd(){const n=prompt('Tên quỹ mới:','Quỹ ');if(!n||!n.trim())return;
- const ic=prompt('Biểu tượng (emoji):','💠')||'💠';
- const list=fundList();list.push({id:'q'+Date.now().toString(36),icon:ic.trim(),name:n.trim()});
- logAct('Thêm quỹ: '+n.trim());fundSave(list);toast('Đã thêm '+n.trim());}
-function fundRename(id){const list=fundList();const f=list.find(x=>x.id===id);if(!f)return;
- const n=prompt('Đổi tên quỹ:',f.name);if(!n||!n.trim())return;
- const ic=prompt('Biểu tượng (emoji):',f.icon)||f.icon;
- f.name=n.trim();f.icon=ic.trim();logAct('Đổi tên quỹ: '+n.trim());fundSave(list);toast('Đã đổi tên');}
-function fundDel(id){const s=fundSum(id);
- if(s.n){alert('Quỹ này còn '+s.n+' giao dịch. Hãy chuyển hoặc xóa giao dịch trước.');return;}
- if(fundList().length<=1){alert('Phải giữ lại ít nhất một quỹ.');return;}
- if(!confirm('Xóa quỹ này?'))return;
- fundSave(fundList().filter(x=>x.id!==id));toast('Đã xóa quỹ');}
-/* ---- Nhập sổ sách quỹ từ Excel / CSV ---- */
-const FUND_HMAP={'ngay':'date','ngay thang':'date','thoi gian':'date',
- 'noi dung':'name','nguoi':'name','nguoi/noi dung':'name','ho ten':'name','ten':'name','dien giai':'name',
- 'loai':'type','thu/chi':'type','thu chi':'type',
- 'so tien':'amount','so tien (d)':'amount','tien':'amount','gia tri':'amount',
- 'muc dich':'purpose','ly do':'purpose','ghi chu':'purpose',
- 'hinh thuc':'method','phuong thuc':'method',
- 'quy':'fundId','thuoc quy':'fundId','loai quy':'fundId'};
-function fundMapHeader(h){const k=stripVN(String(h||'')).toLowerCase().trim();return FUND_HMAP[k]||null;}
-function fundTemplate(){const headers=['Ngày','Nội dung / Người','Quỹ','Loại','Số tiền','Mục đích','Hình thức'];
- const ex=['10/03/2026','Nguyễn Văn A','Quỹ Tu bổ','Thu','10000000','Ủng hộ tu bổ nhà thờ','Tiền mặt'];
- const ex2=['12/03/2026','Mua gạch sửa nhà thờ','Quỹ Tu bổ','Chi','2500000','Vật liệu','Chuyển khoản'];
- const csv='﻿'+[headers,ex,ex2].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
- const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='mau-so-sach-quy.csv';a.click();toast('Đã tải file mẫu');}
-let fundImportData=null;
-function fundImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập sổ sách quỹ</h3>
- <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>, dòng đầu là tiêu đề cột. Cột <b>Loại</b> ghi <b>Thu</b> hoặc <b>Chi</b>.</p>
- <div class="field"><input type="file" accept=".xlsx,.xls,.csv" onchange="fundImportFile(event)"/></div>
- <div id="fundImpPrev" class="muted" style="font-size:12.5px;min-height:22px"></div>
- <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px"><button class="btn btn-o" onclick="closeModal()">Hủy</button><button class="btn btn-p" id="fundImpBtn" onclick="fundImportCommit()" disabled>Nhập</button></div>`;
- document.getElementById('modal').classList.add('open');}
-function fundImportFile(ev){const f=ev.target.files[0];if(!f)return;const prev=document.getElementById('fundImpPrev');const nm=f.name.toLowerCase();
- if(nm.endsWith('.csv')){const r=new FileReader();r.onload=()=>fundImportParse(fundArrToObjs(csvParse(r.result)));r.readAsText(f,'utf-8');return;}
- loadXLSX(()=>{const r=new FileReader();r.onload=(e)=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];
-   fundImportParse(fundArrToObjs(XLSX.utils.sheet_to_json(ws,{header:1,defval:''})));}catch(err){prev.textContent='⚠ Lỗi đọc Excel: '+err.message;}};r.readAsArrayBuffer(f);},
-  ()=>{prev.innerHTML='⚠ Không tải được thư viện đọc Excel. Hãy lưu file dạng <b>CSV UTF-8</b> rồi nhập lại.';});}
-function fundArrToObjs(arr){if(!arr||!arr.length)return [];const hs=arr[0].map(fundMapHeader);
- return arr.slice(1).filter(r=>r.some(c=>String(c).trim())).map(r=>{const o={};hs.forEach((k,i)=>{if(k)o[k]=r[i];});return o;});}
-function fundImportParse(objs){const prev=document.getElementById('fundImpPrev'),btn=document.getElementById('fundImpBtn');
- const list=objs.map(o=>{const t=stripVN(String(o.type||'')).toLowerCase();
-  return {name:String(o.name||'').trim(),date:String(o.date||'').trim(),
-   type:/chi/.test(t)&&!/thu/.test(t)?'Chi':'Thu',
-   amount:+String(o.amount||'').replace(/[^\d]/g,'')||0,
-   purpose:String(o.purpose||'').trim(),method:String(o.method||'Tiền mặt').trim(),
-   fundId:fundIdFromLabel(String(o.fundId||''))};}).filter(x=>x.name&&x.amount);
- fundImportData=list;
- if(!list.length){prev.innerHTML='<span style="color:#b23a3a">Không có dòng hợp lệ (cần có Nội dung và Số tiền).</span>';btn.disabled=true;return;}
- const thu=list.filter(x=>x.type==='Thu').reduce((s,x)=>s+x.amount,0),chi=list.filter(x=>x.type==='Chi').reduce((s,x)=>s+x.amount,0);
- prev.innerHTML=`✅ Đọc được <b>${list.length}</b> giao dịch — thu <b>${vnd(thu)}</b>, chi <b>${vnd(chi)}</b>.`;btn.disabled=false;}
-function fundImportCommit(){if(!fundImportData||!fundImportData.length){toast('Chưa có dữ liệu');return;}
- fundImportData.forEach(x=>DB.fund.push(Object.assign({id:nextId(DB.fund)},x)));
- const n=fundImportData.length;fundImportData=null;logAct('Nhập '+n+' giao dịch quỹ từ file');save();closeModal();render();toast('Đã nhập '+n+' giao dịch');}
-window.fundTemplate=fundTemplate;window.fundImport=fundImport;window.fundImportFile=fundImportFile;window.fundImportCommit=fundImportCommit;
-let fundView='';
-function fundOpen(id){fundView=id;render();window.scrollTo(0,0);}
-window.fundAdd=fundAdd;window.fundRename=fundRename;window.fundDel=fundDel;window.fundOpen=fundOpen;
 /* Số hộ gia đình (cặp vợ chồng) — dùng cho ô lối tắt trang chủ */
 function homeHo(){const s=new Set();let n=0;DB.members.forEach(m=>{if(m.spouseId&&!s.has(m.id)&&!s.has(m.spouseId)){s.add(m.id);s.add(m.spouseId);n++;}});return n;}
 /* Ngày âm lịch hôm nay — hiện ngay ở ô Huyền học cho tiện xem giỗ chạp */
@@ -1394,64 +1351,202 @@ function calNav(d){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+d,1
 window.calNav=calNav;
 
 /* ---- Quỹ công đức: thu/chi + biểu đồ ---- */
-V.fund=()=>fundView?fundDetail(fundView):fundDash();
-/* Trang đầu: mỗi quỹ một thẻ, chỉ hiện SỐ DƯ cho gọn */
-function fundDash(){const list=fundList();const canEd=curLevel()>=2;
- const all=list.reduce((a,f)=>{const s=fundSum(f.id);return {thu:a.thu+s.thu,chi:a.chi+s.chi};},{thu:0,chi:0});
- return `<div class="h1">⭐ Quỹ Dòng Họ</div><div class="sub">Các quỹ của dòng họ — thu chi minh bạch, ai cũng xem được.</div>
- <div class="fund-grid">${list.map(f=>{const s=fundSum(f.id);
-   return `<button class="fcard" onclick="fundOpen('${f.id}')">
-     <span class="fi">${f.icon}</span>
-     <span class="fn">${esc(f.name)}</span>
-     <span class="fb">${vnd(s.du)}</span>
-     <span class="fl">Số dư · ${s.n} giao dịch</span></button>`;}).join('')}</div>
- <div class="card pad" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-   <span><b style="color:#0f6e56">${vnd(all.thu)}</b> <span class="muted" style="font-size:12.5px">tổng thu</span></span>
-   <span><b style="color:#a11">${vnd(all.chi)}</b> <span class="muted" style="font-size:12.5px">tổng chi</span></span>
-   <span><b style="color:var(--gold-dark)">${vnd(all.thu-all.chi)}</b> <span class="muted" style="font-size:12.5px">tổng số dư</span></span>
-   ${canEd?`<span style="margin-left:auto"></span><button class="btn btn-o btn-sm" onclick="fundTemplate()">⬇ Mẫu sổ sách</button><button class="btn btn-o btn-sm" onclick="fundImport()">⬆ Nhập sổ sách</button><button class="btn btn-o btn-sm" onclick="fundAdd()">➕ Thêm quỹ</button>`:''}
- </div>`;}
-/* Trang chi tiết một quỹ */
-function fundDetail(id){const f=fundOf(id);const s=fundSum(id);const tx=fundTx(id);const canEd=curLevel()>=2;
- const byP={};tx.filter(x=>x.type!=='Chi').forEach(x=>{const k=x.purpose||x.name;byP[k]=(byP[k]||0)+(+x.amount||0);});
- const byC={};tx.filter(x=>x.type==='Chi').forEach(x=>{const k=x.purpose||x.name;byC[k]=(byC[k]||0)+(+x.amount||0);});
- const mx=Math.max(1,...Object.values(byP),...Object.values(byC));
- const bar=(o,color)=>Object.keys(o).map(k=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;gap:8px"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k)}</span><span class="muted">${vnd(o[k])}</span></div><div class="bar"><i style="width:${o[k]/mx*100}%;background:${color}"></i></div></div>`).join('');
- return `<button class="backbar" onclick="fundOpen('')">‹ <span>Tất cả quỹ</span></button>
- <div class="h1">${f.icon} ${esc(f.name)}</div>
- <div class="grid st3"><div class="card frame-gold stat"><div class="n" style="color:#0f6e56">${vnd(s.thu)}</div><div class="l">Tổng thu</div></div>
-  <div class="card frame-gold stat"><div class="n" style="color:#a11">${vnd(s.chi)}</div><div class="l">Tổng chi</div></div>
-  <div class="card frame-gold stat"><div class="n" style="color:var(--gold-dark)">${vnd(s.du)}</div><div class="l">Số dư hiện tại</div></div></div>
+/* ===================== QUỸ CÔNG ĐỨC — GIAO DIỆN =====================
+   Một quỹ duy nhất, phân loại theo HẠNG MỤC. Số dư tự cập nhật sau mỗi giao dịch. */
+let fundTab='dash', fundQ='', fundFrom='', fundTo='', fundCatF='', fundTypeF='';
+const fundMoney=(v)=>vnd(+v||0);
+/* Ngày dd/mm/yyyy -> đối tượng so sánh được */
+function fdate(v){const m=String(v||'').match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+ return m?new Date(+m[3],+m[2]-1,+m[1]):null;}
+function fundAll(){return (DB.fund||[]).slice().sort((a,b)=>{const x=fdate(a.date),y=fdate(b.date);
+ return (y?y.getTime():0)-(x?x.getTime():0);});}
+/* Lọc theo thời gian, hạng mục, loại và từ khóa */
+function fundRows(){const q=stripVN(fundQ).toLowerCase().trim();
+ const from=fundFrom?new Date(fundFrom):null, to=fundTo?new Date(fundTo+'T23:59:59'):null;
+ return fundAll().filter(x=>{
+  if(fundTypeF&&(x.type||'Thu')!==fundTypeF)return false;
+  if(fundCatF&&catClean(x.cat)!==fundCatF)return false;
+  const d=fdate(x.date);
+  if(from&&(!d||d<from))return false;
+  if(to&&(!d||d>to))return false;
+  if(q){const hay=stripVN([x.name,x.person,x.approver,catClean(x.cat),x.note,x.method,x.amount].join(' ')).toLowerCase();
+   if(!q.split(/\s+/).every(p=>hay.indexOf(p)>=0))return false;}
+  return true;});}
+function fundTotals(rows){const thu=rows.filter(x=>(x.type||'Thu')!=='Chi').reduce((s,x)=>s+(+x.amount||0),0);
+ const chi=rows.filter(x=>x.type==='Chi').reduce((s,x)=>s+(+x.amount||0),0);return {thu,chi,du:thu-chi};}
+function fundThisMonth(){const n=new Date();return fundAll().filter(x=>{const d=fdate(x.date);
+ return d&&d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();});}
+function fundSet(k,v){({q:()=>fundQ=v,from:()=>fundFrom=v,to:()=>fundTo=v,cat:()=>fundCatF=v,type:()=>fundTypeF=v})[k]();
+ const b=document.getElementById('fundBody');if(b){b.innerHTML=fundPane();applyPerms();}}
+function fundGo(t){fundTab=t;render();}
+function fundReset(){fundQ='';fundFrom='';fundTo='';fundCatF='';fundTypeF='';render();}
+window.fundSet=fundSet;window.fundGo=fundGo;window.fundReset=fundReset;
+/* ---- Quản lý hạng mục (quản trị) ---- */
+function catEnsure(){DB.fundCats=DB.fundCats||{};DB.fundCats.thu=catThu().slice();DB.fundCats.chi=catChi().slice();}
+function catAdd(kind){const n=prompt('Tên hạng mục '+(kind==='thu'?'THU':'CHI')+' mới:');if(!n||!n.trim())return;
+ catEnsure();if(DB.fundCats[kind].indexOf(n.trim())>=0){toast('Hạng mục đã có');return;}
+ DB.fundCats[kind].push(n.trim());logAct('Thêm hạng mục: '+n.trim());save();render();toast('Đã thêm');}
+function catEdit(kind,i){catEnsure();const old=DB.fundCats[kind][i];const n=prompt('Đổi tên hạng mục:',old);
+ if(!n||!n.trim()||n.trim()===old)return;
+ DB.fundCats[kind][i]=n.trim();
+ (DB.fund||[]).forEach(x=>{if(catClean(x.cat)===old)x.cat=n.trim();}); /* giữ nguyên dữ liệu cũ */
+ logAct('Đổi tên hạng mục: '+old+' → '+n.trim());save();render();toast('Đã đổi tên');}
+function catDel(kind,i){catEnsure();const c=DB.fundCats[kind][i];
+ const n=(DB.fund||[]).filter(x=>catClean(x.cat)===c).length;
+ if(n){alert('Hạng mục "'+c+'" đang có '+n+' giao dịch. Hãy đổi hạng mục của các giao dịch đó trước.');return;}
+ if(!confirm('Xóa hạng mục "'+c+'"?'))return;
+ DB.fundCats[kind].splice(i,1);logAct('Xóa hạng mục: '+c);save();render();toast('Đã xóa');}
+window.catAdd=catAdd;window.catEdit=catEdit;window.catDel=catDel;
+/* ---- Biểu đồ đơn giản bằng CSS (không cần thư viện, chạy được khi mất mạng) ---- */
+function chartBars(obj,color){const ks=Object.keys(obj);if(!ks.length)return '<p class="muted">Chưa có dữ liệu.</p>';
+ const mx=Math.max(1,...ks.map(k=>obj[k]));
+ return ks.map(k=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px">
+  <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k)}</span><span class="muted">${fundMoney(obj[k])}</span></div>
+  <div class="bar"><i style="width:${obj[k]/mx*100}%;background:${color}"></i></div></div>`).join('');}
+/* Biểu đồ tròn vẽ bằng conic-gradient */
+function chartPie(obj){const ks=Object.keys(obj).filter(k=>obj[k]>0);if(!ks.length)return '<p class="muted">Chưa có khoản chi.</p>';
+ const tot=ks.reduce((s,k)=>s+obj[k],0);const COL=['#a81414','#c9972f','#0f6e56','#7a5a2a','#b23a3a','#557','#8a3a1c','#4a7','#966','#38607a','#8a6d3b'];
+ let acc=0;const segs=ks.map((k,i)=>{const a=acc;acc+=obj[k]/tot*360;return `${COL[i%COL.length]} ${a}deg ${acc}deg`;}).join(',');
+ return `<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+  <div style="width:150px;height:150px;border-radius:50%;flex:none;background:conic-gradient(${segs});box-shadow:0 3px 12px rgba(0,0,0,.18)"></div>
+  <div style="flex:1;min-width:150px">${ks.map((k,i)=>`<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;margin-bottom:4px">
+    <span style="width:12px;height:12px;border-radius:3px;flex:none;background:${COL[i%COL.length]}"></span>
+    <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k)}</span>
+    <b>${Math.round(obj[k]/tot*100)}%</b></div>`).join('')}</div></div>`;}
+/* ---- Trang chính ---- */
+V.fund=()=>{const canEd=curLevel()>=2;
+ const TABS=[['dash','📊 Tổng quan'],['list','📒 Nhật ký thu/chi'],['report','📄 Báo cáo'],['cats','🏷 Hạng mục']];
+ return `<div class="h1">💰 Quỹ Công Đức</div><div class="sub">Sổ quỹ chung của dòng họ — thu chi minh bạch, số dư tự cập nhật.</div>
+ <div class="tabbar"><div class="tabs" style="margin-bottom:0">${TABS.filter(t=>t[0]!=='cats'||canEd).map(t=>`<span class="chip ${fundTab===t[0]?'on':''}" onclick="fundGo('${t[0]}')">${t[1]}</span>`).join('')}</div></div>
+ <div id="fundBody" style="margin-top:10px">${fundPane()}</div>`;};
+function fundPane(){return fundTab==='list'?fundListPane():fundTab==='report'?fundReportPane():fundTab==='cats'?fundCatPane():fundDashPane();}
+/* ---- 1) Tổng quan ---- */
+function fundDashPane(){const canEd=curLevel()>=2;
+ const all=fundAll();const t=fundTotals(all);const m=fundTotals(fundThisMonth());
+ const byMonth={};all.forEach(x=>{const d=fdate(x.date);if(!d)return;const k=('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();
+  byMonth[k]=byMonth[k]||{thu:0,chi:0};byMonth[k][x.type==='Chi'?'chi':'thu']+=(+x.amount||0);});
+ const mk=Object.keys(byMonth).sort((a,b)=>{const[p,q]=a.split('/'),[r,t2]=b.split('/');return (q-t2)||(p-r);}).slice(0,12).reverse();
+ const mxM=Math.max(1,...mk.map(k=>Math.max(byMonth[k].thu,byMonth[k].chi)));
+ const byChi={};all.filter(x=>x.type==='Chi').forEach(x=>{const k=catClean(x.cat)||'Khác';byChi[k]=(byChi[k]||0)+(+x.amount||0);});
+ const byThu={};all.filter(x=>x.type!=='Chi').forEach(x=>{const k=catClean(x.cat)||'Khác';byThu[k]=(byThu[k]||0)+(+x.amount||0);});
+ return `<div class="fund-hero">
+   <div class="fh-main"><span class="l">Số dư hiện tại</span><span class="v">${fundMoney(t.du)}</span></div>
+   <div class="fh-sub">
+     <div class="fh-i"><span class="l">Tổng thu</span><span class="v thu">${fundMoney(t.thu)}</span></div>
+     <div class="fh-i"><span class="l">Tổng chi</span><span class="v chi">${fundMoney(t.chi)}</span></div>
+     <div class="fh-i"><span class="l">Thu tháng này</span><span class="v thu">${fundMoney(m.thu)}</span></div>
+     <div class="fh-i"><span class="l">Chi tháng này</span><span class="v chi">${fundMoney(m.chi)}</span></div>
+   </div></div>
+ ${canEd?`<div class="toolbar" style="margin-top:12px"><span style="margin-right:auto"></span>
+   <button class="btn btn-o btn-sm" onclick="fundTemplate()">⬇ Mẫu sổ sách</button>
+   <button class="btn btn-o btn-sm" onclick="fundImport()">⬆ Nhập sổ sách</button>
+   <button class="btn btn-p" onclick="openForm('fund')">➕ Thêm giao dịch</button></div>`:''}
+ <div class="card pad" style="margin-top:12px"><div class="h3">📈 Thu / Chi theo tháng</div>
+  ${mk.length?`<div class="mchart">${mk.map(k=>`<div class="mcol" title="${k} — thu ${fundMoney(byMonth[k].thu)}, chi ${fundMoney(byMonth[k].chi)}">
+    <div class="mbars"><i class="t" style="height:${byMonth[k].thu/mxM*100}%"></i><i class="c" style="height:${byMonth[k].chi/mxM*100}%"></i></div>
+    <span>${k.split('/')[0]}</span></div>`).join('')}</div>
+   <div class="mlegend"><span><i class="t"></i> Thu</span><span><i class="c"></i> Chi</span></div>`:'<p class="muted">Chưa có giao dịch có ngày hợp lệ.</p>'}</div>
  <div class="two" style="margin-top:12px">
-  <div class="card pad"><div class="h3">📈 Thu theo mục đích</div>${bar(byP,'linear-gradient(90deg,#0f6e56,#4caf50)')||'<p class="muted">Chưa có khoản thu.</p>'}</div>
-  <div class="card pad"><div class="h3">📉 Chi theo mục đích</div>${bar(byC,'linear-gradient(90deg,#a81414,#e57373)')||'<p class="muted">Chưa có khoản chi.</p>'}</div></div>
- <div class="toolbar" style="margin-top:12px"><b style="margin-right:auto;align-self:center">Lịch sử giao dịch</b>
-   ${canEd?`<button class="btn btn-o btn-sm" onclick="fundRename('${id}')">✎ Đổi tên quỹ</button>
-   <button class="btn btn-d btn-sm" onclick="fundDel('${id}')">🗑 Xóa quỹ</button>
-   <button class="btn btn-p" onclick="openForm('fund')">➕ Thêm giao dịch</button>`:''}</div>
- <div class="card pad">${tx.length?tx.map(x=>{const isChi=x.type==='Chi';
-   return `<div class="txrow">
-     <span class="tg ${isChi?'chi':'thu'}">${isChi?'↓ Chi':'↑ Thu'}</span>
-     <span class="tm ${isChi?'chi':'thu'}">${vnd(x.amount)}</span>
-     <span class="tn">${esc(x.name)}${x.purpose?`<span class="tp">${esc(x.purpose)}</span>`:''}</span>
-     <span class="td">${esc(x.date||'')}</span>
-     ${canEd?`<span class="ta"><button class="btn btn-o btn-sm" onclick="openForm('fund',${x.id})">✎</button> <button class="btn btn-d btn-sm" onclick="del('fund',${x.id})">🗑</button></span>`:''}
-    </div>`;}).join(''):'<p class="muted">Chưa có giao dịch.</p>'}</div>
- <div class="toolbar" style="margin-top:12px"><button class="btn btn-o" onclick="window.print()">🖨 In báo cáo quỹ</button></div>`;}
-
-/* ---- Tu bổ: dashboard + bảng ---- */
-/* Đã chi của một công trình = tổng các khoản CHI trong Quỹ đã gắn vào công trình đó.
+  <div class="card pad"><div class="h3">🥧 Chi theo hạng mục</div>${chartPie(byChi)}</div>
+  <div class="card pad"><div class="h3">📊 Thu theo nguồn</div>${chartBars(byThu,'linear-gradient(90deg,#0f6e56,#4caf50)')}</div></div>`;}
+/* ---- 2) Nhật ký thu/chi ---- */
+function fundFilters(){const cats=catAll();
+ return `<div class="card pad" style="margin-bottom:10px">
+  <div class="frow">
+   <div class="srch" style="flex:1 1 200px"><span class="si">🔍</span>
+     <input type="search" value="${esc(fundQ)}" placeholder="Tìm nội dung, người đóng/nhận…" oninput="fundSet('q',this.value)"/></div>
+   <label class="fl">Từ <input type="date" value="${esc(fundFrom)}" onchange="fundSet('from',this.value)"/></label>
+   <label class="fl">Đến <input type="date" value="${esc(fundTo)}" onchange="fundSet('to',this.value)"/></label>
+   <label class="fl">Loại <select onchange="fundSet('type',this.value)">
+     <option value="">Tất cả</option><option ${fundTypeF==='Thu'?'selected':''}>Thu</option><option ${fundTypeF==='Chi'?'selected':''}>Chi</option></select></label>
+   <label class="fl">Hạng mục <select onchange="fundSet('cat',this.value)">
+     <option value="">Tất cả</option>${cats.map(c=>`<option ${fundCatF===c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>
+   <button class="btn btn-o btn-sm" onclick="fundReset()">↺ Bỏ lọc</button>
+  </div></div>`;}
+function fundTxRow(x,canEd){const isChi=x.type==='Chi';
+ return `<div class="txrow">
+   <span class="tg ${isChi?'chi':'thu'}">${isChi?'↓ Chi':'↑ Thu'}</span>
+   <span class="tm ${isChi?'chi':'thu'}">${fundMoney(x.amount)}</span>
+   <span class="tn">${esc(x.name)}
+     <span class="tp">${[catClean(x.cat),x.person?('👤 '+x.person):'',x.approver?('✔ duyệt: '+x.approver):'',x.method||''].filter(Boolean).map(esc).join(' · ')}</span></span>
+   <span class="td">${esc(x.date||'')}</span>
+   ${x.receipt?`<span class="tr"><img src="${x.receipt}" alt="Chứng từ" onclick="fundReceipt(${x.id})"/></span>`:''}
+   ${canEd?`<span class="ta"><button class="btn btn-o btn-sm" onclick="openForm('fund',${x.id})">✎</button> <button class="btn btn-d btn-sm" onclick="del('fund',${x.id})">🗑</button></span>`:''}
+  </div>`;}
+function fundReceipt(id){const x=(DB.fund||[]).find(f=>f.id===id);if(!x||!x.receipt)return;
+ document.getElementById('modalBox').innerHTML=`<h3>🧾 Chứng từ — ${esc(x.name)}</h3>
+  <img src="${x.receipt}" style="width:100%;border-radius:10px"/>
+  <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-o" onclick="closeModal()">Đóng</button></div>`;
+ document.getElementById('modal').classList.add('open');}
+window.fundReceipt=fundReceipt;
+function fundListPane(){const canEd=curLevel()>=2;const rows=fundRows();const t=fundTotals(rows);const all=fundAll();
+ return fundFilters()+
+ `<div class="card pad" style="margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;font-size:13px">
+   <span>Hiển thị <b>${rows.length}</b>/${all.length} giao dịch</span>
+   <span>Thu <b style="color:#0f6e56">${fundMoney(t.thu)}</b></span>
+   <span>Chi <b style="color:#a11">${fundMoney(t.chi)}</b></span>
+   <span>Chênh lệch <b style="color:var(--gold-dark)">${fundMoney(t.du)}</b></span>
+   <span style="margin-left:auto"></span>
+   <button class="btn btn-o btn-sm" onclick="fundExport()">⬇ Xuất Excel/CSV</button>
+   <button class="btn btn-o btn-sm" onclick="window.print()">🖨 In</button>
+   ${canEd?`<button class="btn btn-p btn-sm" onclick="openForm('fund')">➕ Thêm</button>`:''}</div>
+  <div class="card pad">${rows.length?rows.map(x=>fundTxRow(x,canEd)).join(''):'<p class="muted">Không có giao dịch phù hợp.</p>'}</div>`;}
+/* ---- 3) Báo cáo ---- */
+function fundReportPane(){const rows=fundRows();const t=fundTotals(rows);
+ const byCat={};rows.forEach(x=>{const k=(x.type==='Chi'?'↓ ':'↑ ')+(catClean(x.cat)||'Khác');
+  byCat[k]=byCat[k]||{thu:0,chi:0,n:0};byCat[k][x.type==='Chi'?'chi':'thu']+=(+x.amount||0);byCat[k].n++;});
+ const donors={};rows.filter(x=>x.type!=='Chi'&&x.person).forEach(x=>{donors[x.person]=(donors[x.person]||0)+(+x.amount||0);});
+ const dk=Object.keys(donors).sort((a,b)=>donors[b]-donors[a]);
+ const byQ={};rows.forEach(x=>{const d=fdate(x.date);if(!d)return;const k=d.getFullYear()+' · Quý '+(Math.floor(d.getMonth()/3)+1);
+  byQ[k]=byQ[k]||{thu:0,chi:0};byQ[k][x.type==='Chi'?'chi':'thu']+=(+x.amount||0);});
+ return fundFilters()+
+ `<div class="toolbar"><b style="margin-right:auto;align-self:center">Báo cáo theo bộ lọc đang chọn</b>
+   <button class="btn btn-o btn-sm" onclick="fundExport()">⬇ Xuất Excel/CSV</button>
+   <button class="btn btn-o btn-sm" onclick="window.print()">🖨 In / Lưu PDF</button></div>
+ <div class="grid st3"><div class="card frame-gold stat"><div class="n" style="color:#0f6e56">${fundMoney(t.thu)}</div><div class="l">Tổng thu</div></div>
+  <div class="card frame-gold stat"><div class="n" style="color:#a11">${fundMoney(t.chi)}</div><div class="l">Tổng chi</div></div>
+  <div class="card frame-gold stat"><div class="n" style="color:var(--gold-dark)">${fundMoney(t.du)}</div><div class="l">Số dư</div></div></div>
+ <div class="card pad" style="margin-top:12px"><div class="h3">📄 Theo hạng mục</div>
+  <table><thead><tr><th>Hạng mục</th><th class="right">Thu</th><th class="right">Chi</th><th class="right">Số lượt</th></tr></thead>
+  <tbody>${Object.keys(byCat).map(k=>`<tr><td>${esc(k)}</td><td class="right" style="color:#0f6e56">${byCat[k].thu?fundMoney(byCat[k].thu):'—'}</td><td class="right" style="color:#a11">${byCat[k].chi?fundMoney(byCat[k].chi):'—'}</td><td class="right">${byCat[k].n}</td></tr>`).join('')||'<tr><td colspan="4" class="muted">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>
+ <div class="card pad" style="margin-top:12px"><div class="h3">🗓 Theo quý</div>
+  <table><thead><tr><th>Kỳ</th><th class="right">Thu</th><th class="right">Chi</th><th class="right">Chênh lệch</th></tr></thead>
+  <tbody>${Object.keys(byQ).sort().map(k=>`<tr><td>${esc(k)}</td><td class="right" style="color:#0f6e56">${fundMoney(byQ[k].thu)}</td><td class="right" style="color:#a11">${fundMoney(byQ[k].chi)}</td><td class="right"><b>${fundMoney(byQ[k].thu-byQ[k].chi)}</b></td></tr>`).join('')||'<tr><td colspan="4" class="muted">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>
+ <div class="card pad" style="margin-top:12px"><div class="h3">🙏 Danh sách người công đức</div>
+  <table><thead><tr><th>#</th><th>Người đóng góp</th><th class="right">Tổng đóng góp</th></tr></thead>
+  <tbody>${dk.map((n,i)=>`<tr><td>${i+1}</td><td style="font-weight:500">${esc(n)}</td><td class="right" style="color:#0f6e56;font-weight:700">${fundMoney(donors[n])}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">Chưa có.</td></tr>'}</tbody></table></div>`;}
+/* ---- 4) Hạng mục ---- */
+function fundCatPane(){
+ const box=(kind,title,arr,color)=>`<div class="card pad">
+   <div class="h3" style="display:flex;align-items:center;gap:8px">${title}
+     <button class="btn btn-o btn-sm" style="margin-left:auto" onclick="catAdd('${kind}')">➕ Thêm</button></div>
+   ${arr.map((c,i)=>`<div class="txrow"><span class="tg ${color}">${kind==='thu'?'↑':'↓'}</span>
+     <span class="tn">${esc(c)}<span class="tp">${(DB.fund||[]).filter(x=>catClean(x.cat)===c).length} giao dịch</span></span>
+     <span class="ta"><button class="btn btn-o btn-sm" onclick="catEdit('${kind}',${i})">✎</button>
+     <button class="btn btn-d btn-sm" onclick="catDel('${kind}',${i})">🗑</button></span></div>`).join('')}
+   </div>`;
+ return `<div class="two">${box('thu','↑ Hạng mục THU',catThu(),'thu')}${box('chi','↓ Hạng mục CHI',catChi(),'chi')}</div>`;}
+/* ---- Xuất Excel/CSV ---- */
+function fundExport(){const rows=fundRows();
+ const head=['Ngày','Loại','Hạng mục','Số tiền','Nội dung','Người đóng/nhận','Người duyệt','Hình thức','Ghi chú'];
+ const body=rows.map(x=>[x.date||'',x.type||'Thu',catClean(x.cat),(+x.amount||0),x.name||'',x.person||'',x.approver||'',x.method||'',x.note||'']);
+ const t=fundTotals(rows);
+ body.push([],['TỔNG THU','','',t.thu],['TỔNG CHI','','',t.chi],['SỐ DƯ','','',t.du]);
+ const csv='﻿'+[head].concat(body).map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
+ const b=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='so-quy-cong-duc.csv';a.click();toast('Đã xuất '+rows.length+' giao dịch');}
+window.fundExport=fundExport;
+/* Đã chi của một hoạt động = tổng các khoản CHI trong Quỹ đã gắn vào hoạt động đó.
    Không nhập tay hai nơi → số liệu luôn khớp với sổ quỹ. */
 function resSpent(r){const linked=DB.fund.filter(f=>f.type==='Chi'&&+f.projectId===+r.id).reduce((s,f)=>s+(+f.amount||0),0);
  return linked||(+r.spent||0);}
 function resLinked(r){return DB.fund.filter(f=>+f.projectId===+r.id);}
 V.restoration=()=>{const b=DB.restoration.reduce((s,x)=>s+(+x.budget||0),0),sp=DB.restoration.reduce((s,x)=>s+resSpent(x),0);const done=DB.restoration.filter(x=>x.progress>=100).length,run=DB.restoration.filter(x=>x.status==='Đang thực hiện').length;
- const quyTubo=fundSum('tubo');
- return `<div class="h1">🔨 Tu bổ - Sửa chữa</div><div class="sub">Theo dõi công trình và tiến độ. Tiền bạc ghi ở <b>Quỹ Tu bổ</b> — ở đây chỉ tổng hợp lại.</div>
+ const qt=fundTotals(fundAll());
+ return `<div class="h1">🎯 Hoạt động diễn ra</div><div class="sub">Việc họ đang triển khai: tu bổ, xây dựng, lễ hội, khuyến học… Tiền bạc ghi ở <b>Quỹ Công Đức</b>.</div>
  <div class="card pad" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-color:var(--gold)">
-   <span>🛕 <b>Quỹ Tu bổ</b> — số dư <b style="color:var(--gold-dark)">${vnd(quyTubo.du)}</b></span>
-   <span class="muted" style="font-size:12.5px">thu ${vnd(quyTubo.thu)} · chi ${vnd(quyTubo.chi)}</span>
-   <span style="margin-left:auto"></span><button class="btn btn-o btn-sm" onclick="fundOpen('tubo');go('fund')">Mở sổ quỹ ›</button></div>
+   <span>💰 <b>Quỹ Công Đức</b> — số dư <b style="color:var(--gold-dark)">${vnd(qt.du)}</b></span>
+   <span style="margin-left:auto"></span><button class="btn btn-o btn-sm" onclick="go('fund')">Mở sổ quỹ ›</button></div>
  <div class="grid st4"><div class="card frame-gold stat"><div class="n">${DB.restoration.length}</div><div class="l">Hạng mục</div></div><div class="card frame-gold stat"><div class="n">${run}</div><div class="l">Đang làm</div></div><div class="card frame-gold stat"><div class="n" style="font-size:17px">${vnd(b)}</div><div class="l">Tổng dự toán</div></div><div class="card frame-gold stat"><div class="n" style="font-size:17px">${vnd(sp)}</div><div class="l">Đã chi</div></div></div>
  <div class="toolbar" style="margin-top:12px"><span style="margin-right:auto"></span><button class="btn btn-p" onclick="openForm('restoration')">➕ Thêm hạng mục</button></div>
  <div class="card" style="overflow:auto"><table><thead><tr><th>Hạng mục</th><th class="right">Dự toán</th><th class="right">Đã chi</th><th style="width:150px">Tiến độ</th><th>Trạng thái</th><th class="right">Sửa</th></tr></thead><tbody>${DB.restoration.map(r=>`<tr><td style="font-weight:500">${esc(r.name)}</td><td class="right">${vnd(r.budget)}</td><td class="right">${vnd(resSpent(r))}${resLinked(r).length?`<div class="muted" style="font-size:10.5px">${resLinked(r).length} khoản từ quỹ</div>`:''}</td><td><div class="bar"><i style="width:${r.progress}%"></i></div><span class="muted" style="font-size:11px">${r.progress}%</span></td><td><span class="badge ${r.status==='Hoàn thành'?'badge-ok':r.status==='Chưa thực hiện'?'badge-warn':'badge-gold'}">${esc(r.status)}</span></td><td class="right"><button class="btn btn-o btn-sm" onclick="openForm('restoration',${r.id})">✎</button> <button class="btn btn-d btn-sm" onclick="del('restoration',${r.id})">🗑</button></td></tr>`).join('')}</tbody></table></div>`;};
@@ -1766,9 +1861,26 @@ async function hvCam(kind){
 function hvCamStop(){if(hvStream){hvStream.getTracks().forEach(t=>t.stop());hvStream=null;}
  const w=document.getElementById('camWrap');if(w)w.classList.remove('open');
  const b=document.getElementById('camBox');if(b)b.innerHTML='';}
+/* Chụp xong HIỆN ẢNH XEM TRƯỚC (như Zalo): xem rõ rồi mới quyết định dùng hay chụp lại */
+let hvShot=null;
 function hvSnap(kind){const v=document.getElementById('hvVid');if(!v||!v.videoWidth){toast('Camera chưa sẵn sàng');return;}
  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);
- hvCamStop();c.toBlob(b=>{if(b)hvVisionFile(kind,b);},'image/jpeg',.92);toast('Đã chụp — đang phân tích');}
+ const durl=c.toDataURL('image/jpeg',.92);
+ if(hvStream){hvStream.getTracks().forEach(t=>t.stop());hvStream=null;}
+ hvShot={kind,durl};
+ document.getElementById('camBox').innerHTML=`<h3>🖼 Ảnh vừa chụp — dùng ảnh này?</h3>
+  <img src="${durl}" style="width:100%;border-radius:10px;max-height:60vh;object-fit:contain;background:#000"/>
+  <div style="display:flex;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap">
+    <button class="btn btn-o" onclick="hvRetake()">↺ Chụp lại</button>
+    <span style="flex:1"></span>
+    <button class="btn btn-o" onclick="hvCamStop()">Hủy</button>
+    <button class="btn btn-p" onclick="hvUseShot()">✓ Dùng ảnh này & phân tích</button></div>
+  <div class="cam-note">🔒 Ảnh chỉ dùng để phân tích, <b>không lưu vào máy và không lên máy chủ</b> — xong là xóa.</div>`;}
+function hvRetake(){const k=hvShot&&hvShot.kind;hvShot=null;hvCamStop();if(k)hvCam(k);}
+function hvUseShot(){if(!hvShot)return;const {kind,durl}=hvShot;hvShot=null;hvCamStop();
+ fetch(durl).then(r=>r.blob()).then(b=>hvVisionFile(kind,b)).catch(()=>toast('Không đọc được ảnh'));
+ toast('Đang phân tích…');}
+window.hvRetake=hvRetake;window.hvUseShot=hvUseShot;
 async function hvVisionFile(kind,f){if(!f)return;const out=document.getElementById(kind==='face'?'hvFaceOut':'hvPalmOut');if(!out)return;
  const ai=DB.settings.ai||{};if(!ai.key||ai.provider==='Chưa cấu hình'){out.innerHTML='<p class="muted">Cần API key (Cài đặt → AI).</p>';return;}
  out.innerHTML='⏳ Đang phân tích…';
@@ -2240,9 +2352,11 @@ V.report=()=>{const byGen={},byBr={};DB.members.forEach(m=>{byGen[m.generation]=
  <div class="grid st4"><div class="card frame-gold stat"><div class="n">${DB.members.length}</div><div class="l">Thành viên</div></div><div class="card frame-gold stat"><div class="n">${nam}/${DB.members.length-nam}</div><div class="l">Nam / Nữ</div></div><div class="card frame-gold stat"><div class="n">${alive}</div><div class="l">Còn sống</div></div><div class="card frame-gold stat"><div class="n">${DB.graves.length}</div><div class="l">Mộ phần</div></div></div>
  <div class="two" style="margin-top:12px"><div class="card pad"><div class="h3">Thành viên theo ${esc(T.gen.toLowerCase())}</div>${gens.map(g=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(T.gen)} ${g}</span><span class="muted">${byGen[g]}</span></div><div class="bar"><i style="width:${byGen[g]/mx*100}%"></i></div></div>`).join('')}</div>
  <div class="card pad"><div class="h3">💰 Tài chính</div>
-  <table>${fundList().map(f=>{const s2=fundSum(f.id);return `<tr><td>${f.icon} ${esc(f.name)}</td><td class="right" style="font-weight:700;color:var(--gold-dark)">${vnd(s2.du)}</td></tr>`;}).join('')}
-  <tr><td><b>Tổng số dư</b></td><td class="right" style="font-weight:700">${vnd(fundList().reduce((a,f)=>a+fundSum(f.id).du,0))}</td></tr></table>
-  <button class="btn btn-o btn-sm" style="margin-top:8px" onclick="go('fund')">Xem chi tiết ở Quỹ dòng họ ›</button>
+  ${(()=>{const t=fundTotals(fundAll());return `<table>
+   <tr><td>Tổng thu</td><td class="right" style="color:#0f6e56;font-weight:700">${vnd(t.thu)}</td></tr>
+   <tr><td>Tổng chi</td><td class="right" style="color:#a11;font-weight:700">${vnd(t.chi)}</td></tr>
+   <tr><td><b>Số dư</b></td><td class="right" style="font-weight:700;color:var(--gold-dark)">${vnd(t.du)}</td></tr></table>`;})()}
+  <button class="btn btn-o btn-sm" style="margin-top:8px" onclick="go('fund')">Xem chi tiết ở Quỹ Công Đức ›</button>
    <div class="h3" style="margin-top:12px">Theo ${esc(T.b2.toLowerCase())}</div>${Object.keys(byBr).map(b=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0"><span>${esc(b)}</span><span class="muted">${byBr[b]}</span></div>`).join('')}</div></div>`;};
 function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Mẹ',m=>memName(m.motherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Ngày giỗ (âm lịch)',m=>m.deathAnniv],['Còn sống/Mất',m=>m.alive?'Còn sống':'Đã mất'],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
  const rows=DB.members.map(m=>cols.map(c=>`"${String(c[1](m)??'').replace(/"/g,'""')}"`).join(','));
@@ -2497,7 +2611,7 @@ const NAVG=[
  {id:'giapha', name:'Gia phả',      icon:'🌳', desc:'Cây phả hệ, thành viên, gia đình, mộ phần',
   items:[['pha','Sơ đồ gia phả','🌳','Cây phả hệ toàn dòng họ'],['members','Thành viên','👤','Hồ sơ từng người'],['families','Gia đình','🏡','Các hộ theo vợ chồng – con cái'],['graves','Mộ phần','⚱️','Vị trí, tình trạng phần mộ']]},
  {id:'nhatho', name:'Nhà thờ họ',   icon:'🏛️', desc:'Việc họ: thờ tự, sự kiện, tu bổ, công đức',
-  items:[['nhatho','Nhà thờ họ','🏛️','Hoành phi, câu đối, gia huấn'],['events','Sự kiện · Giỗ','📅','Lịch giỗ chạp, họp họ'],['restoration','Tu bổ','🔨','Công trình, tiến độ'],['fund','Quỹ dòng họ','⭐','Công đức, tu bổ, khuyến học…']]},
+  items:[['nhatho','Nhà thờ họ','🏛️','Hoành phi, câu đối, gia huấn'],['events','Sự kiện · Giỗ','📅','Lịch giỗ chạp, họp họ'],['restoration','Hoạt động','🎯','Việc họ đang làm, tiến độ'],['fund','Quỹ dòng họ','⭐','Công đức, tu bổ, khuyến học…']]},
  {id:'tracuu', name:'Tra cứu',      icon:'🏮', desc:'Trợ lý, huyền học, thư viện tư liệu',
   items:[['ai','Trợ lý gia tộc','🏮','Hỏi đáp, tìm quan hệ, phục chế ảnh'],['vankhan','Văn khấn · Lễ nghi','📜','46 bài khấn theo từng lễ'],['hv','Huyền học · Lịch','🔮','Can chi, tứ trụ, lịch vạn niên'],['library','Thư viện','🖼️','Ảnh, tài liệu']]},
  {id:'quantri',name:'Quản trị',     icon:'⚙️', desc:'Thông báo, báo cáo, phân quyền, cài đặt',
