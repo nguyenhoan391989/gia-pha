@@ -236,12 +236,13 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 /* Mobile/iPad: VẪN HIỆN 2 câu đối (chỉ thu nhỏ cho vừa màn hình) — không ẩn như trước */
 @media(max-width:720px){.tho-frame{padding:12px 8px}.hoanhphi{padding:12px 22px}.hoanhphi .hp-text{font-size:32px}.tho-center h1{font-size:23px}
  .tho-mid{gap:7px}
- .cauic{padding:10px 5px;min-width:0;border-radius:9px}
- .cauic .han{font-size:calc(var(--cau,29px) * .62)}
- .cauic .med{width:15px;height:15px}
- .cauic::before{left:2px}.cauic::after{right:2px}
+ /* Chữ Hán phải cách hoa văn viền hai bên, không dính sát */
+ .cauic{padding:12px 11px;min-width:0;border-radius:9px}
+ .cauic .han{font-size:calc(var(--cau,29px) * .58);line-height:1.28}
+ .cauic .med{width:14px;height:14px}
+ .cauic::before{left:3px;width:3px}.cauic::after{right:3px;width:3px}
  .tho-center{padding:6px 2px}}
-@media(max-width:420px){.cauic .han{font-size:calc(var(--cau,29px) * .5)}.hoanhphi .hp-text{font-size:26px}.tho-center h1{font-size:20px}}
+@media(max-width:420px){.cauic{padding:11px 9px}.cauic .han{font-size:calc(var(--cau,29px) * .46)}.cauic::before{left:2px}.cauic::after{right:2px}.hoanhphi .hp-text{font-size:26px}.tho-center h1{font-size:20px}}
 .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}@media(min-width:720px){.quick{grid-template-columns:repeat(6,1fr)}}
 .quick a{text-align:center;padding:12px 4px;border-radius:10px;border:1px solid var(--border);background:var(--card)}.quick a:hover{background:var(--accent)}
 .quick .qi{font-size:22px}.quick div{font-size:11.5px;font-weight:600;color:var(--primary);margin-top:3px}
@@ -576,7 +577,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
   <div id="content">
     <header id="mtop"><button onclick="toggle()">☰</button><b id="mtopTitle">Gia Phả</b></header>
     <main id="app"></main>
-    <footer>© 2026 <span id="footName">Gia Phả</span> — App local, dữ liệu lưu trong trình duyệt. Deploy server (Next.js) sau.</footer>
+    <footer>© 2026 <span id="footName">Gia Phả</span></footer>
   </div>
 </div>
 <div id="modal"><div class="box" id="modalBox"></div></div>
@@ -1405,6 +1406,10 @@ V.pha=()=>{const rts=treeRoots();
  </div>`;};
 
 /* ---- Gia đình (hộ) ---- */
+/* Ghép nhãn với giá trị mà KHÔNG lặp chữ: ("Ngành","Ngành 2") → "Ngành 2", ("Chi","Chi 1") → "Chi 1" */
+function labelOnce(label,val){const v=String(val||'').trim();if(!v)return '';
+ const l=stripVN(label).toLowerCase();
+ return stripVN(v).toLowerCase().indexOf(l)===0 ? v : (label+' '+v);}
 let famQ='';
 function famSearch(v){famQ=v;const b=document.getElementById('famBody');if(b){b.innerHTML=famList();applyPerms();}}
 window.famSearch=famSearch;
@@ -1423,8 +1428,8 @@ function famList(){const all=famCouples();const q=stripVN(famQ).toLowerCase().tr
    return `<div class="card pad"><div class="h3">${esc(a.name)}${b?' ⚭ '+esc(b.name):''}</div>
    <div class="muted" style="font-size:12.5px">${[
       a.generation?T.gen+' '+a.generation:'',
-      a.branchL1?T.b1+' '+String(a.branchL1).replace(new RegExp('^'+T.b1+'\\\\s*','i'),''):'',
-      a.branch?T.b2+' '+String(a.branch).replace(new RegExp('^'+T.b2+'\\\\s*','i'),''):'',
+      a.branchL1?labelOnce(T.b1,a.branchL1):'',
+      a.branch?labelOnce(T.b2,a.branch):'',
       a.address||''
      ].filter(Boolean).map(esc).join(' · ')}</div>
    <div style="margin-top:8px"><b>Con cái:</b> ${kids.length?kids.map(k=>`<span class="chip" onclick="viewMember(${k.id})" style="margin:2px">${esc(k.name)}${k.birthYear?' ('+k.birthYear+')':''}</span>`).join(''):'<span class="muted">chưa có</span>'}</div></div>`;}).join('')||`<div class="empty">${q?`Không tìm thấy “${esc(famQ)}”.`:'Chưa có hộ nào.'}</div>`}</div>`;}
