@@ -205,7 +205,6 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .he-rot{position:absolute;left:50%;top:-30px;margin-left:-9px;width:18px;height:18px;background:#fff;border:2px solid #3b82f6;border-radius:50%;cursor:grab;z-index:6}
 .he-rot::after{content:'';position:absolute;left:50%;top:16px;width:2px;height:14px;background:#3b82f6;transform:translateX(-50%)}
 /* Huyền học: card kiểu App Store */
-.hv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .hv-card{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 14px;cursor:pointer;transition:.15s}
 .hv-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 18px rgba(139,0,0,.13)}
 .hv-card.on{border-color:var(--primary);box-shadow:0 0 0 2px rgba(139,0,0,.18)}
@@ -395,6 +394,18 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .empty{text-align:center;padding:40px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 @media print{#sidebar,#mtop,.toolbar,footer{display:none!important}main{max-width:none}}
+/* ===== CỬA SỔ NỔI (popup) cho từng bộ môn huyền học ===== */
+.pop-h{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:-18px -18px 14px;background:linear-gradient(#8B0000,#6d0d0d);border-bottom:2px solid var(--gold);border-radius:14px 14px 0 0;position:sticky;top:-18px;z-index:5}
+.pop-h .pi{font-size:26px;line-height:1}
+.pop-h b{display:block;color:var(--gold);font-size:16.5px;font-family:'Noto Serif',Georgia,serif}
+.pop-h span{display:block;color:rgba(255,255,255,.78);font-size:11.5px;margin-top:1px}
+.pop-h .pop-x{margin-left:auto;width:34px;height:34px;flex:none;border-radius:50%;border:1px solid rgba(212,175,55,.55);background:rgba(255,255,255,.1);color:var(--gold);font-size:15px;cursor:pointer;line-height:1}
+.pop-h .pop-x:hover{background:var(--gold);color:#7a0e0e}
+.pop-b{max-height:none}
+/* Lưới bộ môn: gọn, cân đối, bấm cả ô */
+.hv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.hv-card{width:100%;font-family:inherit;text-align:left}
+@media(max-width:560px){.hv-grid{grid-template-columns:1fr 1fr;gap:8px}.hv-card{flex-direction:column;align-items:flex-start;gap:6px;padding:11px}.hv-card .d{display:none}.hv-card>span:last-child{display:none}}
 /* ===== Ô TÌM KIẾM trong các bảng dữ liệu ===== */
 .srch{position:relative;display:flex;align-items:center;flex:1 1 240px;min-width:180px;margin-right:auto}
 .srch .si{position:absolute;left:11px;font-size:14px;opacity:.65;pointer-events:none}
@@ -1234,7 +1245,7 @@ window.addSuggestion=addSuggestion;window.saveSug=saveSug;window.approveSug=appr
 /* ---- Tìm kiếm AI quan hệ ---- */
 V.ai=()=>{const opts=DB.members.map(m=>`<option value="${m.id}">${esc(m.name)}${m.birthYear?' ('+m.birthYear+')':''}</option>`).join('');
  const hasKey=DB.settings.ai&&DB.settings.ai.key;
- return `<div class="h1">🏮 Trợ lý gia tộc</div><div class="sub">Hỏi đáp, studio phục chế ảnh, huyền học, thư viện văn khấn & nghi lễ, truy xuất quan hệ.</div>
+ return `<div class="h1">🏮 Trợ lý gia tộc</div><div class="sub">Hỏi đáp, phục chế ảnh, thư viện văn khấn & nghi lễ, truy xuất quan hệ.</div>
  <div class="two">
   <div class="card frame-gold pad"><div class="h3">✨ Hỏi trợ lý…</div>
    <div style="display:flex;gap:8px"><input class="input" id="aiQ" placeholder="VD: Nguyễn Văn A là ai? · Số dư quỹ? · Sự kiện sắp tới?" onkeydown="if(event.key==='Enter')aiAsk()"/><button class="btn btn-p" onclick="aiAsk()">Hỏi</button></div>
@@ -1243,7 +1254,6 @@ V.ai=()=>{const opts=DB.members.map(m=>`<option value="${m.id}">${esc(m.name)}${
   <div class="card frame-gold pad" style="cursor:pointer" onclick="psOpen('auto')"><div class="h3">🎞 Chỉnh sửa - phục chế ảnh</div>
    <p class="muted" style="font-size:12.5px;line-height:1.8">Studio như chuyên gia Photoshop lâu năm: phân tích hư hại tự động, 13 preset phục chế, 11 thanh chỉnh realtime, so sánh trước/sau, phục chế AI, xuất chất lượng cao — hỗ trợ nhiều ảnh cùng lúc.</p>
    <button class="btn btn-p btn-sm">🎞 Mở Studio</button></div></div>
- ${hvBody()}
  ${rlBody()}
  <div class="card frame-gold pad" style="margin-top:12px"><div class="h3">🔎 Truy xuất quan hệ</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="rA" style="width:200px">${opts}</select><span>↔</span><select id="rB" style="width:200px">${opts}</select><button class="btn btn-p" onclick="findRel()">Tra cứu</button></div><div id="relResult" style="margin-top:14px"></div></div>`;};
 function anc(id){const c=[];let x=id,g=new Set();while(x&&!g.has(x)){g.add(x);c.push(x);const m=DB.members.find(o=>o.id===x);x=m?(m.fatherId||m.motherId||0):0;}return c;}
@@ -1325,12 +1335,17 @@ function saoNam(age,gender){if(age<10)return null;const i=(age-10)%9;return (gen
 const HV_NOTE='<div class="hv-note">ℹ️ Thông tin chỉ mang tính tham khảo, phục vụ nghiên cứu văn hóa và phát triển bản thân, không phải kết luận khoa học hay dự đoán chắc chắn.</div>';
 /* -------- trạng thái người xem -------- */
 function hvP(){DB.settings.hv=DB.settings.hv||{};return Object.assign({mid:0,name:'',date:'',hour:-1,gender:'Nam'},DB.settings.hv);}
-function hvSet(k,v){DB.settings.hv=hvP();DB.settings.hv[k]=(k==='mid'||k==='hour')?+v:v;if(k==='mid'&&+v){const m=DB.members.find(x=>x.id===+v);if(m){DB.settings.hv.name=m.name;DB.settings.hv.gender=m.gender||'Nam';if(m.birthYear&&!DB.settings.hv.date)DB.settings.hv.date=m.birthYear+'-01-01';}}save();render();}
+function hvSet(k,v){DB.settings.hv=hvP();DB.settings.hv[k]=(k==='mid'||k==='hour')?+v:v;if(k==='mid'&&+v){const m=DB.members.find(x=>x.id===+v);if(m){DB.settings.hv.name=m.name;DB.settings.hv.gender=m.gender||'Nam';if(m.birthYear&&!DB.settings.hv.date)DB.settings.hv.date=m.birthYear+'-01-01';}}save();hvRefresh();}
 function hvBirth(){const p=hvP();if(!p.date)return null;const[y,m,d]=p.date.split('-').map(Number);if(!y)return null;return{y,m,d};}
 let hvTab='';
-function hvOpen(t){hvTab=t;render();
- /* Đưa người dùng lên đầu nội dung vừa mở — không phải kéo tìm (quan trọng trên điện thoại) */
- requestAnimationFrame(()=>{const el=document.querySelector('.drill');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});}
+/* Mở bộ môn trong CỬA SỔ NỔI (popup) — xem xong đóng lại, không rời trang, không phải cuộn */
+function hvOpen(t){hvTab=t;if(!t){closeModal();return;}
+ const c=HV_CARDS.find(x=>x[0]===t)||['','','',''];
+ document.getElementById('modalBox').innerHTML=
+  `<div class="pop-h"><span class="pi">${c[1]}</span><div><b>${esc(c[2])}</b><span>${esc(c[3]||'')}</span></div>
+   <button class="pop-x" onclick="hvOpen('')" aria-label="Đóng">✕</button></div>
+   <div class="pop-b" id="hvPop">${hvDetail(t)}</div>`;
+ document.getElementById('modal').classList.add('open');}
 /* -------- renderer từng bộ môn -------- */
 function hvSec(t,b){return `<div class="hv-sec"><b class="h">${t}</b><div style="margin-top:4px">${b}</div></div>`;}
 function hvNeedDate(){return '<p class="muted">Cần <b>ngày sinh</b> (chọn ở thanh trên) để luận giải mục này.</p>';}
@@ -1397,8 +1412,10 @@ function lcRate(t,purpose){const i=lcInfo(t);let score=5;const why=[];
  if(purpose==='antang'&&i.star.hd)why.push('Với tang lễ, chọn giờ hoàng đạo là chính');
  score=Math.max(0,Math.min(10,score));
  return{score,why,label:score>=8?'Rất tốt':score>=6?'Tốt':score>=4?'Bình thường':'Nên tránh',color:score>=8?'#1a7f37':score>=6?'#8a6d00':score>=4?'#666':'#b23a3a'};}
-function lcNav(days){lcDate=new Date(lcDate.getTime()+days*864e5);render();}
-function lcSetDate(v){const[a,b,c]=v.split('-');lcDate=new Date(+a,+b-1,+c);render();}
+/* Nếu đang xem trong cửa sổ nổi thì vẽ lại nội dung popup, không thì vẽ lại trang */
+function hvRefresh(){if(typeof hvTab!=='undefined'&&hvTab&&document.getElementById('modal')&&document.getElementById('modal').classList.contains('open'))hvOpen(hvTab);else render();}
+function lcNav(days){lcDate=new Date(lcDate.getTime()+days*864e5);hvRefresh();}
+function lcSetDate(v){const[a,b,c]=v.split('-');lcDate=new Date(+a,+b-1,+c);hvRefresh();}
 function lcDayView(){const i=lcInfo(lcDate);const wd=['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'][lcDate.getDay()];
  const evs=lcAllEvents().filter(e=>e.t.toDateString()===lcDate.toDateString());
  let week='';for(let k=-3;k<=3;k++){const t=new Date(lcDate.getTime()+k*864e5);const li=solar2lunar(t.getDate(),t.getMonth()+1,t.getFullYear());
@@ -1536,12 +1553,7 @@ async function hvVisionFile(kind,f){if(!f)return;const out=document.getElementBy
  r.readAsDataURL(f);}
 const HV_CARDS=[['tuvi','🔭','Tử vi cá nhân','Tứ trụ, đại vận, sao năm'],['thanso','🔢','Thần số học','Chủ đạo, linh hồn, biểu đạt'],['tuong','🧑','Nhân tướng học','Ngũ quan, phân tích ảnh AI'],['tay','✋','Xem chỉ tay','4 đường chính, AI từ ảnh'],['phong','🧭','Phong thủy','Ngũ hành, mệnh quái, hướng, màu'],['lich','📅','Lịch vạn niên','Hôm nay · tháng · ngày tốt · lịch họ'],['sao','⭐','Sao chiếu mệnh','Sao năm & gợi ý cân bằng'],['tong','🪷','AI Tổng luận','Gộp tất cả bộ môn']];
 function hvBody(){const p=hvP();const mopts='<option value="0">— Nhập tay —</option>'+DB.members.map(m=>`<option value="${m.id}" ${p.mid===m.id?'selected':''}>${esc(m.name)}${m.birthYear?' ('+m.birthYear+')':''}</option>`).join('');
- const HVIEW={tuvi:hvTuvi,thanso:hvThanso,tuong:hvTuong,tay:hvTay,phong:hvPhong,lich:hvLich,sao:hvSao};
- let detail='';
- if(hvTab==='tong'){detail=`<div id="hvTongOut"><p class="muted">⏳</p></div>`;setTimeout(hvTong,0);}
- else if(hvTab&&HVIEW[hvTab])detail=HVIEW[hvTab]();
- const cur=HV_CARDS.find(c=>c[0]===hvTab);
- return `<div class="card frame-gold pad" style="margin-top:12px"><div class="h3">☯ Huyền học & Văn hóa Đông phương</div>
+  return `<div class="card frame-gold pad" style="margin-top:12px"><div class="h3">☯ Huyền học & Văn hóa Đông phương</div>
  <p class="muted" style="font-size:12px;margin-bottom:8px">Tham khảo – giáo dục – giải trí về văn hóa truyền thống. Không phải kết luận khoa học.</p>
  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
   <div class="field" style="margin:0"><label>Thành viên</label><select onchange="hvSet('mid',this.value)">${mopts}</select></div>
@@ -1549,13 +1561,13 @@ function hvBody(){const p=hvP();const mopts='<option value="0">— Nhập tay �
   <div class="field" style="margin:0"><label>Ngày sinh</label><input class="input" type="date" value="${esc(p.date)}" onchange="hvSet('date',this.value)"/></div>
   <div class="field" style="margin:0"><label>Giờ sinh</label><select onchange="hvSet('hour',this.value)"><option value="-1">Không rõ</option>${CHI.map((c,i)=>`<option value="${i}" ${p.hour===i?'selected':''}>${c} (${GIO_RANGE[i]})</option>`).join('')}</select></div>
   <div class="field" style="margin:0"><label>Giới tính</label><select onchange="hvSet('gender',this.value)"><option ${p.gender==='Nam'?'selected':''}>Nam</option><option ${p.gender==='Nữ'?'selected':''}>Nữ</option></select></div></div>
- ${hvTab
-  ? `<div class="drill"><button class="backbar" onclick="hvOpen('')">‹ <span>Tất cả mục</span></button>
-     <div class="drill-h"><span class="di">${cur?cur[1]:''}</span><div><b>${cur?esc(cur[2]):''}</b><span>${cur?esc(cur[3]||''):''}</span></div></div>
-     ${detail}</div>`
-  : `<div class="hv-grid">${HV_CARDS.map(c=>`<div class="hv-card" onclick="hvOpen('${c[0]}')"><div class="hv-ic">${c[1]}</div><div style="flex:1"><div class="t">${c[2]}</div><div class="d">${c[3]}</div></div><span style="color:var(--gold)">›</span></div>`).join('')}</div>${HV_NOTE}`}
+ <div class="hv-grid">${HV_CARDS.map(c=>`<button class="hv-card" onclick="hvOpen('${c[0]}')"><div class="hv-ic">${c[1]}</div><div style="flex:1;text-align:left"><div class="t">${c[2]}</div><div class="d">${c[3]}</div></div><span style="color:var(--gold)">›</span></button>`).join('')}</div>${HV_NOTE}
  </div>`;}
-V.hv=()=>V.ai();
+/* Nội dung của một bộ môn — dựng riêng để đưa vào popup */
+function hvDetail(tab){const HVIEW={tuvi:hvTuvi,thanso:hvThanso,tuong:hvTuong,tay:hvTay,phong:hvPhong,lich:hvLich,sao:hvSao};
+ if(tab==='tong'){setTimeout(hvTong,0);return `<div id="hvTongOut"><p class="muted">⏳ Đang tổng hợp…</p></div>`;}
+ return (tab&&HVIEW[tab])?HVIEW[tab]():'';}
+V.hv=()=>`<div class="h1">🔮 Huyền học · Lịch vạn niên</div><div class="sub">Tử vi, thần số học, phong thủy, lịch vạn niên và ngày tốt theo văn hóa Á Đông.</div>${hvBody()}`;
 window.hvOpen=hvOpen;window.hvSet=hvSet;window.hvVision=hvVision;window.hvTongRun=hvTong;window.hvCam=hvCam;window.hvCamStop=hvCamStop;window.hvSnap=hvSnap;
 
 /* ============ THƯ VIỆN VĂN KHẤN & NGHI LỄ GIA TỘC ============ */
