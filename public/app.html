@@ -398,6 +398,13 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .empty{text-align:center;padding:40px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 @media print{#sidebar,#mtop,.toolbar,footer{display:none!important}main{max-width:none}}
+/* ===== LỚP CHỤP ẢNH riêng — KHÔNG dùng chung #modal để không phá cửa sổ đang mở ===== */
+#camWrap{position:fixed;inset:0;z-index:110;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);padding:16px}
+#camWrap.open{display:flex}
+.cam-box{width:min(96vw,560px);background:#17130f;border:2px solid var(--gold);border-radius:16px;padding:16px;color:#efe6d8}
+.cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
+.cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
+.cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
 /* ===== QUỸ DÒNG HỌ ===== */
 .fund-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
 .fcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px 12px;border-radius:14px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;transition:.15s;box-shadow:inset 0 0 0 2px rgba(212,175,55,.22)}
@@ -518,6 +525,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 </style>
 </head>
 <body>
+<div id="camWrap"><div class="cam-box" id="camBox"></div></div>
 <div id="authWrap"><div class="au-box">
   <div class="au-head"><div class="lg">🌳</div><h1>Gia Phả Việt Nam</h1><p>Ứng dụng quản lý gia phả chuyên nghiệp</p></div>
   <div class="au-tabs">
@@ -668,13 +676,13 @@ const CRUD={
     fields:[['title','Tên sự kiện *','text'],['date','Ngày (dd/mm/yyyy)','text'],['type','Loại','select',['Giỗ tổ','Họp họ','Lễ tế','Mừng thọ','Tang lễ']],['location','Địa điểm','text'],['note','Ghi chú','textarea']]},
   fund:{title:'Quỹ dòng họ',icon:'⭐',store:'fund',
     columns:[['date','Ngày'],['name','Nội dung/Người'],['fundId','Quỹ',fundName],['type','Loại'],['amount','Số tiền',vnd],['method','Hình thức']],
-    fields:[['name','Người / Nội dung *','text'],['fundId','Thuộc quỹ','select',fundOpts],['type','Loại','select',['Thu','Chi']],['date','Ngày (dd/mm/yyyy)','text'],['purpose','Mục đích','text'],['amount','Số tiền (đ)','number'],['method','Hình thức','select',['Tiền mặt','Chuyển khoản']]]},
+    fields:[['name','Người / Nội dung *','text'],['fundId','Thuộc quỹ','select',fundOpts],['projectId','Thuộc công trình (nếu có)','selectId',resOpts],['type','Loại','select',['Thu','Chi']],['date','Ngày (dd/mm/yyyy)','text'],['purpose','Mục đích','text'],['amount','Số tiền (đ)','number'],['method','Hình thức','select',['Tiền mặt','Chuyển khoản']]]},
   graves:{title:'Mộ phần',icon:'⚱️',store:'graves',
     columns:[['name','Họ tên'],['area','Khu mộ'],['location','Vị trí'],['year','Năm mất'],['status','Tình trạng']],
     fields:[['name','Họ tên *','text'],['area','Khu mộ','text'],['location','Vị trí (lô)','text'],['mapUrl','Bản đồ (link Google Maps / toạ độ)','text'],['year','Năm mất','number'],['status','Tình trạng','select',['Tốt','Cần tu sửa']],['manager','Người quản lý','text'],['note','Nhật ký tu sửa','textarea']]},
   restoration:{title:'Tu bổ - Sửa chữa',icon:'🔨',store:'restoration',
     columns:[['name','Hạng mục'],['budget','Dự toán',vnd],['spent','Đã chi',vnd],['progress','Tiến độ',p=>p+'%'],['status','Trạng thái']],
-    fields:[['name','Hạng mục *','text'],['budget','Dự toán (đ)','number'],['spent','Đã chi (đ)','number'],['progress','Tiến độ (%)','number'],['status','Trạng thái','select',['Chưa thực hiện','Đang thực hiện','Hoàn thành']]]},
+    fields:[['name','Hạng mục *','text'],['budget','Dự toán (đ)','number'],['progress','Tiến độ (%)','number'],['status','Trạng thái','select',['Chưa thực hiện','Đang thực hiện','Hoàn thành']]]},
   notices:{title:'Thông báo',icon:'🔔',store:'notices',
     columns:[['date','Ngày'],['title','Nội dung'],['tag','Loại']],
     fields:[['title','Nội dung *','text'],['date','Ngày (dd/mm/yyyy)','text'],['tag','Loại','select',['Thông báo','Xuất đinh','Đề xuất']]]}
@@ -702,8 +710,22 @@ function crudMatch(key,r,q){
  let hay=Object.keys(r).filter(k=>k!=='avatar'&&k!=='id'&&k!=='name').map(k=>r[k]).join(' ');
  if(key==='members')hay+=' '+[memName(r.fatherId),memName(r.motherId),memName(r.spouseId)].join(' ');
  return stripVN(String(hay)).toLowerCase().indexOf(n)>=0;}
+/* Bộ lọc nhanh cho danh sách thành viên */
+let crudF={};
+function crudFilter(key,v){crudF[key]=v;const b=document.getElementById('crudBody');if(b){b.innerHTML=crudTable(key);applyPerms();}
+ document.querySelectorAll('#crudFilters .chip').forEach(el=>el.classList.toggle('on',el.dataset.f===v));}
+window.crudFilter=crudFilter;
+const MEM_FILTERS=[['','Tất cả'],['alive','🌿 Còn sống'],['dead','🕯 Đã mất'],['nam','♂ Nam'],['nu','♀ Nữ'],['gio','📅 Có ngày giỗ']];
+function crudPass(key,r){const f=crudF[key]||'';if(!f)return true;
+ if(key!=='members')return true;
+ if(f==='alive')return !!r.alive;
+ if(f==='dead')return !r.alive;
+ if(f==='nam')return r.gender==='Nam';
+ if(f==='nu')return r.gender==='Nữ';
+ if(f==='gio')return !!String(r.deathAnniv||'').trim();
+ return true;}
 function crudRows(key){const c=CRUD[key];const q=crudQ[key]||'';
- const rows=DB[c.store].filter(r=>crudMatch(key,r,q));
+ const rows=DB[c.store].filter(r=>crudPass(key,r)&&crudMatch(key,r,q));
  if(!q)return rows;
  /* Xếp theo độ liên quan: khớp đúng tên → tên bắt đầu bằng từ khóa → tên có chứa → còn lại */
  const n=stripVN(q).toLowerCase().trim();
@@ -720,6 +742,7 @@ function renderCrud(key){const c=CRUD[key];const all=DB[c.store];const q=crudQ[k
     </div>
     ${key==='members'?`<button class="btn btn-o" onclick="memTemplate()">⬇ Mẫu Excel</button><button class="btn btn-o" onclick="memImport()">⬆ Nhập Excel/CSV</button>`:''}
     <button class="btn btn-p" onclick="openForm('${key}')">➕ Thêm</button></div>
+  ${key==='members'?`<div class="tabs" id="crudFilters">${MEM_FILTERS.map(f=>`<span class="chip ${(crudF[key]||'')===f[0]?'on':''}" data-f="${f[0]}" onclick="crudFilter('${key}','${f[0]}')">${f[1]}</span>`).join('')}</div>`:''}
   <div id="crudBody">${crudTable(key)}</div>`;}
 function crudTable(key){const c=CRUD[key];const rows=crudRows(key);const all=DB[c.store];const q=crudQ[key]||'';
   const nameLink=(r)=>(key==='members'||key==='graves')?`<a onclick="${key==='graves'?'viewGrave':'viewMember'}(${r.id})" style="color:var(--primary);font-weight:600;text-decoration:underline">${esc(r.name)}</a>`:esc(r.name);
@@ -1088,6 +1111,8 @@ const FUND_DEF=[
  {id:'thuongnien',icon:'🌿', name:'Quỹ Hoạt động thường niên'},
 ];
 function fundList(){const f=(DB.funds&&DB.funds.length)?DB.funds:FUND_DEF;return f.map(x=>Object.assign({},x));}
+/* Danh sách công trình tu bổ — để gắn khoản chi vào đúng công trình */
+function resOpts(){return [['0','— Không gắn công trình —']].concat((DB.restoration||[]).map(r=>[String(r.id),r.name]));}
 function fundOf(id){return fundList().find(f=>f.id===id)||fundList()[0];}
 function fundName(id){const f=fundList().find(x=>x.id===id);return f?f.icon+' '+f.name:fundList()[0].icon+' '+fundList()[0].name;}
 function fundOpts(){return fundList().map(f=>f.icon+' '+f.name);}
@@ -1110,6 +1135,49 @@ function fundDel(id){const s=fundSum(id);
  if(fundList().length<=1){alert('Phải giữ lại ít nhất một quỹ.');return;}
  if(!confirm('Xóa quỹ này?'))return;
  fundSave(fundList().filter(x=>x.id!==id));toast('Đã xóa quỹ');}
+/* ---- Nhập sổ sách quỹ từ Excel / CSV ---- */
+const FUND_HMAP={'ngay':'date','ngay thang':'date','thoi gian':'date',
+ 'noi dung':'name','nguoi':'name','nguoi/noi dung':'name','ho ten':'name','ten':'name','dien giai':'name',
+ 'loai':'type','thu/chi':'type','thu chi':'type',
+ 'so tien':'amount','so tien (d)':'amount','tien':'amount','gia tri':'amount',
+ 'muc dich':'purpose','ly do':'purpose','ghi chu':'purpose',
+ 'hinh thuc':'method','phuong thuc':'method',
+ 'quy':'fundId','thuoc quy':'fundId','loai quy':'fundId'};
+function fundMapHeader(h){const k=stripVN(String(h||'')).toLowerCase().trim();return FUND_HMAP[k]||null;}
+function fundTemplate(){const headers=['Ngày','Nội dung / Người','Quỹ','Loại','Số tiền','Mục đích','Hình thức'];
+ const ex=['10/03/2026','Nguyễn Văn A','Quỹ Tu bổ','Thu','10000000','Ủng hộ tu bổ nhà thờ','Tiền mặt'];
+ const ex2=['12/03/2026','Mua gạch sửa nhà thờ','Quỹ Tu bổ','Chi','2500000','Vật liệu','Chuyển khoản'];
+ const csv='﻿'+[headers,ex,ex2].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+ const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='mau-so-sach-quy.csv';a.click();toast('Đã tải file mẫu');}
+let fundImportData=null;
+function fundImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập sổ sách quỹ</h3>
+ <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>, dòng đầu là tiêu đề cột. Cột <b>Loại</b> ghi <b>Thu</b> hoặc <b>Chi</b>.</p>
+ <div class="field"><input type="file" accept=".xlsx,.xls,.csv" onchange="fundImportFile(event)"/></div>
+ <div id="fundImpPrev" class="muted" style="font-size:12.5px;min-height:22px"></div>
+ <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px"><button class="btn btn-o" onclick="closeModal()">Hủy</button><button class="btn btn-p" id="fundImpBtn" onclick="fundImportCommit()" disabled>Nhập</button></div>`;
+ document.getElementById('modal').classList.add('open');}
+function fundImportFile(ev){const f=ev.target.files[0];if(!f)return;const prev=document.getElementById('fundImpPrev');const nm=f.name.toLowerCase();
+ if(nm.endsWith('.csv')){const r=new FileReader();r.onload=()=>fundImportParse(fundArrToObjs(csvParse(r.result)));r.readAsText(f,'utf-8');return;}
+ loadXLSX(()=>{const r=new FileReader();r.onload=(e)=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];
+   fundImportParse(fundArrToObjs(XLSX.utils.sheet_to_json(ws,{header:1,defval:''})));}catch(err){prev.textContent='⚠ Lỗi đọc Excel: '+err.message;}};r.readAsArrayBuffer(f);},
+  ()=>{prev.innerHTML='⚠ Không tải được thư viện đọc Excel. Hãy lưu file dạng <b>CSV UTF-8</b> rồi nhập lại.';});}
+function fundArrToObjs(arr){if(!arr||!arr.length)return [];const hs=arr[0].map(fundMapHeader);
+ return arr.slice(1).filter(r=>r.some(c=>String(c).trim())).map(r=>{const o={};hs.forEach((k,i)=>{if(k)o[k]=r[i];});return o;});}
+function fundImportParse(objs){const prev=document.getElementById('fundImpPrev'),btn=document.getElementById('fundImpBtn');
+ const list=objs.map(o=>{const t=stripVN(String(o.type||'')).toLowerCase();
+  return {name:String(o.name||'').trim(),date:String(o.date||'').trim(),
+   type:/chi/.test(t)&&!/thu/.test(t)?'Chi':'Thu',
+   amount:+String(o.amount||'').replace(/[^\d]/g,'')||0,
+   purpose:String(o.purpose||'').trim(),method:String(o.method||'Tiền mặt').trim(),
+   fundId:fundIdFromLabel(String(o.fundId||''))};}).filter(x=>x.name&&x.amount);
+ fundImportData=list;
+ if(!list.length){prev.innerHTML='<span style="color:#b23a3a">Không có dòng hợp lệ (cần có Nội dung và Số tiền).</span>';btn.disabled=true;return;}
+ const thu=list.filter(x=>x.type==='Thu').reduce((s,x)=>s+x.amount,0),chi=list.filter(x=>x.type==='Chi').reduce((s,x)=>s+x.amount,0);
+ prev.innerHTML=`✅ Đọc được <b>${list.length}</b> giao dịch — thu <b>${vnd(thu)}</b>, chi <b>${vnd(chi)}</b>.`;btn.disabled=false;}
+function fundImportCommit(){if(!fundImportData||!fundImportData.length){toast('Chưa có dữ liệu');return;}
+ fundImportData.forEach(x=>DB.fund.push(Object.assign({id:nextId(DB.fund)},x)));
+ const n=fundImportData.length;fundImportData=null;logAct('Nhập '+n+' giao dịch quỹ từ file');save();closeModal();render();toast('Đã nhập '+n+' giao dịch');}
+window.fundTemplate=fundTemplate;window.fundImport=fundImport;window.fundImportFile=fundImportFile;window.fundImportCommit=fundImportCommit;
 let fundView='';
 function fundOpen(id){fundView=id;render();window.scrollTo(0,0);}
 window.fundAdd=fundAdd;window.fundRename=fundRename;window.fundDel=fundDel;window.fundOpen=fundOpen;
@@ -1280,7 +1348,12 @@ function famList(){const all=famCouples();const q=stripVN(famQ).toLowerCase().tr
  return `<div class="muted" style="font-size:12.5px;margin-bottom:8px">${q?`Tìm thấy <b>${couples.length}</b> trong ${all.length} hộ`:`${all.length} hộ gia đình`}</div>
  <div class="grid" style="grid-template-columns:1fr;gap:12px">${couples.map(([a,b])=>{const kids=famKids(a,b);
    return `<div class="card pad"><div class="h3">${esc(a.name)}${b?' ⚭ '+esc(b.name):''}</div>
-   <div class="muted" style="font-size:12.5px">${T.gen} ${a.generation} · ${T.b2}: ${esc(a.branch||'')} · ${esc(a.address||'—')}</div>
+   <div class="muted" style="font-size:12.5px">${[
+      a.generation?T.gen+' '+a.generation:'',
+      a.branchL1?T.b1+' '+String(a.branchL1).replace(new RegExp('^'+T.b1+'\\\\s*','i'),''):'',
+      a.branch?T.b2+' '+String(a.branch).replace(new RegExp('^'+T.b2+'\\\\s*','i'),''):'',
+      a.address||''
+     ].filter(Boolean).map(esc).join(' · ')}</div>
    <div style="margin-top:8px"><b>Con cái:</b> ${kids.length?kids.map(k=>`<span class="chip" onclick="viewMember(${k.id})" style="margin:2px">${esc(k.name)}${k.birthYear?' ('+k.birthYear+')':''}</span>`).join(''):'<span class="muted">chưa có</span>'}</div></div>`;}).join('')||`<div class="empty">${q?`Không tìm thấy “${esc(famQ)}”.`:'Chưa có hộ nào.'}</div>`}</div>`;}
 V.families=()=>`<div class="h1">🏠 Gia đình (hộ)</div><div class="sub">Các hộ gia đình theo quan hệ vợ chồng và con cái.</div>
  <div class="toolbar"><div class="srch"><span class="si">🔍</span>
@@ -1336,7 +1409,7 @@ function fundDash(){const list=fundList();const canEd=curLevel()>=2;
    <span><b style="color:#0f6e56">${vnd(all.thu)}</b> <span class="muted" style="font-size:12.5px">tổng thu</span></span>
    <span><b style="color:#a11">${vnd(all.chi)}</b> <span class="muted" style="font-size:12.5px">tổng chi</span></span>
    <span><b style="color:var(--gold-dark)">${vnd(all.thu-all.chi)}</b> <span class="muted" style="font-size:12.5px">tổng số dư</span></span>
-   ${canEd?`<span style="margin-left:auto"></span><button class="btn btn-o btn-sm" onclick="fundAdd()">➕ Thêm quỹ</button>`:''}
+   ${canEd?`<span style="margin-left:auto"></span><button class="btn btn-o btn-sm" onclick="fundTemplate()">⬇ Mẫu sổ sách</button><button class="btn btn-o btn-sm" onclick="fundImport()">⬆ Nhập sổ sách</button><button class="btn btn-o btn-sm" onclick="fundAdd()">➕ Thêm quỹ</button>`:''}
  </div>`;}
 /* Trang chi tiết một quỹ */
 function fundDetail(id){const f=fundOf(id);const s=fundSum(id);const tx=fundTx(id);const canEd=curLevel()>=2;
@@ -1367,11 +1440,21 @@ function fundDetail(id){const f=fundOf(id);const s=fundSum(id);const tx=fundTx(i
  <div class="toolbar" style="margin-top:12px"><button class="btn btn-o" onclick="window.print()">🖨 In báo cáo quỹ</button></div>`;}
 
 /* ---- Tu bổ: dashboard + bảng ---- */
-V.restoration=()=>{const b=DB.restoration.reduce((s,x)=>s+(+x.budget||0),0),sp=DB.restoration.reduce((s,x)=>s+(+x.spent||0),0);const done=DB.restoration.filter(x=>x.progress>=100).length,run=DB.restoration.filter(x=>x.status==='Đang thực hiện').length;
- return `<div class="h1">🔨 Tu bổ - Sửa chữa</div><div class="sub">Hạng mục, dự toán, đã chi, tiến độ.</div>
+/* Đã chi của một công trình = tổng các khoản CHI trong Quỹ đã gắn vào công trình đó.
+   Không nhập tay hai nơi → số liệu luôn khớp với sổ quỹ. */
+function resSpent(r){const linked=DB.fund.filter(f=>f.type==='Chi'&&+f.projectId===+r.id).reduce((s,f)=>s+(+f.amount||0),0);
+ return linked||(+r.spent||0);}
+function resLinked(r){return DB.fund.filter(f=>+f.projectId===+r.id);}
+V.restoration=()=>{const b=DB.restoration.reduce((s,x)=>s+(+x.budget||0),0),sp=DB.restoration.reduce((s,x)=>s+resSpent(x),0);const done=DB.restoration.filter(x=>x.progress>=100).length,run=DB.restoration.filter(x=>x.status==='Đang thực hiện').length;
+ const quyTubo=fundSum('tubo');
+ return `<div class="h1">🔨 Tu bổ - Sửa chữa</div><div class="sub">Theo dõi công trình và tiến độ. Tiền bạc ghi ở <b>Quỹ Tu bổ</b> — ở đây chỉ tổng hợp lại.</div>
+ <div class="card pad" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-color:var(--gold)">
+   <span>🛕 <b>Quỹ Tu bổ</b> — số dư <b style="color:var(--gold-dark)">${vnd(quyTubo.du)}</b></span>
+   <span class="muted" style="font-size:12.5px">thu ${vnd(quyTubo.thu)} · chi ${vnd(quyTubo.chi)}</span>
+   <span style="margin-left:auto"></span><button class="btn btn-o btn-sm" onclick="fundOpen('tubo');go('fund')">Mở sổ quỹ ›</button></div>
  <div class="grid st4"><div class="card frame-gold stat"><div class="n">${DB.restoration.length}</div><div class="l">Hạng mục</div></div><div class="card frame-gold stat"><div class="n">${run}</div><div class="l">Đang làm</div></div><div class="card frame-gold stat"><div class="n" style="font-size:17px">${vnd(b)}</div><div class="l">Tổng dự toán</div></div><div class="card frame-gold stat"><div class="n" style="font-size:17px">${vnd(sp)}</div><div class="l">Đã chi</div></div></div>
  <div class="toolbar" style="margin-top:12px"><span style="margin-right:auto"></span><button class="btn btn-p" onclick="openForm('restoration')">➕ Thêm hạng mục</button></div>
- <div class="card" style="overflow:auto"><table><thead><tr><th>Hạng mục</th><th class="right">Dự toán</th><th class="right">Đã chi</th><th style="width:150px">Tiến độ</th><th>Trạng thái</th><th class="right">Sửa</th></tr></thead><tbody>${DB.restoration.map(r=>`<tr><td style="font-weight:500">${esc(r.name)}</td><td class="right">${vnd(r.budget)}</td><td class="right">${vnd(r.spent)}</td><td><div class="bar"><i style="width:${r.progress}%"></i></div><span class="muted" style="font-size:11px">${r.progress}%</span></td><td><span class="badge ${r.status==='Hoàn thành'?'badge-ok':r.status==='Chưa thực hiện'?'badge-warn':'badge-gold'}">${esc(r.status)}</span></td><td class="right"><button class="btn btn-o btn-sm" onclick="openForm('restoration',${r.id})">✎</button> <button class="btn btn-d btn-sm" onclick="del('restoration',${r.id})">🗑</button></td></tr>`).join('')}</tbody></table></div>`;};
+ <div class="card" style="overflow:auto"><table><thead><tr><th>Hạng mục</th><th class="right">Dự toán</th><th class="right">Đã chi</th><th style="width:150px">Tiến độ</th><th>Trạng thái</th><th class="right">Sửa</th></tr></thead><tbody>${DB.restoration.map(r=>`<tr><td style="font-weight:500">${esc(r.name)}</td><td class="right">${vnd(r.budget)}</td><td class="right">${vnd(resSpent(r))}${resLinked(r).length?`<div class="muted" style="font-size:10.5px">${resLinked(r).length} khoản từ quỹ</div>`:''}</td><td><div class="bar"><i style="width:${r.progress}%"></i></div><span class="muted" style="font-size:11px">${r.progress}%</span></td><td><span class="badge ${r.status==='Hoàn thành'?'badge-ok':r.status==='Chưa thực hiện'?'badge-warn':'badge-gold'}">${esc(r.status)}</span></td><td class="right"><button class="btn btn-o btn-sm" onclick="openForm('restoration',${r.id})">✎</button> <button class="btn btn-d btn-sm" onclick="del('restoration',${r.id})">🗑</button></td></tr>`).join('')}</tbody></table></div>`;};
 
 /* ---- Thông báo + Góp ý/Đề xuất (duyệt) ---- */
 V.notices=()=>`<div class="h1">🔔 Thông báo & Đóng góp dữ liệu</div><div class="sub">Tin tức, xuất đinh mới, góp ý và đề xuất (có phê duyệt).</div>
@@ -1672,25 +1755,33 @@ async function hvCam(kind){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Trình duyệt không hỗ trợ camera');return;}
  try{hvStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:kind==='face'?'user':'environment'},audio:false});}
  catch(e){toast('Không mở được camera: '+e.message);return;}
- document.getElementById('modalBox').innerHTML=`<h3>📷 ${kind==='face'?'Chụp khuôn mặt — nhìn thẳng, đủ sáng':'Chụp lòng bàn tay — xòe rõ, đủ sáng'}</h3>
-  <video id="hvVid" autoplay playsinline style="width:100%;border-radius:10px;background:#000"></video>
-  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn btn-o" onclick="hvCamStop()">Hủy</button><button class="btn btn-p" onclick="hvSnap('${kind}')">📸 Chụp & phân tích</button></div>`;
- document.getElementById('modal').classList.add('open');
+ /* Dùng LỚP RIÊNG (#camWrap) — không đụng vào cửa sổ Huyền học đang mở, nhờ đó
+    sau khi chụp vẫn còn chỗ để hiện kết quả. */
+ document.getElementById('camBox').innerHTML=`<h3>📷 ${kind==='face'?'Chụp khuôn mặt — nhìn thẳng, đủ sáng':'Chụp lòng bàn tay — xòe rõ, đủ sáng'}</h3>
+  <video id="hvVid" autoplay playsinline></video>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn btn-o" onclick="hvCamStop()">Hủy</button><button class="btn btn-p" onclick="hvSnap('${kind}')">📸 Chụp & phân tích</button></div>
+  <div class="cam-note">🔒 Ảnh chỉ dùng để phân tích ngay lúc này, <b>không lưu vào máy và không lưu lên máy chủ</b> — phân tích xong là xóa.</div>`;
+ document.getElementById('camWrap').classList.add('open');
  document.getElementById('hvVid').srcObject=hvStream;}
-function hvCamStop(){if(hvStream){hvStream.getTracks().forEach(t=>t.stop());hvStream=null;}closeModal();}
+function hvCamStop(){if(hvStream){hvStream.getTracks().forEach(t=>t.stop());hvStream=null;}
+ const w=document.getElementById('camWrap');if(w)w.classList.remove('open');
+ const b=document.getElementById('camBox');if(b)b.innerHTML='';}
 function hvSnap(kind){const v=document.getElementById('hvVid');if(!v||!v.videoWidth){toast('Camera chưa sẵn sàng');return;}
  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);
  hvCamStop();c.toBlob(b=>{if(b)hvVisionFile(kind,b);},'image/jpeg',.92);toast('Đã chụp — đang phân tích');}
 async function hvVisionFile(kind,f){if(!f)return;const out=document.getElementById(kind==='face'?'hvFaceOut':'hvPalmOut');if(!out)return;
  const ai=DB.settings.ai||{};if(!ai.key||ai.provider==='Chưa cấu hình'){out.innerHTML='<p class="muted">Cần API key (Cài đặt → AI).</p>';return;}
  out.innerHTML='⏳ Đang phân tích…';
- const r=new FileReader();r.onload=async()=>{const durl=r.result;const b64=durl.split(',')[1];const mime=(durl.match(/^data:(.*?);/)||[])[1]||'image/jpeg';
+ /* Ảnh chỉ tồn tại trong bộ nhớ tạm khi gửi đi phân tích — KHÔNG ghi vào DB/localStorage,
+    và được giải phóng ngay sau khi có kết quả. */
+ const r=new FileReader();r.onload=async()=>{let durl=r.result;let b64=durl.split(',')[1];const mime=(durl.match(/^data:(.*?);/)||[])[1]||'image/jpeg';
   const sys='Bạn là nhà nghiên cứu văn hóa Á Đông. Mô tả theo góc nhìn '+(kind==='face'?'nhân tướng học (ngũ quan: mắt, mày, mũi, miệng, tai)':'xem chỉ tay dân gian (sinh đạo, trí đạo, tâm đạo, vận mệnh)')+' một cách ôn hòa, tích cực, mang tính tham khảo văn hóa; không khẳng định tương lai, không mê tín, không nhận dạng danh tính, không đánh giá ngoại hình đẹp/xấu, không tư vấn y tế. Kết bằng 2–3 gợi ý phát triển bản thân. Tiếng Việt, ngắn gọn.';
   try{let txt='';
    if(/OpenAI/i.test(ai.provider)){const r2=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',max_tokens:600,messages:[{role:'system',content:sys},{role:'user',content:[{type:'text',text:'Phân tích ảnh này.'},{type:'image_url',image_url:{url:durl}}]}]})});const j=await r2.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
    else{const r2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ai.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:sys,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:'Phân tích ảnh này.'}]}]})});const j=await r2.json();if(j.error)throw new Error(j.error.message);txt=j.content[0].text;}
-   out.innerHTML=hvSec('Kết quả',esc(txt).replace(/\n/g,'<br>'))+HV_NOTE;
-  }catch(e){out.innerHTML='<p class="muted">⚠ '+esc(e.message)+'</p>';}};
+   out.innerHTML=hvSec('Kết quả',esc(txt).replace(/\n/g,'<br>'))+`<p class="muted" style="font-size:11.5px;margin-top:6px">🔒 Ảnh đã được xóa khỏi bộ nhớ, không lưu lại.</p>`+HV_NOTE;
+  }catch(e){out.innerHTML='<p class="muted">⚠ '+esc(e.message)+'</p>';}
+  finally{durl=null;b64=null;f=null;} /* xóa ảnh khỏi bộ nhớ ngay */ };
  r.readAsDataURL(f);}
 const HV_CARDS=[['tuvi','🔭','Tử vi cá nhân','Tứ trụ, đại vận, sao năm'],['thanso','🔢','Thần số học','Chủ đạo, linh hồn, biểu đạt'],['tuong','🧑','Nhân tướng học','Ngũ quan, phân tích ảnh AI'],['tay','✋','Xem chỉ tay','4 đường chính, AI từ ảnh'],['phong','🧭','Phong thủy','Ngũ hành, mệnh quái, hướng, màu'],['lich','📅','Lịch vạn niên','Hôm nay · tháng · ngày tốt · lịch họ'],['sao','⭐','Sao chiếu mệnh','Sao năm & gợi ý cân bằng'],['tong','🪷','AI Tổng luận','Gộp tất cả bộ môn']];
 function hvBody(){const p=hvP();const mopts='<option value="0">— Nhập tay —</option>'+DB.members.map(m=>`<option value="${m.id}" ${p.mid===m.id?'selected':''}>${esc(m.name)}${m.birthYear?' ('+m.birthYear+')':''}</option>`).join('');
@@ -2142,14 +2233,16 @@ window.addPhoto=addPhoto;window.savePhoto=savePhoto;
 
 /* ---- Báo cáo + xuất ---- */
 V.report=()=>{const byGen={},byBr={};DB.members.forEach(m=>{byGen[m.generation]=(byGen[m.generation]||0)+1;byBr[m.branch]=(byBr[m.branch]||0)+1;});
- const thu=DB.fund.filter(f=>f.type!=='Chi').reduce((s,f)=>s+(+f.amount||0),0),chi=DB.fund.filter(f=>f.type==='Chi').reduce((s,f)=>s+(+f.amount||0),0);
  const nam=DB.members.filter(m=>m.gender==='Nam').length,alive=DB.members.filter(m=>m.alive).length;
  const gens=Object.keys(byGen).sort((a,b)=>a-b);const mx=Math.max(1,...Object.values(byGen));
  return `<div class="h1">📊 Báo cáo & Thống kê</div><div class="sub">${esc(DB.org.display)} — tổng hợp từ dữ liệu hiện có.</div>
  <div class="toolbar"><span style="margin-right:auto"></span><button class="btn btn-o" onclick="window.print()">🖨 In</button><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV (thành viên)</button></div>
  <div class="grid st4"><div class="card frame-gold stat"><div class="n">${DB.members.length}</div><div class="l">Thành viên</div></div><div class="card frame-gold stat"><div class="n">${nam}/${DB.members.length-nam}</div><div class="l">Nam / Nữ</div></div><div class="card frame-gold stat"><div class="n">${alive}</div><div class="l">Còn sống</div></div><div class="card frame-gold stat"><div class="n">${DB.graves.length}</div><div class="l">Mộ phần</div></div></div>
  <div class="two" style="margin-top:12px"><div class="card pad"><div class="h3">Thành viên theo ${esc(T.gen.toLowerCase())}</div>${gens.map(g=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(T.gen)} ${g}</span><span class="muted">${byGen[g]}</span></div><div class="bar"><i style="width:${byGen[g]/mx*100}%"></i></div></div>`).join('')}</div>
- <div class="card pad"><div class="h3">Tài chính công đức</div><table><tr><td>Tổng thu</td><td class="right" style="color:#0f6e56;font-weight:700">${vnd(thu)}</td></tr><tr><td>Tổng chi</td><td class="right" style="color:var(--primary);font-weight:700">${vnd(chi)}</td></tr><tr><td>Số dư</td><td class="right" style="font-weight:700">${vnd(thu-chi)}</td></tr></table>
+ <div class="card pad"><div class="h3">💰 Tài chính</div>
+  <table>${fundList().map(f=>{const s2=fundSum(f.id);return `<tr><td>${f.icon} ${esc(f.name)}</td><td class="right" style="font-weight:700;color:var(--gold-dark)">${vnd(s2.du)}</td></tr>`;}).join('')}
+  <tr><td><b>Tổng số dư</b></td><td class="right" style="font-weight:700">${vnd(fundList().reduce((a,f)=>a+fundSum(f.id).du,0))}</td></tr></table>
+  <button class="btn btn-o btn-sm" style="margin-top:8px" onclick="go('fund')">Xem chi tiết ở Quỹ dòng họ ›</button>
    <div class="h3" style="margin-top:12px">Theo ${esc(T.b2.toLowerCase())}</div>${Object.keys(byBr).map(b=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0"><span>${esc(b)}</span><span class="muted">${byBr[b]}</span></div>`).join('')}</div></div>`;};
 function exportCsv(){const cols=[[T.b1,m=>m.branchL1],[T.b2,m=>m.branch],[T.gen,m=>m.generation],['Cha',m=>memName(m.fatherId)],['Mẹ',m=>memName(m.motherId)],['Họ tên',m=>m.name],['Giới tính',m=>m.gender],['Năm sinh',m=>m.birthYear],['Năm mất',m=>m.deathYear],['Ngày giỗ (âm lịch)',m=>m.deathAnniv],['Còn sống/Mất',m=>m.alive?'Còn sống':'Đã mất'],['Nơi sinh',m=>m.birthPlace],['Nghề nghiệp',m=>m.occupation],['Điện thoại',m=>m.phone],['Email',m=>m.email],['Địa chỉ',m=>m.address],['Tiểu sử',m=>m.bio],['Vợ/Chồng',m=>memName(m.spouseId)]];const head=cols.map(c=>c[0]);
  const rows=DB.members.map(m=>cols.map(c=>`"${String(c[1](m)??'').replace(/"/g,'""')}"`).join(','));
@@ -2172,7 +2265,7 @@ const ROLE_DEF={guest:{suggest:false,edit:false,admin:false},member:{suggest:tru
 function roleCaps(key){if(key==='leader')return {suggest:true,edit:true,admin:true};return Object.assign({},ROLE_DEF[key]||ROLE_DEF.member,(DB.roleperm||{})[key]||{});}
 function applyPerms(){const caps=roleCaps(curRole());document.querySelectorAll('#app [onclick]').forEach(el=>{const oc=el.getAttribute('onclick')||'';let need='';
   if(/addSuggestion\(/.test(oc))need='suggest';
-  else if(/openForm\(|del\(|openMedia\(|editHeritage\(|addPhoto\(|memImport\(|memTemplate\(/.test(oc))need='edit';
+  else if(/openForm\(|del\(|openMedia\(|editHeritage\(|addPhoto\(|memImport\(|memTemplate\(|fundImport\(|fundTemplate\(|fundAdd\(|fundRename\(/.test(oc))need='edit';
   else if(/approveSug\(|newProject\(|resetDb\(|saveGp\(|saveAi\(|saveClan\(|saveCouplet\(|rlEdit\(/.test(oc))need='admin';
   if(need&&!caps[need])el.style.display='none';});}
 function rolePermToggle(key,cap,val){if(key==='leader')return;DB.roleperm=DB.roleperm||{};DB.roleperm[key]=Object.assign({},roleCaps(key),DB.roleperm[key]||{});DB.roleperm[key][cap]=!!val;logAct('Sửa phân quyền vai trò: '+key);save();render();}
