@@ -421,17 +421,22 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
-/* ===== BẢNG CHỌN ĐẶC ĐIỂM (xem tướng / chỉ tay) ===== */
-.hq-b{padding:11px 0;border-bottom:1px dashed var(--border)}
+/* ===== CHỌN THEO HÌNH VẼ (dáng mặt / chỉ tay) ===== */
+.hq-b{padding:12px 0;border-bottom:1px dashed var(--border)}
 .hq-b:last-child{border-bottom:none}
 .hq-h b{color:var(--primary);font-size:13.5px}
 .hq-h span{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
-.hq-o{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
-.hq-c{flex:1 1 150px;text-align:left;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:12.5px;font-family:inherit;cursor:pointer;line-height:1.35;color:var(--text)}
-.hq-c:hover{border-color:var(--gold);background:#fdf7e8}
-.hq-c.on{border-color:var(--primary);background:linear-gradient(#fdf3dc,#f8ecc9);font-weight:600;color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
-.hq-c:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-@media(max-width:520px){.hq-c{flex:1 1 100%}}
+.fs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:9px;margin-top:9px}
+.fs-grid.sm{grid-template-columns:repeat(auto-fill,minmax(94px,1fr))}
+.fs-c{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 6px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;transition:.15s}
+.fs-c:hover{border-color:var(--gold);background:#fdf7e8;transform:translateY(-2px)}
+.fs-c.on{border-color:var(--primary);background:linear-gradient(#fdf3dc,#f8ecc9);box-shadow:inset 0 0 0 2px var(--primary)}
+.fs-c:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.fs-img{width:100%;height:74px;display:block}
+.fs-grid.sm .fs-img{height:66px}
+.fs-n{font-size:12px;font-weight:700;color:var(--primary);text-align:center;line-height:1.25}
+.fs-d{font-size:10.5px;color:var(--muted);text-align:center;line-height:1.3}
+@media(max-width:520px){.fs-grid{grid-template-columns:repeat(3,1fr);gap:7px}.fs-grid.sm{grid-template-columns:repeat(2,1fr)}.fs-d{display:none}}
 /* ===== HOẠT ĐỘNG DIỄN RA — dạng thẻ ===== */
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .rcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:inset 0 0 0 2px rgba(212,175,55,.16)}
@@ -1139,18 +1144,21 @@ function normObj(o){if(!o.type)o.type=(o.id==='daitu'?'hoanhphi':(o.id==='left'|
  if(o.lh==null)o.lh=1.15;if(o.ls==null)o.ls=(o.space!=null?o.space:0);if(o.opacity==null)o.opacity=1;
  if(o.border==null)o.border='';if(o.bg==null)o.bg='';o.bold=!!o.bold;o.italic=!!o.italic;
  if(!o.vfont)o.vfont='serif';if(!o.color)o.color='gold';if(!o.size)o.size=30;return o;}
+/* Bố cục mặc định cho chế độ tự do — dựng cân đối như bản cổ điển:
+   hoành phi trên cùng, hai câu đối hai bên, tên dòng họ ở giữa. */
 function defaultObjects(){const c=DB.couplet||{};const f=c.font||'khai';const out=[];
- if(c.daitu)out.push(mk({id:'daitu',type:'hoanhphi',text:c.daitu,han:true,board:true,dir:'horizontal',x:210,y:14,w:580,h:112,size:c.sizeDT||46,ls:(c.spaceDT!=null?c.spaceDT:0.24),color:'gold',font:f}));
- out.push(mk({id:'eye',type:'subtitle',text:(c.eyebrow!=null?c.eyebrow:'Uống nước nhớ nguồn · Tôn vinh tổ tiên'),x:200,y:126,w:600,h:32,size:15,color:'#e9dcc0',vfont:'serif'}));
- out.push(mk({id:'title',type:'title',text:DB.org.display,x:250,y:158,w:500,h:110,size:30,color:'gold',vfont:'title'}));
- out.push(mk({id:'slogan',type:'subtitle',text:(c.slogan!=null?c.slogan:'Gìn giữ truyền thống — Kết nối con cháu — Hướng về cội nguồn.'),x:170,y:288,w:660,h:36,size:15,color:'#e9dcc0',vfont:'serif'}));
- if(c.left)out.push(mk({id:'left',type:'cauic',text:c.left,han:true,board:true,dir:'stacked',x:30,y:150,w:92,h:276,size:c.sizeCau||28,color:'gold',font:f}));
- if(c.right)out.push(mk({id:'right',type:'cauic',text:c.right,han:true,board:true,dir:'stacked',x:878,y:150,w:92,h:276,size:c.sizeCau||28,color:'gold',font:f}));
+ if(c.daitu)out.push(mk({id:'daitu',type:'hoanhphi',text:c.daitu,han:true,board:true,dir:'horizontal',x:200,y:16,w:600,h:120,size:c.sizeDT||48,ls:(c.spaceDT!=null?c.spaceDT:0.24),color:'gold',font:f}));
+ if(c.left)out.push(mk({id:'left',type:'cauic',text:c.left,han:true,board:true,dir:'stacked',x:44,y:152,w:100,h:284,size:c.sizeCau||29,color:'gold',font:f}));
+ if(c.right)out.push(mk({id:'right',type:'cauic',text:c.right,han:true,board:true,dir:'stacked',x:856,y:152,w:100,h:284,size:c.sizeCau||29,color:'gold',font:f}));
+ out.push(mk({id:'eye',type:'subtitle',text:(c.eyebrow!=null?c.eyebrow:'Uống nước nhớ nguồn · Tôn vinh tổ tiên'),x:180,y:162,w:640,h:28,size:14,color:'#e9dcc0',vfont:'serif'}));
+ out.push(mk({id:'title',type:'title',text:DB.org.display,x:180,y:196,w:640,h:92,size:34,color:'gold',vfont:'title'}));
+ out.push(mk({id:'slogan',type:'subtitle',text:(c.slogan!=null?c.slogan:'Gìn giữ truyền thống — Kết nối con cháu — Hướng về cội nguồn.'),x:160,y:296,w:680,h:40,size:14.5,color:'#e9dcc0',vfont:'serif'}));
  return out;}
 function ensureObjects(){if(!DB.couplet.objects||!DB.couplet.objects.length){DB.couplet.objects=defaultObjects();}
  else{const have={};DB.couplet.objects.forEach(o=>{normObj(o);have[o.id]=1;});
-  defaultObjects().forEach(d=>{if((d.id==='eye'||d.id==='slogan')&&!have[d.id])DB.couplet.objects.push(d);});}
- DB.couplet.canvasH=DB.couplet.canvasH||440;DB.couplet.free=true;}
+  /* Bổ sung lại những ô còn thiếu — kể cả CÂU ĐỐI (trước đây bị bỏ sót nên câu đối biến mất) */
+  defaultObjects().forEach(d=>{if(!have[d.id])DB.couplet.objects.push(d);});}
+ DB.couplet.canvasH=DB.couplet.canvasH||450;DB.couplet.free=true;}
 function objContent(o){const raw=o.han?toHan(o.text||''):(o.text||'');
  const gilt=o.color==='gold';
  const cStyle=`${gilt?'':`color:${o.color};`}${o.bold?'font-weight:800;':''}${o.italic?'font-style:italic;':''}line-height:${o.lh};letter-spacing:${o.ls}em;${o.textRot?`transform:rotate(${o.textRot}deg);`:''}`;
@@ -1926,94 +1934,117 @@ function hvThanso(){const b=hvBirth();const p=hvP();if(!p.name&&!b)return hvNeed
  +(soul?hvSec('💗 Chỉ số linh hồn (nguyên âm)',`<b>${numRed(soul)}</b> — ${NUMM[numRed(soul)]||''}. Nói về mong muốn bên trong.`):'')
  +(all?hvSec('🗣 Chỉ số biểu đạt (cả tên)',`<b>${numRed(all)}</b> — ${NUMM[numRed(all)]||''}. Nói về cách thể hiện ra bên ngoài.`):'')
  +(py!=null?hvSec(`🔄 Năm cá nhân ${cur.getFullYear()}`,`<b>${py}</b> — chu kỳ ${py}/9: ${py<=3?'khởi đầu, gieo hạt, học hỏi':py<=6?'xây dựng, vun đắp quan hệ và trách nhiệm':'thu hoạch, nhìn lại, hoàn thiện'}.`):'')+HV_NOTE;}
-/* ===== XEM TƯỚNG & CHỈ TAY BẰNG BẢNG TRA (KHÔNG cần internet, KHÔNG cần API, KHÔNG gửi ảnh đi đâu)
-   Người dùng tự chọn đặc điểm — đúng cách sách tướng số truyền thống vẫn hướng dẫn. */
+/* ===== XEM TƯỚNG & CHỈ TAY — CHỌN THEO HÌNH VẼ (sách tướng phương Đông)
+   Không cần internet, không cần API, không gửi ảnh đi đâu. ===== */
+/* --- 1) THẬP NHỊ DIỆN TƯỚNG: 10 dáng mặt cổ điển, đặt tên theo chữ Hán --- */
+const FACE_SHAPES=[
+ ['dien','田','Chữ Điền','Mặt vuông, trán và cằm đều rộng',
+  'M50 16 C74 16 84 26 84 44 L84 76 C84 94 74 104 50 104 C26 104 16 94 16 76 L16 44 C16 26 26 16 50 16 Z',
+  'Tướng đôn hậu, vững chãi. Người xưa cho là tướng có căn cơ, làm việc chắc chắn, được người tin cậy. Hợp việc gánh vác, đứng đầu một nhóm. Nên giữ sự mềm mỏng để tránh cứng nhắc.'],
+ ['do','由','Chữ Do','Trán hẹp, cằm bạnh rộng',
+  'M50 16 C64 16 70 24 72 38 L82 78 C86 96 74 104 50 104 C26 104 14 96 18 78 L28 38 C30 24 36 16 50 16 Z',
+  'Khởi đầu vất vả nhưng càng về sau càng vững — "hậu vận hưng". Người có dáng này thường tự lập sớm, tích lũy dần rồi an ổn tuổi trung niên trở đi.'],
+ ['giap','甲','Chữ Giáp','Trán rộng, cằm thon nhọn',
+  'M50 14 C76 14 86 26 84 44 L74 80 C70 96 62 104 50 104 C38 104 30 96 26 80 L16 44 C14 26 24 14 50 14 Z',
+  'Tư chất thông minh, học nhanh, thiên về trí óc. Hợp nghề chữ nghĩa, nghiên cứu, giảng dạy. Người xưa khuyên rèn thêm sức bền để theo việc đường dài.'],
+ ['than','申','Chữ Thân','Trán và cằm hẹp, gò má rộng',
+  'M50 16 C62 16 68 24 70 36 L84 62 C86 72 78 80 70 84 L64 96 C60 102 56 104 50 104 C44 104 40 102 36 96 L30 84 C22 80 14 72 16 62 L30 36 C32 24 38 16 50 16 Z',
+  'Nhanh nhạy, giỏi xoay xở, thích nghi tốt với thay đổi. Hợp việc giao dịch, kết nối. Nên chọn một hướng chính để công sức không bị dàn trải.'],
+ ['dung','用','Chữ Dụng','Mặt hơi lệch, cằm rộng một bên',
+  'M50 15 C68 15 78 25 78 42 L82 78 C84 96 72 104 48 104 C26 104 16 96 18 78 L22 42 C22 25 32 15 50 15 Z',
+  'Bươn chải, chịu khó, tự tay gây dựng. Thành quả đến từ bền bỉ chứ không nhờ may. Người thân nên là chỗ dựa tinh thần cho người tướng này.'],
+ ['muc','目','Chữ Mục','Mặt dài, hẹp bề ngang',
+  'M50 12 C68 12 76 22 76 40 L76 80 C76 98 66 108 50 108 C34 108 24 98 24 80 L24 40 C24 22 32 12 50 12 Z',
+  'Điềm đạm, kiên nhẫn, làm việc có nề nếp. Người xưa xem là tướng thọ, sống ngăn nắp. Hợp việc cần tỉ mỉ, giữ gìn — như trông coi việc họ, gia phả.'],
+ ['vien','圓','Chữ Viên','Mặt tròn đầy',
+  'M50 14 C74 14 88 32 88 60 C88 88 74 106 50 106 C26 106 12 88 12 60 C12 32 26 14 50 14 Z',
+  'Phúc hậu, hòa nhã, dễ gần, được lòng người. Tướng "tụ phúc" theo quan niệm dân gian. Trong họ thường là người hòa giải, gắn kết anh em.'],
+ ['vuong','王','Chữ Vương','Gò má cao, trán và cằm cân',
+  'M50 16 C68 16 76 26 76 42 L84 60 C86 70 80 76 74 78 L72 88 C70 100 62 104 50 104 C38 104 30 100 28 88 L26 78 C20 76 14 70 16 60 L24 42 C24 26 32 16 50 16 Z',
+  'Có khí chất, nói có người nghe. Hợp vai trò đứng mũi chịu sào. Người xưa dặn: có uy thì càng phải rộng lượng mới bền.'],
+ ['phong','風','Chữ Phong','Trán rộng, hai bên thái dương nở',
+  'M50 14 C78 14 90 28 88 46 L78 74 C74 94 64 104 50 104 C36 104 26 94 22 74 L12 46 C10 28 22 14 50 14 Z',
+  'Nhiều ý tưởng, phóng khoáng, ưa cái mới. Hợp việc mở đường, khởi xướng. Nên có người thực tế bên cạnh để việc đi tới cùng.'],
+ ['dong','同','Chữ Đồng','Mặt cân đối, đường nét hài hòa',
+  'M50 15 C72 15 82 28 82 48 L82 74 C82 94 70 105 50 105 C30 105 18 94 18 74 L18 48 C18 28 28 15 50 15 Z',
+  'Cân bằng, chừng mực, biết tiến biết lui. Tướng "trung dung" — ít cực đoan, đời sống ổn định, gia đạo êm ấm.']];
+/* --- 2) CHỈ TAY: 4 đường chính, mỗi đường vài dáng thường gặp --- */
+const PALM_BASE='M22 118 L22 62 C22 50 30 44 38 46 L38 34 C38 24 50 24 50 34 L50 44 L56 44 L56 28 C56 18 68 18 68 28 L68 46 L74 46 L74 32 C74 22 86 22 86 32 L86 62 C86 78 82 92 74 104 L70 118 Z';
 const PALM_Q=[
- ['sinh','Sinh đạo — đường vòng quanh gò ngón cái','Chỉ sức sống, thể trạng',[
-  ['dai','Dài, rõ, ôm rộng gò cái','Thể chất bền, sức sống dẻo dai. Người xưa nói đây là tướng "trường lực" — làm gì cũng theo được đường dài. Nên giữ nếp sinh hoạt điều độ để phát huy.'],
-  ['ngan','Ngắn hoặc mờ nhạt','Sức bền vừa phải nhưng bù lại thường nhanh nhẹn, biết lượng sức. Chú ý nghỉ ngơi đủ, đừng làm quá sức một lúc.'],
-  ['dut','Có đoạn đứt hoặc gãy khúc','Theo quan niệm dân gian là đời có khúc chuyển. Người có đường này thường trải nhiều rồi chín chắn sớm.'],
-  ['kep','Có đường song song bên trong','Gọi là "đường chị em" — được người thân nâng đỡ, gia đình là chỗ dựa vững.']]],
- ['tri','Trí đạo — đường ngang giữa lòng bàn tay','Chỉ cách tư duy',[
-  ['thang','Thẳng, dứt khoát','Tư duy mạch lạc, thực tế, quyết nhanh. Hợp việc cần tính toán, tổ chức.'],
-  ['cong','Cong xuống mềm mại','Giàu tưởng tượng, thiên về cảm nhận và sáng tạo. Hợp việc chữ nghĩa, nghệ thuật, giáo dục.'],
-  ['dai','Rất dài, kéo gần hết lòng bàn tay','Suy nghĩ sâu, cân nhắc kỹ. Điểm cần lưu ý: đôi khi nghĩ nhiều quá thành chậm quyết.'],
-  ['roi','Có nhiều nhánh nhỏ','Quan tâm nhiều việc cùng lúc, học nhanh. Nên chọn một hướng chính để đi cho tới.']]],
- ['tam','Tâm đạo — đường trên cùng','Chỉ tình cảm',[
-  ['cao','Cong lên phía ngón trỏ','Tình cảm nồng hậu, sống thiên về tình. Trong họ thường là người gắn kết mọi người.'],
-  ['thang','Thẳng ngang','Tình cảm kín đáo, chín chắn, ít bộc lộ nhưng bền.'],
-  ['ngan','Ngắn','Tự lập trong tình cảm, không phụ thuộc. Nên chủ động bày tỏ với người thân nhiều hơn.'],
-  ['xich','Có nhiều nhánh nhỏ hướng lên','Rộng lòng, nhiều bạn, hay giúp người.']]],
- ['van','Vận đạo — đường dọc giữa lòng bàn tay','Chỉ đường công việc',[
-  ['ro','Rõ, chạy dọc liền mạch','Công việc có hướng đi rõ ràng, đi đường dài với một nghề.'],
-  ['mo','Mờ hoặc không có','Đường đời linh hoạt, tự mình mở lối — nhiều người thành đạt muộn mà vững.'],
-  ['dut','Đứt đoạn rồi nối lại','Có chuyển nghề, chuyển hướng giữa đường; mỗi lần chuyển là một lần lên bậc.'],
-  ['nhieu','Có nhiều đường dọc','Làm được nhiều việc, nhiều nguồn thu. Nên sắp thứ tự ưu tiên.']]]];
-const FACE_Q=[
- ['mat','Mắt','Thần thái, sự tinh anh',[
-  ['to','To, sáng','Cởi mở, nhiệt thành, dễ gần. Người xưa trọng "mắt có thần" hơn mắt to nhỏ.'],
-  ['nho','Nhỏ, sâu','Kín đáo, quan sát kỹ, làm việc chắc.'],
-  ['dai','Dài, đuôi mắt hơi xếch','Nhìn xa, có tính toán, hợp việc đối ngoại.'],
-  ['hienhoa','Hiền hòa, cụp nhẹ','Ôn hòa, nhẫn nại, được lòng người.']]],
- ['may','Lông mày','Tình cảm, khí chất',[
-  ['ram','Rậm, đậm','Ý chí mạnh, làm việc quyết liệt. Nên tiết chế nóng vội.'],
-  ['thanh','Thanh, mảnh','Tinh tế, nhã nhặn, khéo cư xử.'],
-  ['dai','Dài quá đuôi mắt','Trọng tình nghĩa, anh em bạn bè nhiều.'],
-  ['ngan','Ngắn','Độc lập, tự lo được, ít dựa dẫm.']]],
- ['mui','Mũi','Ý chí, tài vận theo quan niệm',[
-  ['cao','Cao, sống thẳng','Có chủ kiến, giữ được nguyên tắc.'],
-  ['tron','Đầu mũi tròn đầy','Phúc hậu, biết tích lũy, gia đạo êm.'],
-  ['nho','Nhỏ, thanh','Cẩn thận, chi tiêu có kế hoạch.'],
-  ['canhrong','Cánh mũi nở','Rộng rãi, phóng khoáng với người thân.']]],
- ['mieng','Miệng','Giao tiếp, phúc khí',[
-  ['rong','Rộng, môi đầy','Ăn nói có duyên, quảng giao, hợp việc đối ngoại của họ.'],
-  ['nho','Nhỏ, môi mỏng','Kiệm lời, nói câu nào chắc câu ấy.'],
-  ['khoemieng','Khóe miệng hơi cong lên','Lạc quan, dễ tạo thiện cảm.'],
-  ['can','Cân đối','Chừng mực, biết tiến biết lui.']]],
- ['tai','Tai','Phúc thọ',[
-  ['to','To, dày','Người xưa cho là tướng phúc hậu, sống điềm đạm.'],
-  ['sat','Sát đầu','Thực tế, tập trung, ít bị phân tâm.'],
-  ['vanhro','Vành tai rõ','Tiếp thu nhanh, ham học hỏi.'],
-  ['nho','Nhỏ','Nhạy bén, phản ứng nhanh với thay đổi.']]]];
+ ['sinh','Sinh đạo','Đường vòng quanh gò ngón cái — sức sống, thể trạng',[
+  ['dai','Dài, cong rộng','M40 52 C30 66 28 86 34 112','Thể chất bền, sức sống dẻo dai. Người xưa gọi là tướng "trường lực" — theo được việc đường dài. Giữ nếp sinh hoạt điều độ thì càng phát huy.'],
+  ['ngan','Ngắn, ôm sát','M40 52 C34 62 32 74 34 84','Sức bền vừa phải nhưng nhanh nhẹn, biết lượng sức mình. Nên nghỉ ngơi đủ, tránh dồn sức một lúc.'],
+  ['dut','Có đoạn đứt','M40 52 C34 62 32 70 32 76 M34 86 C34 96 34 104 36 112','Dân gian cho là đời có khúc chuyển. Người có đường này thường trải nhiều nên chín chắn sớm.'],
+  ['kep','Có đường song song','M40 52 C30 66 28 86 34 112 M46 58 C38 70 36 86 40 106','Gọi là "đường chị em" — được người thân nâng đỡ, gia đình là chỗ dựa vững chắc.']]],
+ ['tri','Trí đạo','Đường ngang giữa lòng bàn tay — cách tư duy',[
+  ['thang','Thẳng, dứt khoát','M34 62 L76 68','Tư duy mạch lạc, thực tế, quyết nhanh. Hợp việc tính toán, tổ chức, quản lý.'],
+  ['cong','Cong xuống mềm','M34 62 C50 70 64 80 72 92','Giàu tưởng tượng, thiên về cảm nhận và sáng tạo. Hợp chữ nghĩa, nghệ thuật, dạy học.'],
+  ['dai','Rất dài','M30 60 L82 72','Suy nghĩ sâu, cân nhắc kỹ. Điểm cần lưu ý: nghĩ nhiều quá dễ chậm quyết.'],
+  ['nhanh','Có nhiều nhánh','M34 62 L76 68 M58 65 L66 56 M66 66 L74 58','Quan tâm nhiều việc cùng lúc, học nhanh. Nên chọn một hướng chính để đi cho tới.']]],
+ ['tam','Tâm đạo','Đường trên cùng — tình cảm',[
+  ['cao','Cong lên phía ngón trỏ','M32 46 C48 36 64 34 78 40','Tình cảm nồng hậu, sống thiên về tình. Trong họ thường là người gắn kết mọi người.'],
+  ['thang','Thẳng ngang','M32 46 L80 48','Tình cảm kín đáo, chín chắn, ít bộc lộ nhưng bền lâu.'],
+  ['ngan','Ngắn','M46 46 L80 48','Tự lập trong tình cảm, không phụ thuộc. Nên chủ động bày tỏ với người thân nhiều hơn.'],
+  ['nhanh','Nhiều nhánh hướng lên','M32 46 C48 38 64 36 78 42 M48 41 L52 32 M60 38 L64 30','Rộng lòng, nhiều bạn, hay giúp người.']]],
+ ['van','Vận đạo','Đường dọc giữa lòng bàn tay — công việc',[
+  ['ro','Rõ, liền mạch','M54 116 L56 48','Công việc có hướng rõ ràng, thường gắn bó lâu với một nghề.'],
+  ['mo','Mờ hoặc không có','M54 116 L55 92','Đường đời linh hoạt, tự mở lối. Nhiều người thành đạt muộn mà vững.'],
+  ['dut','Đứt rồi nối lại','M54 116 L55 88 M57 78 L58 48','Có chuyển nghề, chuyển hướng giữa đường; mỗi lần chuyển là một bậc mới.'],
+  ['nhieu','Nhiều đường dọc','M52 116 L54 52 M62 110 L64 60 M44 108 L46 64','Làm được nhiều việc, nhiều nguồn thu. Nên sắp thứ tự ưu tiên.']]]];
+/* --- Vẽ --- */
+function faceSVG(d,on){return `<svg viewBox="0 0 100 120" class="fs-img">
+  <path d="${d}" fill="${on?'#fdf3dc':'#fffdf6'}" stroke="${on?'#8B0000':'#c9972f'}" stroke-width="${on?3:2}"/>
+  <ellipse cx="36" cy="52" rx="6" ry="3.4" fill="#7a1010" opacity=".75"/><ellipse cx="64" cy="52" rx="6" ry="3.4" fill="#7a1010" opacity=".75"/>
+  <path d="M28 42 Q36 38 44 42" stroke="#7a1010" stroke-width="2.4" fill="none" opacity=".7"/>
+  <path d="M56 42 Q64 38 72 42" stroke="#7a1010" stroke-width="2.4" fill="none" opacity=".7"/>
+  <path d="M50 56 L50 70 Q54 72 50 74" stroke="#7a1010" stroke-width="2" fill="none" opacity=".6"/>
+  <path d="M41 86 Q50 92 59 86" stroke="#7a1010" stroke-width="2.4" fill="none" opacity=".7"/></svg>`;}
+function palmSVG(line,on){return `<svg viewBox="0 0 100 130" class="fs-img">
+  <path d="${PALM_BASE}" fill="${on?'#fdf3dc':'#fffdf6'}" stroke="${on?'#8B0000':'#c9972f'}" stroke-width="${on?2.6:1.8}"/>
+  <path d="${line}" stroke="#a81414" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;}
 function hvPick(kind){const s=DB.settings||{};return (kind==='palm'?s.hvPalm:s.hvFace)||{};}
 function hvSetPick(kind,k,v){DB.settings=DB.settings||{};const key=kind==='palm'?'hvPalm':'hvFace';
  DB.settings[key]=Object.assign({},hvPick(kind));DB.settings[key][k]=v;save();hvRefresh();}
-window.hvSetPick=hvSetPick;
 function hvClearPick(kind){DB.settings[kind==='palm'?'hvPalm':'hvFace']={};save();hvRefresh();}
-window.hvClearPick=hvClearPick;
-/* Bảng chọn đặc điểm */
-function hvQuiz(kind){const QS=kind==='palm'?PALM_Q:FACE_Q;const cur=hvPick(kind);
- return `<div class="hq">${QS.map(q=>`<div class="hq-b">
-   <div class="hq-h"><b>${esc(q[1])}</b><span>${esc(q[2])}</span></div>
-   <div class="hq-o">${q[3].map(o=>`<button class="hq-c ${cur[q[0]]===o[0]?'on':''}" onclick="hvSetPick('${kind}','${q[0]}','${o[0]}')">${esc(o[1])}</button>`).join('')}</div>
-  </div>`).join('')}</div>`;}
-/* Luận giải từ các lựa chọn */
-function hvRead(kind){const QS=kind==='palm'?PALM_Q:FACE_Q;const cur=hvPick(kind);
- const done=QS.filter(q=>cur[q[0]]);
- if(!done.length)return `<p class="muted">Hãy chọn đặc điểm ở trên — chọn tới đâu luận tới đó.</p>`;
+window.hvSetPick=hvSetPick;window.hvClearPick=hvClearPick;
+/* Chọn dáng mặt */
+function faceQuiz(){const cur=hvPick('face').shape;
+ return `<div class="fs-grid">${FACE_SHAPES.map(f=>`<button class="fs-c ${cur===f[0]?'on':''}" onclick="hvSetPick('face','shape','${f[0]}')">
+   ${faceSVG(f[4],cur===f[0])}<span class="fs-n">${f[1]} ${esc(f[2])}</span><span class="fs-d">${esc(f[3])}</span></button>`).join('')}</div>`;}
+function faceRead(){const cur=hvPick('face').shape;if(!cur)return '<p class="muted">Soi gương rồi bấm chọn dáng mặt giống mình nhất.</p>';
+ const f=FACE_SHAPES.find(x=>x[0]===cur);if(!f)return '';
+ const b=hvBirth();let them='';
+ if(b){const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();
+  them=hvSec('🌿 Kết hợp bản mệnh',`Bản mệnh <b>${esc(cc.menh)}</b> — hành <b>${esc(hanh)}</b>. ${esc(HANH_GOIY[hanh]||'')}`);}
+ return hvSec(f[1]+' Tướng '+f[2],`<div style="font-size:13px;color:var(--muted);margin-bottom:4px">${esc(f[3])}</div>${esc(f[5])}`)+them
+  +hvSec('💡 Lời người xưa','<b>"Tướng tự tâm sinh"</b> — nết ăn ở, cách cư xử mới là thứ đổi được tướng mạo và vận số. Xem tướng cốt để <i>tự soi mình mà sửa</i>, không phải để tin vào định mệnh.');}
+/* Chọn dáng chỉ tay */
+function palmQuiz(){const cur=hvPick('palm');
+ return PALM_Q.map(q=>`<div class="hq-b"><div class="hq-h"><b>${esc(q[1])}</b><span>${esc(q[2])}</span></div>
+  <div class="fs-grid sm">${q[3].map(o=>`<button class="fs-c ${cur[q[0]]===o[0]?'on':''}" onclick="hvSetPick('palm','${q[0]}','${o[0]}')">
+    ${palmSVG(o[2],cur[q[0]]===o[0])}<span class="fs-n">${esc(o[1])}</span></button>`).join('')}</div></div>`).join('');}
+function palmRead(){const cur=hvPick('palm');const done=PALM_Q.filter(q=>cur[q[0]]);
+ if(!done.length)return '<p class="muted">Xòe bàn tay thuận ra, đối chiếu rồi bấm chọn hình giống nhất.</p>';
  let out=done.map(q=>{const o=q[3].find(x=>x[0]===cur[q[0]]);
-   return `<div class="hv-sec"><b class="h">${esc(q[1].split('—')[0].trim())}: ${esc(o[1])}</b><div style="margin-top:4px">${esc(o[2])}</div></div>`;}).join('');
- if(done.length===QS.length){
-  const b=hvBirth();let them='';
+  return hvSec(q[1]+' — '+o[1],esc(o[3]));}).join('');
+ if(done.length===PALM_Q.length){const b=hvBirth();let them='';
   if(b){const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();
    them=` Kết hợp bản mệnh <b>${esc(cc.menh)}</b> (hành ${esc(hanh)}): ${esc(HANH_GOIY[hanh]||'')}`;}
-  out+=hvSec('🌿 Tổng luận & gợi ý',`Các nét trên hợp lại cho thấy một người có nền tảng riêng — không có nét nào là "xấu", chỉ là <b>thế mạnh khác nhau</b>.${them}
-   <div style="margin-top:6px">Người xưa dạy <b>"tướng tự tâm sinh"</b>: nết ăn ở, cách cư xử mới là thứ đổi được tướng mạo và vận số. Xem tướng cốt để <i>tự soi mình mà sửa</i>, không phải để tin vào định mệnh.</div>`);}
- else out+=`<p class="muted" style="font-size:12.5px">Đã chọn ${done.length}/${QS.length} mục — chọn đủ để xem tổng luận.</p>`;
+  out+=hvSec('🌿 Tổng luận',`Bốn đường hợp lại cho thấy một người có thế mạnh riêng — không đường nào là "xấu".${them}
+   <div style="margin-top:6px">Người xưa dạy <b>"tướng tự tâm sinh"</b>: xem chỉ tay để <i>hiểu mình mà rèn</i>, không phải để tin vào số phận.</div>`);}
+ else out+=`<p class="muted" style="font-size:12.5px">Đã chọn ${done.length}/${PALM_Q.length} đường — chọn đủ để xem tổng luận.</p>`;
  return out;}
 function hvTuong(){const has=DB.settings.ai&&DB.settings.ai.key;
- return hvSec('🧭 Ngũ quan (kiến thức văn hóa)','Nhân tướng học Á Đông quan sát <b>ngũ quan</b>: <b>mắt</b> (thần thái), <b>mày</b> (khí chất), <b>mũi</b> (ý chí), <b>miệng</b> (giao tiếp), <b>tai</b> (phúc thọ). Người xưa xem tướng để <i>tự soi, tự sửa</i> — "tướng tự tâm sinh".')
- +hvSec('👉 Soi gương và chọn nét giống mình nhất',hvQuiz('face')
-   +`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('face')">↺ Chọn lại</button></div>`)
- +hvSec('📜 Luận giải',hvRead('face'))
- +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('face',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('face')">📷 Chụp bằng camera</button></div><div id="hvFaceOut" style="margin-top:8px"></div><div class="muted" style="font-size:11.5px;margin-top:4px">Ảnh gửi tới ${esc(DB.settings.ai.provider)} để mô tả, xong là xóa — không lưu.</div>`):'')
+ return hvSec('🧭 Diện tướng học (kiến thức văn hóa)','Sách tướng phương Đông chia khuôn mặt thành các <b>dáng cơ bản</b>, đặt tên theo chữ Hán có hình dáng tương tự: 田 Điền, 由 Do, 甲 Giáp, 申 Thân, 目 Mục, 圓 Viên… Mỗi dáng ứng với một khí chất riêng.')
+ +hvSec('👉 Chọn dáng mặt giống mình nhất',faceQuiz()+`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('face')">↺ Chọn lại</button></div>`)
+ +hvSec('📜 Luận giải',faceRead())
+ +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('face',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('face')">📷 Chụp bằng camera</button></div><div id="hvFaceOut" style="margin-top:8px"></div>`):'')
  +HV_NOTE;}
 function hvTay(){const has=DB.settings.ai&&DB.settings.ai.key;
- return hvSec('✋ Bốn đường chính (kiến thức văn hóa)','<b>Sinh đạo</b> (vòng quanh gò cái — sức sống), <b>Trí đạo</b> (ngang giữa — tư duy), <b>Tâm đạo</b> (trên cùng — tình cảm), <b>Vận đạo</b> (dọc giữa — công việc). Xem chỉ tay là nét văn hóa dân gian để chiêm nghiệm bản thân.')
- +hvSec('👉 Xòe bàn tay thuận ra và chọn nét giống nhất',hvQuiz('palm')
-   +`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('palm')">↺ Chọn lại</button></div>`)
- +hvSec('📜 Luận giải',hvRead('palm'))
- +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('palm',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('palm')">📷 Chụp bằng camera</button></div><div id="hvPalmOut" style="margin-top:8px"></div><div class="muted" style="font-size:11.5px;margin-top:4px">Chụp rõ lòng bàn tay, đủ sáng. Ảnh xong là xóa — không lưu.</div>`):'')
+ return hvSec('✋ Bốn đường chính (kiến thức văn hóa)','<b>Sinh đạo</b> (sức sống) · <b>Trí đạo</b> (tư duy) · <b>Tâm đạo</b> (tình cảm) · <b>Vận đạo</b> (công việc). Đối chiếu bàn tay thuận với hình vẽ bên dưới.')
+ +hvSec('👉 Chọn hình giống bàn tay mình nhất',palmQuiz()+`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('palm')">↺ Chọn lại</button></div>`)
+ +hvSec('📜 Luận giải',palmRead())
+ +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('palm',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('palm')">📷 Chụp bằng camera</button></div><div id="hvPalmOut" style="margin-top:8px"></div>`):'')
  +HV_NOTE;}
 function hvPhong(){const b=hvBirth();const p=hvP();if(!b)return hvNeedDate();
  const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();const q=cungPhi(b.y,p.gender);const mau=MAU_HANH[hanh]||['',''];
