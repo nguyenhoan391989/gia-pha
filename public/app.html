@@ -421,6 +421,17 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
+/* ===== BẢNG CHỌN ĐẶC ĐIỂM (xem tướng / chỉ tay) ===== */
+.hq-b{padding:11px 0;border-bottom:1px dashed var(--border)}
+.hq-b:last-child{border-bottom:none}
+.hq-h b{color:var(--primary);font-size:13.5px}
+.hq-h span{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+.hq-o{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.hq-c{flex:1 1 150px;text-align:left;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:12.5px;font-family:inherit;cursor:pointer;line-height:1.35;color:var(--text)}
+.hq-c:hover{border-color:var(--gold);background:#fdf7e8}
+.hq-c.on{border-color:var(--primary);background:linear-gradient(#fdf3dc,#f8ecc9);font-weight:600;color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+.hq-c:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media(max-width:520px){.hq-c{flex:1 1 100%}}
 /* ===== HOẠT ĐỘNG DIỄN RA — dạng thẻ ===== */
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .rcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:inset 0 0 0 2px rgba(212,175,55,.16)}
@@ -1915,10 +1926,95 @@ function hvThanso(){const b=hvBirth();const p=hvP();if(!p.name&&!b)return hvNeed
  +(soul?hvSec('💗 Chỉ số linh hồn (nguyên âm)',`<b>${numRed(soul)}</b> — ${NUMM[numRed(soul)]||''}. Nói về mong muốn bên trong.`):'')
  +(all?hvSec('🗣 Chỉ số biểu đạt (cả tên)',`<b>${numRed(all)}</b> — ${NUMM[numRed(all)]||''}. Nói về cách thể hiện ra bên ngoài.`):'')
  +(py!=null?hvSec(`🔄 Năm cá nhân ${cur.getFullYear()}`,`<b>${py}</b> — chu kỳ ${py}/9: ${py<=3?'khởi đầu, gieo hạt, học hỏi':py<=6?'xây dựng, vun đắp quan hệ và trách nhiệm':'thu hoạch, nhìn lại, hoàn thiện'}.`):'')+HV_NOTE;}
-function hvTuong(){return hvSec('🧭 Ngũ quan (kiến thức văn hóa)','Nhân tướng học Á Đông quan sát <b>ngũ quan</b>: <b>mắt</b> (thần thái, sự tinh anh), <b>mày</b> (tình cảm, khí chất), <b>mũi</b> (ý chí, tài vận theo quan niệm), <b>miệng</b> (giao tiếp, phúc khí), <b>tai</b> (phúc thọ). Người xưa xem tướng để <i>tự soi, tự sửa</i> — "tướng tự tâm sinh".')
- +hvSec('📷 Phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('face',event)"/></label><button class="btn btn-p btn-sm" onclick="hvCam('face')">📷 Chụp bằng camera</button></div><div id="hvFaceOut" style="margin-top:8px"></div><div class="muted" style="font-size:11.5px;margin-top:4px">${(DB.settings.ai&&DB.settings.ai.key)?'Ảnh được gửi tới '+esc(DB.settings.ai.provider)+' để mô tả ngũ quan theo góc nhìn văn hóa.':'Cần cấu hình API key (Cài đặt → AI) để phân tích ảnh.'}</div>`)+HV_NOTE;}
-function hvTay(){return hvSec('✋ Bốn đường chính (kiến thức văn hóa)','<b>Sinh đạo</b> (vòng quanh gò cái — sức sống, năng lượng), <b>Trí đạo</b> (ngang giữa lòng bàn tay — tư duy, cách suy nghĩ), <b>Tâm đạo</b> (trên cùng — cảm xúc, tình cảm), <b>Vận mệnh</b> (dọc giữa — đường sự nghiệp theo quan niệm). Xem chỉ tay là nét văn hóa dân gian để chiêm nghiệm bản thân.')
- +hvSec('📷 AI phân tích từ ảnh lòng bàn tay',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('palm',event)"/></label><button class="btn btn-p btn-sm" onclick="hvCam('palm')">📷 Chụp bằng camera</button></div><div id="hvPalmOut" style="margin-top:8px"></div><div class="muted" style="font-size:11.5px;margin-top:4px">${(DB.settings.ai&&DB.settings.ai.key)?'Chụp rõ lòng bàn tay, đủ sáng.':'Cần cấu hình API key (Cài đặt → AI) để phân tích ảnh.'}</div>`)+HV_NOTE;}
+/* ===== XEM TƯỚNG & CHỈ TAY BẰNG BẢNG TRA (KHÔNG cần internet, KHÔNG cần API, KHÔNG gửi ảnh đi đâu)
+   Người dùng tự chọn đặc điểm — đúng cách sách tướng số truyền thống vẫn hướng dẫn. */
+const PALM_Q=[
+ ['sinh','Sinh đạo — đường vòng quanh gò ngón cái','Chỉ sức sống, thể trạng',[
+  ['dai','Dài, rõ, ôm rộng gò cái','Thể chất bền, sức sống dẻo dai. Người xưa nói đây là tướng "trường lực" — làm gì cũng theo được đường dài. Nên giữ nếp sinh hoạt điều độ để phát huy.'],
+  ['ngan','Ngắn hoặc mờ nhạt','Sức bền vừa phải nhưng bù lại thường nhanh nhẹn, biết lượng sức. Chú ý nghỉ ngơi đủ, đừng làm quá sức một lúc.'],
+  ['dut','Có đoạn đứt hoặc gãy khúc','Theo quan niệm dân gian là đời có khúc chuyển. Người có đường này thường trải nhiều rồi chín chắn sớm.'],
+  ['kep','Có đường song song bên trong','Gọi là "đường chị em" — được người thân nâng đỡ, gia đình là chỗ dựa vững.']]],
+ ['tri','Trí đạo — đường ngang giữa lòng bàn tay','Chỉ cách tư duy',[
+  ['thang','Thẳng, dứt khoát','Tư duy mạch lạc, thực tế, quyết nhanh. Hợp việc cần tính toán, tổ chức.'],
+  ['cong','Cong xuống mềm mại','Giàu tưởng tượng, thiên về cảm nhận và sáng tạo. Hợp việc chữ nghĩa, nghệ thuật, giáo dục.'],
+  ['dai','Rất dài, kéo gần hết lòng bàn tay','Suy nghĩ sâu, cân nhắc kỹ. Điểm cần lưu ý: đôi khi nghĩ nhiều quá thành chậm quyết.'],
+  ['roi','Có nhiều nhánh nhỏ','Quan tâm nhiều việc cùng lúc, học nhanh. Nên chọn một hướng chính để đi cho tới.']]],
+ ['tam','Tâm đạo — đường trên cùng','Chỉ tình cảm',[
+  ['cao','Cong lên phía ngón trỏ','Tình cảm nồng hậu, sống thiên về tình. Trong họ thường là người gắn kết mọi người.'],
+  ['thang','Thẳng ngang','Tình cảm kín đáo, chín chắn, ít bộc lộ nhưng bền.'],
+  ['ngan','Ngắn','Tự lập trong tình cảm, không phụ thuộc. Nên chủ động bày tỏ với người thân nhiều hơn.'],
+  ['xich','Có nhiều nhánh nhỏ hướng lên','Rộng lòng, nhiều bạn, hay giúp người.']]],
+ ['van','Vận đạo — đường dọc giữa lòng bàn tay','Chỉ đường công việc',[
+  ['ro','Rõ, chạy dọc liền mạch','Công việc có hướng đi rõ ràng, đi đường dài với một nghề.'],
+  ['mo','Mờ hoặc không có','Đường đời linh hoạt, tự mình mở lối — nhiều người thành đạt muộn mà vững.'],
+  ['dut','Đứt đoạn rồi nối lại','Có chuyển nghề, chuyển hướng giữa đường; mỗi lần chuyển là một lần lên bậc.'],
+  ['nhieu','Có nhiều đường dọc','Làm được nhiều việc, nhiều nguồn thu. Nên sắp thứ tự ưu tiên.']]]];
+const FACE_Q=[
+ ['mat','Mắt','Thần thái, sự tinh anh',[
+  ['to','To, sáng','Cởi mở, nhiệt thành, dễ gần. Người xưa trọng "mắt có thần" hơn mắt to nhỏ.'],
+  ['nho','Nhỏ, sâu','Kín đáo, quan sát kỹ, làm việc chắc.'],
+  ['dai','Dài, đuôi mắt hơi xếch','Nhìn xa, có tính toán, hợp việc đối ngoại.'],
+  ['hienhoa','Hiền hòa, cụp nhẹ','Ôn hòa, nhẫn nại, được lòng người.']]],
+ ['may','Lông mày','Tình cảm, khí chất',[
+  ['ram','Rậm, đậm','Ý chí mạnh, làm việc quyết liệt. Nên tiết chế nóng vội.'],
+  ['thanh','Thanh, mảnh','Tinh tế, nhã nhặn, khéo cư xử.'],
+  ['dai','Dài quá đuôi mắt','Trọng tình nghĩa, anh em bạn bè nhiều.'],
+  ['ngan','Ngắn','Độc lập, tự lo được, ít dựa dẫm.']]],
+ ['mui','Mũi','Ý chí, tài vận theo quan niệm',[
+  ['cao','Cao, sống thẳng','Có chủ kiến, giữ được nguyên tắc.'],
+  ['tron','Đầu mũi tròn đầy','Phúc hậu, biết tích lũy, gia đạo êm.'],
+  ['nho','Nhỏ, thanh','Cẩn thận, chi tiêu có kế hoạch.'],
+  ['canhrong','Cánh mũi nở','Rộng rãi, phóng khoáng với người thân.']]],
+ ['mieng','Miệng','Giao tiếp, phúc khí',[
+  ['rong','Rộng, môi đầy','Ăn nói có duyên, quảng giao, hợp việc đối ngoại của họ.'],
+  ['nho','Nhỏ, môi mỏng','Kiệm lời, nói câu nào chắc câu ấy.'],
+  ['khoemieng','Khóe miệng hơi cong lên','Lạc quan, dễ tạo thiện cảm.'],
+  ['can','Cân đối','Chừng mực, biết tiến biết lui.']]],
+ ['tai','Tai','Phúc thọ',[
+  ['to','To, dày','Người xưa cho là tướng phúc hậu, sống điềm đạm.'],
+  ['sat','Sát đầu','Thực tế, tập trung, ít bị phân tâm.'],
+  ['vanhro','Vành tai rõ','Tiếp thu nhanh, ham học hỏi.'],
+  ['nho','Nhỏ','Nhạy bén, phản ứng nhanh với thay đổi.']]]];
+function hvPick(kind){const s=DB.settings||{};return (kind==='palm'?s.hvPalm:s.hvFace)||{};}
+function hvSetPick(kind,k,v){DB.settings=DB.settings||{};const key=kind==='palm'?'hvPalm':'hvFace';
+ DB.settings[key]=Object.assign({},hvPick(kind));DB.settings[key][k]=v;save();hvRefresh();}
+window.hvSetPick=hvSetPick;
+function hvClearPick(kind){DB.settings[kind==='palm'?'hvPalm':'hvFace']={};save();hvRefresh();}
+window.hvClearPick=hvClearPick;
+/* Bảng chọn đặc điểm */
+function hvQuiz(kind){const QS=kind==='palm'?PALM_Q:FACE_Q;const cur=hvPick(kind);
+ return `<div class="hq">${QS.map(q=>`<div class="hq-b">
+   <div class="hq-h"><b>${esc(q[1])}</b><span>${esc(q[2])}</span></div>
+   <div class="hq-o">${q[3].map(o=>`<button class="hq-c ${cur[q[0]]===o[0]?'on':''}" onclick="hvSetPick('${kind}','${q[0]}','${o[0]}')">${esc(o[1])}</button>`).join('')}</div>
+  </div>`).join('')}</div>`;}
+/* Luận giải từ các lựa chọn */
+function hvRead(kind){const QS=kind==='palm'?PALM_Q:FACE_Q;const cur=hvPick(kind);
+ const done=QS.filter(q=>cur[q[0]]);
+ if(!done.length)return `<p class="muted">Hãy chọn đặc điểm ở trên — chọn tới đâu luận tới đó.</p>`;
+ let out=done.map(q=>{const o=q[3].find(x=>x[0]===cur[q[0]]);
+   return `<div class="hv-sec"><b class="h">${esc(q[1].split('—')[0].trim())}: ${esc(o[1])}</b><div style="margin-top:4px">${esc(o[2])}</div></div>`;}).join('');
+ if(done.length===QS.length){
+  const b=hvBirth();let them='';
+  if(b){const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();
+   them=` Kết hợp bản mệnh <b>${esc(cc.menh)}</b> (hành ${esc(hanh)}): ${esc(HANH_GOIY[hanh]||'')}`;}
+  out+=hvSec('🌿 Tổng luận & gợi ý',`Các nét trên hợp lại cho thấy một người có nền tảng riêng — không có nét nào là "xấu", chỉ là <b>thế mạnh khác nhau</b>.${them}
+   <div style="margin-top:6px">Người xưa dạy <b>"tướng tự tâm sinh"</b>: nết ăn ở, cách cư xử mới là thứ đổi được tướng mạo và vận số. Xem tướng cốt để <i>tự soi mình mà sửa</i>, không phải để tin vào định mệnh.</div>`);}
+ else out+=`<p class="muted" style="font-size:12.5px">Đã chọn ${done.length}/${QS.length} mục — chọn đủ để xem tổng luận.</p>`;
+ return out;}
+function hvTuong(){const has=DB.settings.ai&&DB.settings.ai.key;
+ return hvSec('🧭 Ngũ quan (kiến thức văn hóa)','Nhân tướng học Á Đông quan sát <b>ngũ quan</b>: <b>mắt</b> (thần thái), <b>mày</b> (khí chất), <b>mũi</b> (ý chí), <b>miệng</b> (giao tiếp), <b>tai</b> (phúc thọ). Người xưa xem tướng để <i>tự soi, tự sửa</i> — "tướng tự tâm sinh".')
+ +hvSec('👉 Soi gương và chọn nét giống mình nhất',hvQuiz('face')
+   +`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('face')">↺ Chọn lại</button></div>`)
+ +hvSec('📜 Luận giải',hvRead('face'))
+ +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('face',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('face')">📷 Chụp bằng camera</button></div><div id="hvFaceOut" style="margin-top:8px"></div><div class="muted" style="font-size:11.5px;margin-top:4px">Ảnh gửi tới ${esc(DB.settings.ai.provider)} để mô tả, xong là xóa — không lưu.</div>`):'')
+ +HV_NOTE;}
+function hvTay(){const has=DB.settings.ai&&DB.settings.ai.key;
+ return hvSec('✋ Bốn đường chính (kiến thức văn hóa)','<b>Sinh đạo</b> (vòng quanh gò cái — sức sống), <b>Trí đạo</b> (ngang giữa — tư duy), <b>Tâm đạo</b> (trên cùng — tình cảm), <b>Vận đạo</b> (dọc giữa — công việc). Xem chỉ tay là nét văn hóa dân gian để chiêm nghiệm bản thân.')
+ +hvSec('👉 Xòe bàn tay thuận ra và chọn nét giống nhất',hvQuiz('palm')
+   +`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('palm')">↺ Chọn lại</button></div>`)
+ +hvSec('📜 Luận giải',hvRead('palm'))
+ +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('palm',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('palm')">📷 Chụp bằng camera</button></div><div id="hvPalmOut" style="margin-top:8px"></div><div class="muted" style="font-size:11.5px;margin-top:4px">Chụp rõ lòng bàn tay, đủ sáng. Ảnh xong là xóa — không lưu.</div>`):'')
+ +HV_NOTE;}
 function hvPhong(){const b=hvBirth();const p=hvP();if(!b)return hvNeedDate();
  const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();const q=cungPhi(b.y,p.gender);const mau=MAU_HANH[hanh]||['',''];
  return hvSec('🌊 Ngũ hành bản mệnh',`Mệnh <b>${cc.menh}</b> — hành <b>${hanh}</b>. ${HANH_GOIY[hanh]}.`)
