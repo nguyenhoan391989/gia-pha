@@ -413,6 +413,49 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
+/* ===== ĐỐI CHIẾU ẢNH THẬT ===== */
+.mt-card{border-color:var(--gold);background:linear-gradient(#fffdf6,#fdf6e6)}
+.mt-drop{text-align:center;padding:22px 14px;border:2px dashed rgba(201,151,47,.6);border-radius:14px;background:#fffdf6}
+.mt-drop p{font-size:13px;line-height:1.7;margin:8px 0 0}
+.mt-guide{background:linear-gradient(#8B0000,#6d0d0d);color:#fff;border-radius:10px;padding:9px 12px;margin-bottom:9px}
+.mt-guide b{display:block;color:var(--gold);font-size:14px}
+.mt-guide span{display:block;font-size:11.5px;color:rgba(255,255,255,.8);margin-top:2px}
+.mt-wrap{position:relative;display:block;border-radius:12px;overflow:hidden;border:1px solid var(--border);cursor:crosshair;background:#000;touch-action:manipulation}
+.mt-wrap img{width:100%;display:block}
+.mt-ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mt-lbl{position:absolute;transform:translate(-50%,-160%);background:#a81414;color:#fff;font-size:10px;font-weight:700;border-radius:20px;padding:1px 6px;pointer-events:none}
+.mt-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:9px}
+.mt-sum{font-size:13px;background:var(--accent);border:1px solid rgba(201,151,47,.5);border-radius:10px;padding:9px 11px;margin-bottom:10px}
+.mt-mini{max-width:230px;margin:0 auto 12px}
+.mt-res{display:flex;flex-direction:column;gap:10px}
+.mt-item{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card)}
+.mt-rank{flex:none;width:30px;height:30px;border-radius:50%;background:linear-gradient(#a81414,#7a0e0e);color:var(--gold);display:grid;place-items:center;font-size:12px;font-weight:700}
+.mt-ill{flex:none;width:78px}
+.mt-ill .lb-svg{height:80px}
+.mt-ill.big{width:100%}.mt-ill.big .lb-svg{height:240px}
+.mt-txt{flex:1;min-width:0}
+.mt-txt b{color:var(--primary);font-size:13.5px}
+.mt-pct{display:flex;align-items:center;gap:7px;margin:5px 0}
+.mt-pbar{flex:1;height:8px;border-radius:6px;background:var(--accent);overflow:hidden}
+.mt-pbar.big{height:12px}
+.mt-pbar>i{display:block;height:100%;background:linear-gradient(90deg,#c9972f,#0f6e56)}
+.mt-pct span{font-weight:700;color:var(--primary);font-size:13px}
+.mt-d{font-size:11.5px;color:var(--muted);line-height:1.5}
+.mt-parts{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.mt-parts span{font-size:10.5px;border-radius:20px;padding:1px 7px;border:1px solid var(--border)}
+.mt-parts .ok{background:#e6f5ec;color:#0f6e56;border-color:#9ed4b7}
+.mt-parts .mid{background:#fdf6e3;color:#7a5a2a;border-color:#e3c98a}
+.mt-parts .no{background:#fdecec;color:#a11;border-color:#e6b8b8}
+.mt-act{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.mt-cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;transform:scale(var(--z,1));transform-origin:top center;transition:transform .18s}
+.mt-cc{border:1px solid var(--border);border-radius:12px;padding:8px;background:var(--card);overflow:hidden}
+.mt-cl{display:block;font-size:11.5px;font-weight:700;color:var(--primary);text-align:center;margin-bottom:5px}
+.mt-score{display:flex;align-items:center;gap:9px;margin:12px 0 4px;font-size:13px}
+.mt-tb{width:100%;font-size:12px}
+.mt-tb tr.ok td{background:rgba(15,110,86,.07)}
+.mt-tb tr.no td{background:rgba(168,20,20,.07)}
+.mt-tb tr.mid td{background:rgba(201,151,47,.09)}
+@media(max-width:520px){.mt-cmp{grid-template-columns:1fr}.mt-ill{width:64px}.mt-ill .lb-svg{height:68px}}
 /* ===== THƯ VIỆN MINH HỌA TƯỚNG SỐ ===== */
 .lb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
 .lb-c{position:relative;border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden;transition:.15s}
@@ -2255,6 +2298,209 @@ const LIB_FACE=[
    s:[['Trung Hoa','Khuyên dưỡng thân, chỉnh tư thế.']],r:'Quan sát khí độ trong tướng thuật',
    sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="54" cy="24" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M54 34 Q46 54 48 76" stroke="#a81414" stroke-width="4" fill="none"/><path d="M36 46 Q54 40 68 48" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M48 76 L38 102 M48 76 L60 102" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/></svg>`}]}
 ];
+/* ============================================================
+   ĐỐI CHIẾU ẢNH THẬT VỚI THƯ VIỆN MINH HỌA
+   Cách làm: người dùng ĐÁNH DẤU vài điểm mốc trên ảnh của mình →
+   ứng dụng đo tỉ lệ hình học → so với "chữ ký tỉ lệ" của từng mẫu
+   trong thư viện → xếp hạng độ tương đồng.
+   Chạy hoàn toàn trong máy, KHÔNG gửi ảnh đi đâu, ảnh KHÔNG được lưu.
+   ============================================================ */
+let MT={on:false,kind:'face',img:null,iw:0,ih:0,pts:[],step:0,res:null,cmp:null,zoom:1};
+/* Các điểm mốc cần đánh dấu */
+const MT_STEPS={
+ face:[['Đỉnh trán','Điểm cao nhất của trán, ngay chân tóc giữa'],
+  ['Thái dương trái','Mép trán bên trái (phía tai trái)'],
+  ['Thái dương phải','Mép trán bên phải'],
+  ['Gò má trái','Điểm rộng nhất của má bên trái'],
+  ['Gò má phải','Điểm rộng nhất của má bên phải'],
+  ['Góc hàm trái','Chỗ hàm bạnh ra bên trái'],
+  ['Góc hàm phải','Chỗ hàm bạnh ra bên phải'],
+  ['Đỉnh cằm','Điểm thấp nhất của cằm']],
+ palm:[['Đầu đường (phía ngón)','Điểm bắt đầu của đường cần xem'],
+  ['Giữa đường','Điểm giữa, bấm đúng trên nét đường'],
+  ['Cuối đường','Điểm kết thúc của đường'],
+  ['Mép tay bên ngón cái','Cạnh bàn tay phía ngón cái'],
+  ['Mép tay bên ngón út','Cạnh bàn tay phía ngón út'],
+  ['Cổ tay','Giữa nếp cổ tay']]};
+/* Chữ ký tỉ lệ của từng dáng mặt: [trán/gòmá, hàm/gòmá, cao/gòmá] */
+const FACE_SIG={'m-dien':[0.95,0.93,1.22],'m-do':[0.72,1.02,1.30],'m-giap':[1.00,0.62,1.28],
+ 'm-vien':[0.86,0.86,1.08],'m-muc':[0.88,0.84,1.60],'m-than':[0.70,0.66,1.30],
+ 'm-vuong':[0.84,0.74,1.24],'m-phong':[1.06,0.70,1.18],'m-dung':[0.80,1.00,1.26],'m-dong':[0.88,0.80,1.32]};
+const FACE_W=[1.15,1.15,0.9]; /* trọng số: bề ngang quan trọng hơn chiều cao */
+/* Chữ ký của các dáng đường chỉ tay: [độ dài/bề ngang tay, độ cong (âm=cong lên)] */
+const PALM_SIG={'p-sinh':[0.95,0.30],'p-tri':[0.78,0.06],'p-tam':[0.72,-0.10],
+ 'p-menh':[0.85,0.02],'p-thaiduong':[0.42,0.02],'p-thuytinh':[0.66,0.14]};
+const PALM_W=[1.2,1.0];
+function mtOpen(kind){MT={on:true,kind:kind,img:null,iw:0,ih:0,pts:[],step:0,res:null,cmp:null,zoom:1};mtRender();
+ document.getElementById('modal').classList.add('open');}
+function mtClose(){MT.img=null;MT.res=null;MT.cmp=null;MT.on=false;closeModal();hvRefresh();}
+window.mtOpen=mtOpen;window.mtClose=mtClose;
+function mtPick(ev){const f=ev.target.files&&ev.target.files[0];if(!f)return;mtLoad(f);}
+function mtLoad(f){const r=new FileReader();r.onload=()=>{const im=new Image();
+ im.onload=()=>{/* thu nhỏ để nhẹ máy, ảnh chỉ nằm trong bộ nhớ tạm */
+  const mx=900,sc=Math.min(1,mx/Math.max(im.width,im.height));
+  const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  MT.img=c.toDataURL('image/jpeg',.88);MT.iw=c.width;MT.ih=c.height;MT.pts=[];MT.step=0;MT.res=null;mtRender();};
+ im.src=r.result;};r.readAsDataURL(f);}
+window.mtPick=mtPick;
+/* Camera riêng cho đối chiếu */
+let mtStream=null;
+async function mtCam(){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Trình duyệt không hỗ trợ camera');return;}
+ try{mtStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:MT.kind==='face'?'user':'environment'},audio:false});}
+ catch(e){toast('Không mở được camera: '+e.message);return;}
+ document.getElementById('camBox').innerHTML=`<h3>📷 ${MT.kind==='face'?'Chụp khuôn mặt — nhìn thẳng, đủ sáng':'Chụp lòng bàn tay — xòe rõ, đủ sáng'}</h3>
+  <video id="mtVid" autoplay playsinline></video>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn btn-o" onclick="mtCamStop()">Hủy</button><button class="btn btn-p" onclick="mtSnap()">📸 Chụp</button></div>
+  <div class="cam-note">🔒 Ảnh chỉ dùng để đối chiếu ngay trong máy, <b>không lưu và không gửi đi đâu</b>.</div>`;
+ document.getElementById('camWrap').classList.add('open');
+ document.getElementById('mtVid').srcObject=mtStream;}
+function mtCamStop(){if(mtStream){mtStream.getTracks().forEach(t=>t.stop());mtStream=null;}
+ const w=document.getElementById('camWrap');if(w)w.classList.remove('open');
+ const b=document.getElementById('camBox');if(b)b.innerHTML='';}
+function mtSnap(){const v=document.getElementById('mtVid');if(!v||!v.videoWidth){toast('Camera chưa sẵn sàng');return;}
+ const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);
+ mtCamStop();
+ const mx=900,sc=Math.min(1,mx/Math.max(c.width,c.height));
+ const c2=document.createElement('canvas');c2.width=Math.round(c.width*sc);c2.height=Math.round(c.height*sc);
+ c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);
+ MT.img=c2.toDataURL('image/jpeg',.88);MT.iw=c2.width;MT.ih=c2.height;MT.pts=[];MT.step=0;MT.res=null;mtRender();}
+window.mtCam=mtCam;window.mtCamStop=mtCamStop;window.mtSnap=mtSnap;
+/* Bấm lên ảnh để đặt điểm mốc */
+function mtTap(ev){if(!MT.img)return;const steps=MT_STEPS[MT.kind];if(MT.step>=steps.length)return;
+ const box=ev.currentTarget.getBoundingClientRect();
+ const t=(ev.touches&&ev.touches[0])||ev;
+ const x=(t.clientX-box.left)/box.width, y=(t.clientY-box.top)/box.height;
+ MT.pts.push([Math.max(0,Math.min(1,x)),Math.max(0,Math.min(1,y))]);MT.step++;
+ if(MT.step>=steps.length)mtCalc();
+ mtRender();}
+function mtUndo(){if(MT.pts.length){MT.pts.pop();MT.step=MT.pts.length;MT.res=null;mtRender();}}
+function mtReset(){MT.pts=[];MT.step=0;MT.res=null;mtRender();}
+window.mtTap=mtTap;window.mtUndo=mtUndo;window.mtReset=mtReset;
+/* ---------- Đo và chấm điểm ---------- */
+const MTD=(a,b)=>Math.hypot((a[0]-b[0])*MT.iw,(a[1]-b[1])*MT.ih);
+function mtCalc(){
+ const p=MT.pts;
+ if(MT.kind==='face'){
+  const [top,tl,tr,cl,cr,jl,jr,chin]=p;
+  const wF=MTD(tl,tr), wC=MTD(cl,cr), wJ=MTD(jl,jr), H=MTD(top,chin);
+  if(!wC){MT.res=null;return;}
+  const sig=[wF/wC, wJ/wC, H/wC];
+  MT.res=mtRank(sig,FACE_SIG,FACE_W,['Trán / Gò má','Hàm / Gò má','Cao / Rộng']);
+  MT.meas={'Bề ngang trán':wF,'Bề ngang gò má':wC,'Bề ngang hàm':wJ,'Chiều cao mặt':H};
+ }else{
+  const [a,mid,b,ml,mr,wr]=p;
+  const W=MTD(ml,mr)||1;
+  const len=(MTD(a,mid)+MTD(mid,b))/W;
+  /* độ cong: khoảng cách từ điểm giữa tới đường thẳng nối 2 đầu (âm nếu cong lên) */
+  const ax=a[0]*MT.iw, ay=a[1]*MT.ih, bx=b[0]*MT.iw, by=b[1]*MT.ih, mx=mid[0]*MT.iw, my=mid[1]*MT.ih;
+  const L=Math.hypot(bx-ax,by-ay)||1;
+  const cross=((bx-ax)*(ay-my)-(ax-mx)*(by-ay))/L;
+  MT.res=mtRank([len,cross/W],PALM_SIG,PALM_W,['Độ dài tương đối','Độ cong']);
+  MT.meas={'Độ dài đường':len.toFixed(2)+'× bề ngang tay','Độ cong':(cross/W).toFixed(2)};
+ }}
+function mtRank(sig,TBL,W,labels){
+ const rows=Object.keys(TBL).map(id=>{
+  const t=TBL[id];let sum=0,tot=0;const parts=[];
+  for(let i=0;i<t.length;i++){
+   const diff=Math.abs(sig[i]-t[i])/(Math.abs(t[i])||1);
+   const sc=Math.max(0,1-diff*1.5); /* lệch 67% → 0 điểm */
+   parts.push({l:labels[i],mine:sig[i],tpl:t[i],ok:diff<=0.10,warn:diff>0.25,sc:Math.round(sc*100)});
+   sum+=sc*W[i];tot+=W[i];}
+  return {id,pct:Math.round(sum/tot*100),parts};});
+ rows.sort((a,b)=>b.pct-a.pct);
+ return {sig,rows:rows.slice(0,5)};}
+/* ---------- Giao diện ---------- */
+function mtRender(){const box=document.getElementById('modalBox');if(!box)return;
+ const steps=MT_STEPS[MT.kind];const done=MT.step>=steps.length;
+ const title=MT.kind==='face'?'🧑 Đối chiếu khuôn mặt':'✋ Đối chiếu bàn tay';
+ let body;
+ if(!MT.img){
+  body=`<div class="mt-drop">
+   <div style="font-size:34px">${MT.kind==='face'?'🧑':'✋'}</div>
+   <p>Tải ảnh có sẵn hoặc chụp trực tiếp.<br><span class="muted">${MT.kind==='face'?'Chụp chính diện, tóc vén gọn, đủ sáng.':'Xòe bàn tay thuận, lòng bàn tay hướng lên, đủ sáng.'}</span></p>
+   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+    <label class="btn btn-o" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="mtPick(event)"/></label>
+    <button class="btn btn-p" onclick="mtCam()">📷 Chụp ngay</button></div></div>${HV_DISCLAIMER}`;
+ }else if(!done){
+  const st=steps[MT.step];
+  body=`<div class="mt-guide"><b>Bước ${MT.step+1}/${steps.length}: ${esc(st[0])}</b><span>${esc(st[1])}</span></div>
+   ${mtCanvas()}
+   <div class="mt-bar"><button class="btn btn-o btn-sm" onclick="mtUndo()" ${MT.pts.length?'':'disabled'}>↩ Lùi 1 điểm</button>
+    <button class="btn btn-o btn-sm" onclick="mtReset()">↺ Đánh dấu lại</button>
+    <span style="margin-left:auto"></span>
+    <label class="btn btn-o btn-sm" style="cursor:pointer">🖼 Đổi ảnh<input type="file" accept="image/*" style="display:none" onchange="mtPick(event)"/></label></div>`;
+ }else if(MT.cmp){body=mtCompare();}
+ else{body=mtResults();}
+ box.innerHTML=`<div class="pop-h"><span class="pi">${MT.kind==='face'?'🧑':'✋'}</span>
+   <div><b>${title}</b><span>Đo trên máy bạn · ảnh không lưu, không gửi đi</span></div>
+   <button class="pop-x" onclick="mtClose()" aria-label="Đóng">✕</button></div>${body}`;}
+function mtCanvas(){const steps=MT_STEPS[MT.kind];
+ return `<div class="mt-wrap" onclick="mtTap(event)">
+   <img src="${MT.img}" alt="Ảnh của bạn"/>
+   <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="mt-ov">
+    ${MT.pts.map((p,i)=>`<circle cx="${p[0]*100}" cy="${p[1]*100}" r="1.6" fill="#a81414" stroke="#fff" stroke-width="0.6" vector-effect="non-scaling-stroke"/>`).join('')}
+    ${mtLinks()}
+   </svg>
+   ${MT.pts.map((p,i)=>`<span class="mt-lbl" style="left:${p[0]*100}%;top:${p[1]*100}%">${i+1}</span>`).join('')}
+  </div>`;}
+function mtLinks(){const p=MT.pts;const L=(a,b)=>p[a]&&p[b]?`<line x1="${p[a][0]*100}" y1="${p[a][1]*100}" x2="${p[b][0]*100}" y2="${p[b][1]*100}" stroke="#c9972f" stroke-width="0.5" stroke-dasharray="2 1.5" vector-effect="non-scaling-stroke"/>`:'';
+ return MT.kind==='face'?(L(1,2)+L(3,4)+L(5,6)+L(0,7)):(L(0,1)+L(1,2)+L(3,4));}
+function mtResults(){if(!MT.res)return '<p class="muted">Chưa đo được — hãy đánh dấu lại.</p>';
+ const rows=MT.res.rows;
+ return `<div class="mt-sum">Đã đo xong. Dưới đây là <b>${rows.length} mẫu tương đồng nhất</b> trong thư viện.</div>
+  <div class="mt-mini">${mtCanvas()}</div>
+  <div class="mt-res">${rows.map((r,i)=>{const it=lbFind(r.id);if(!it)return '';
+   return `<div class="mt-item">
+    <div class="mt-rank">#${i+1}</div>
+    <div class="mt-ill">${it.sv()}</div>
+    <div class="mt-txt">
+      <b>${esc(it.n)}</b>
+      <div class="mt-pct"><div class="mt-pbar"><i style="width:${r.pct}%"></i></div><span>${r.pct}%</span></div>
+      <div class="mt-d">${esc(it.d)}</div>
+      <div class="mt-parts">${r.parts.map(p=>`<span class="${p.ok?'ok':(p.warn?'no':'mid')}">${p.ok?'●':(p.warn?'●':'●')} ${esc(p.l)} ${p.sc}%</span>`).join('')}</div>
+      <div class="mt-act"><button class="btn btn-o btn-sm" onclick="mtShow('${r.id}')">⚖ So sánh chi tiết</button>
+        <button class="btn btn-o btn-sm" onclick="lbZoom('${r.id}')">🔍 Xem mẫu</button></div>
+    </div></div>`;}).join('')}</div>
+  <div class="mt-bar"><button class="btn btn-o btn-sm" onclick="mtReset()">↺ Đánh dấu lại</button>
+   <label class="btn btn-o btn-sm" style="cursor:pointer">🖼 Ảnh khác<input type="file" accept="image/*" style="display:none" onchange="mtPick(event)"/></label>
+   <span style="margin-left:auto"></span><button class="btn btn-p btn-sm" onclick="mtClose()">Xong</button></div>
+  ${HV_DISCLAIMER}`;}
+function mtShow(id){MT.cmp=id;MT.zoom=1;mtRender();}
+function mtZoom(d){MT.zoom=Math.max(1,Math.min(3,MT.zoom+d));mtRender();}
+function mtNext(step){const rows=MT.res.rows;const i=rows.findIndex(r=>r.id===MT.cmp);
+ const j=(i+step+rows.length)%rows.length;MT.cmp=rows[j].id;mtRender();}
+window.mtShow=mtShow;window.mtZoom=mtZoom;window.mtNext=mtNext;
+function mtCompare(){const r=MT.res.rows.find(x=>x.id===MT.cmp);const it=lbFind(MT.cmp);if(!r||!it)return '';
+ const idx=MT.res.rows.findIndex(x=>x.id===MT.cmp)+1;
+ return `<div class="mt-bar" style="margin-bottom:8px"><button class="btn btn-o btn-sm" onclick="MT.cmp=null;mtRender()">‹ Danh sách</button>
+   <span style="margin-left:auto"></span>
+   <button class="btn btn-o btn-sm" onclick="mtNext(-1)">‹ Mẫu trước</button>
+   <b style="align-self:center;font-size:12.5px">#${idx}/${MT.res.rows.length}</b>
+   <button class="btn btn-o btn-sm" onclick="mtNext(1)">Mẫu sau ›</button></div>
+  <div class="mt-cmp" style="--z:${MT.zoom}">
+   <div class="mt-cc"><span class="mt-cl">Ảnh của bạn</span>${mtCanvas()}</div>
+   <div class="mt-cc"><span class="mt-cl">Mẫu: ${esc(it.n)}</span><div class="mt-ill big">${it.sv()}</div></div>
+  </div>
+  <div class="mt-bar"><button class="btn btn-o btn-sm" onclick="mtZoom(-0.5)">− Thu nhỏ</button>
+   <b style="align-self:center">${Math.round(MT.zoom*100)}%</b>
+   <button class="btn btn-o btn-sm" onclick="mtZoom(0.5)">+ Phóng to</button></div>
+  <div class="mt-score"><div class="mt-pbar big"><i style="width:${r.pct}%"></i></div><b>${r.pct}%</b> tương đồng</div>
+  <div class="hv-sec"><b class="h">Điểm giống & khác</b>
+   <table class="mt-tb"><thead><tr><th>Tiêu chí</th><th class="right">Của bạn</th><th class="right">Mẫu</th><th class="right">Khớp</th></tr></thead>
+   <tbody>${r.parts.map(p=>`<tr class="${p.ok?'ok':(p.warn?'no':'mid')}">
+     <td>${p.ok?'🟢':(p.warn?'🔴':'🟡')} ${esc(p.l)}</td>
+     <td class="right">${p.mine.toFixed(2)}</td><td class="right">${p.tpl.toFixed(2)}</td>
+     <td class="right"><b>${p.sc}%</b></td></tr>`).join('')}</tbody></table>
+   <div class="muted" style="font-size:11.5px;margin-top:5px">🟢 giống · 🟡 lệch vừa · 🔴 khác rõ</div></div>
+  <div class="hv-sec"><b class="h">Đặc điểm</b><div style="margin-top:4px">${esc(it.d)}</div></div>
+  <div class="hv-sec"><b class="h">Ý nghĩa tham khảo</b><div style="margin-top:4px">${it.m}</div></div>
+  ${(it.s||[]).length?`<div class="hv-sec"><b class="h">Theo các trường phái</b>
+    ${it.s.map(x=>`<div style="margin-top:5px"><b>${esc(x[0])}:</b> ${esc(x[1])}</div>`).join('')}
+    ${it.s.length>1?`<div class="muted" style="font-size:11.5px;margin-top:6px">📌 Các trường phái có cách diễn giải khác nhau về đặc điểm này — nên đọc cả hai để có cái nhìn cân bằng.</div>`:''}</div>`:''}
+  <div class="hv-sec"><b class="h">Nguồn tham khảo</b><div style="margin-top:4px">${esc(it.r)}</div>
+   <div class="muted" style="font-size:11.5px;margin-top:4px">Hình minh họa do ứng dụng tự thiết kế.</div></div>
+  ${HV_DISCLAIMER}`;}
 /* ---------- GIAO DIỆN THƯ VIỆN ---------- */
 let lbQ={palm:'',face:''}, lbG={palm:'',face:''}, lbCmp={palm:[],face:[]}, lbCmpOn={palm:false,face:false};
 function lbData(k){return k==='palm'?LIB_PALM:LIB_FACE;}
@@ -2341,9 +2587,17 @@ function lbBrowser(k,title,intro){const groups=lbData(k).map(g=>g.g);const fav=l
    <div id="lb-${k}">${lbGrid(k)}</div>
   </div>`+HV_DISCLAIMER;}
 /* ---------- Hai mục trong Huyền học ---------- */
-function hvTay(){return lbBrowser('palm','✋ Thư viện chỉ tay',
+function mtCard(kind){const has=DB.settings.ai&&DB.settings.ai.key;
+ return `<div class="card pad mt-card">
+  <div class="h3">📷 Đối chiếu ảnh của bạn với thư viện</div>
+  <p class="muted" style="font-size:12.5px;margin:4px 0 9px">Tải ảnh hoặc chụp ${kind==='face'?'khuôn mặt':'bàn tay'}, đánh dấu vài điểm mốc — ứng dụng đo tỉ lệ và tìm <b>3–5 mẫu giống nhất</b>. Mọi việc làm ngay trong máy, <b>ảnh không lưu, không gửi đi đâu</b>.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+   <button class="btn btn-p" onclick="mtOpen('${kind}')">🎯 Bắt đầu đối chiếu</button>
+   ${has?`<button class="btn btn-o" onclick="hvCam('${kind==='face'?'face':'palm'}')">🤖 Nhờ AI mô tả thêm</button><div id="hv${kind==='face'?'Face':'Palm'}Out" style="width:100%;margin-top:8px"></div>`:''}
+  </div></div>`;}
+function hvTay(){return mtCard('palm')+lbBrowser('palm','✋ Thư viện chỉ tay',
  'Sáu đường chính, các gò bàn tay, dáng tay – dáng ngón và các dấu hiệu thường gặp. Bấm một mẫu để xem hình lớn cùng diễn giải theo từng trường phái.');}
-function hvTuong(){return lbBrowser('face','🧑 Thư viện nhân tướng',
+function hvTuong(){return mtCard('face')+lbBrowser('face','🧑 Thư viện nhân tướng',
  'Khuôn mặt, trán, mày, mắt, mũi, miệng, tai, cằm, gò má, nốt ruồi, dáng đi và tư thế. Bấm một mẫu để xem hình lớn cùng diễn giải.');}
 function hvPhong(){const b=hvBirth();const p=hvP();if(!b)return hvNeedDate();
  const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();const q=cungPhi(b.y,p.gender);const mau=MAU_HANH[hanh]||['',''];
