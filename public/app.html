@@ -173,8 +173,11 @@ td{padding:8px 11px;border-top:1px solid var(--border);vertical-align:middle}
 .hero-canvas .hoanhphi{max-width:none;margin:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px 44px}
 .hero-canvas .cauic{height:100%;min-width:0;justify-content:center}
 .hero-canvas .tho-center{height:100%;max-width:none;justify-content:center;padding:6px}
-.he-edit{cursor:move;outline:1px dashed rgba(212,175,55,.55);outline-offset:2px}
+/* touch-action:none để khi kéo ô chữ trên điện thoại, trang không bị cuộn theo */
+.he-edit{cursor:move;outline:1px dashed rgba(212,175,55,.55);outline-offset:2px;touch-action:none}
 .he-edit:hover{outline:1.5px dashed var(--gold)}
+/* Điện thoại: nút kéo góc to hơn cho dễ chạm */
+@media(max-width:720px){.he-edit .he-h{width:16px;height:16px}.he-edit .he-rot{width:20px;height:20px}}
 .he-rs{position:absolute;right:-7px;bottom:-7px;width:15px;height:15px;background:var(--gold);border:2px solid #fff;border-radius:50%;cursor:nwse-resize;z-index:5}
 .he-sel{outline:2px solid #3b82f6!important;outline-offset:2px}
 .obj-fill{width:100%;height:100%;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:6px 8px;overflow:hidden}
@@ -413,6 +416,24 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
+/* ===== Camera toàn màn hình kiểu ứng dụng máy ảnh điện thoại ===== */
+.cam-live{position:fixed;inset:0;z-index:5;background:#000;display:flex;flex-direction:column}
+.cam-live video{flex:1;width:100%;height:100%;object-fit:cover;background:#000;border-radius:0;max-height:none}
+.cam-frame{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:min(78vw,420px);aspect-ratio:1/1;
+ border:2px solid rgba(255,255,255,.85);border-radius:18px;box-shadow:0 0 0 100vmax rgba(0,0,0,.35);pointer-events:none}
+.cam-frame.oval{aspect-ratio:3/4;border-radius:50%/42%;width:min(66vw,340px)}
+.cam-hint{position:absolute;left:0;right:0;top:calc(46% + min(39vw,210px) + 14px);text-align:center;color:#fff;font-size:13.5px;
+ text-shadow:0 1px 6px rgba(0,0,0,.8);padding:0 20px;pointer-events:none}
+.cam-ctrl{position:absolute;left:0;right:0;bottom:0;height:132px;display:flex;align-items:center;justify-content:space-between;
+ padding:0 26px;background:linear-gradient(transparent,rgba(0,0,0,.72) 45%)}
+.cam-shot{width:74px;height:74px;border-radius:50%;border:4px solid rgba(255,255,255,.92);background:transparent;cursor:pointer;
+ display:grid;place-items:center;padding:0}
+.cam-shot span{display:block;width:58px;height:58px;border-radius:50%;background:#fff;transition:transform .1s}
+.cam-shot:active span{transform:scale(.86)}
+.cam-cancel{background:none;border:none;color:#fff;font-size:15px;font-family:inherit;cursor:pointer;width:76px;text-align:left;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.cam-sp{width:76px}
+.cam-lock{position:absolute;left:0;right:0;bottom:112px;text-align:center;color:rgba(255,255,255,.82);font-size:11.5px;
+ text-shadow:0 1px 5px rgba(0,0,0,.9);padding:0 20px;pointer-events:none}
 /* ===== ĐỐI CHIẾU ẢNH THẬT ===== */
 .mt-card{border-color:var(--gold);background:linear-gradient(#fffdf6,#fdf6e6)}
 .mt-drop{text-align:center;padding:22px 14px;border:2px dashed rgba(201,151,47,.6);border-radius:14px;background:#fffdf6}
@@ -1273,7 +1294,9 @@ function renderObjBar(){const bar=document.getElementById('objBar');if(!bar)retu
 window.toggleFree=toggleFree;window.resetLayout=resetLayout;window.addObj=addObj;window.delObj=delObj;window.updObj=updObj;
 window.dupObj=dupObj;window.copyObj=copyObj;window.pasteObj=pasteObj;window.toggleTrans=toggleTrans;
 let heDrag=null;
-document.addEventListener('mousedown',function(e){if(!e.target.closest)return;const it=e.target.closest('#cpPreview .he-edit');if(!it)return;
+/* Dùng Pointer Events để CHẠM trên điện thoại cũng chọn / kéo / đổi cỡ được như chuột */
+document.addEventListener('pointerdown',function(e){if(!e.target.closest)return;const it=e.target.closest('#cpPreview .he-edit');if(!it)return;
+ try{e.target.setPointerCapture&&e.target.setPointerCapture(e.pointerId);}catch(_){}
  selObj=it.dataset.k;document.querySelectorAll('#cpPreview .he-item').forEach(el=>el.classList.toggle('he-sel',el===it));renderObjBar();
  const o=selO();if(!o)return;const canvas=it.closest('.hero-canvas');const wrap=canvas.parentElement;const scale=(wrap.clientWidth/(canvas.offsetWidth||1000))||1;
  const handle=e.target.closest('.he-h,.he-rot');const hd=handle?handle.dataset.h:'';
@@ -1281,7 +1304,7 @@ document.addEventListener('mousedown',function(e){if(!e.target.closest)return;co
  else if(hd){heDrag={it,k:o.id,mode:'resize',hd,scale,sx:e.clientX,sy:e.clientY,l:o.x,t:o.y,w:o.w,h:o.h};}
  else{heDrag={it,k:o.id,mode:'drag',scale,sx:e.clientX,sy:e.clientY,l:o.x,t:o.y};}
  e.preventDefault();e.stopPropagation();});
-document.addEventListener('mousemove',function(e){if(!heDrag)return;const it=heDrag.it;
+document.addEventListener('pointermove',function(e){if(!heDrag)return;const it=heDrag.it;e.preventDefault();
  if(heDrag.mode==='rotate'){const a=Math.atan2(e.clientY-heDrag.cy,e.clientX-heDrag.cx)*180/Math.PI;let r=Math.round(heDrag.r0+(a-heDrag.a0));r=((r%360)+360)%360;it.style.transform='rotate('+r+'deg)';heDrag.rot=r;return;}
  const dx=(e.clientX-heDrag.sx)/heDrag.scale,dy=(e.clientY-heDrag.sy)/heDrag.scale;
  if(heDrag.mode==='drag'){it.style.left=(heDrag.l+dx)+'px';it.style.top=(heDrag.t+dy)+'px';return;}
@@ -1291,9 +1314,10 @@ document.addEventListener('mousemove',function(e){if(!heDrag)return;const it=heD
  if(hd.indexOf('w')>=0){nw=Math.max(30,w-dx);nl=l+(w-nw);}
  if(hd.indexOf('n')>=0){nh=Math.max(24,h-dy);nt=t+(h-nh);}
  it.style.left=nl+'px';it.style.top=nt+'px';it.style.width=nw+'px';it.style.height=nh+'px';});
-document.addEventListener('mouseup',function(){if(!heDrag)return;const it=heDrag.it,o=objList().find(x=>x.id===heDrag.k);
+function heEnd(){if(!heDrag)return;const it=heDrag.it,o=objList().find(x=>x.id===heDrag.k);
  if(o){if(heDrag.mode==='rotate'){if(heDrag.rot!=null)o.rot=heDrag.rot;}else{o.x=Math.round(parseFloat(it.style.left)||0);o.y=Math.round(parseFloat(it.style.top)||0);o.w=Math.round(it.offsetWidth);o.h=Math.round(it.offsetHeight);}DB.couplet.free=true;save();updateCpPreview();renderObjBar();}
- heDrag=null;});
+ heDrag=null;}
+document.addEventListener('pointerup',heEnd);document.addEventListener('pointercancel',heEnd);
 window.addEventListener('resize',scaleHeroes);
 document.addEventListener('keydown',function(e){const t=(e.target.tagName||'').toLowerCase();const inF=(t==='input'||t==='textarea'||t==='select'||e.target.isContentEditable);
  if(e.key==='Delete'&&selObj&&!inF){e.preventDefault();delObj();return;}
@@ -2298,6 +2322,24 @@ const LIB_FACE=[
    s:[['Trung Hoa','Khuyên dưỡng thân, chỉnh tư thế.']],r:'Quan sát khí độ trong tướng thuật',
    sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="54" cy="24" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M54 34 Q46 54 48 76" stroke="#a81414" stroke-width="4" fill="none"/><path d="M36 46 Q54 40 68 48" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M48 76 L38 102 M48 76 L60 102" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/></svg>`}]}
 ];
+/* ===== GIAO DIỆN CAMERA TOÀN MÀN HÌNH (giống ứng dụng máy ảnh của điện thoại) ===== */
+function camUI(vid,hint,onSnap,onCancel,kind){
+ return `<div class="cam-live">
+   <video id="${vid}" autoplay playsinline muted webkit-playsinline></video>
+   <div class="cam-frame ${kind==='face'?'oval':''}"></div>
+   <div class="cam-hint">${esc(hint)}</div>
+   <div class="cam-ctrl">
+     <button class="cam-cancel" onclick="${onCancel}">Hủy</button>
+     <button class="cam-shot" onclick="${onSnap}" aria-label="Chụp ảnh"><span></span></button>
+     <span class="cam-sp"></span>
+   </div>
+   <div class="cam-lock">🔒 Ảnh xử lý ngay trong máy — không lưu, không gửi đi đâu</div>
+  </div>`;}
+/* iOS chỉ tự phát video khi có thuộc tính muted + gọi play() */
+function camStart(vid,stream){const v=document.getElementById(vid);if(!v)return;
+ v.srcObject=stream;v.muted=true;v.setAttribute('muted','');v.setAttribute('playsinline','');
+ const go=()=>{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{});};
+ go();v.onloadedmetadata=go;setTimeout(go,150);}
 /* ============================================================
    ĐỐI CHIẾU ẢNH THẬT VỚI THƯ VIỆN MINH HỌA
    Cách làm: người dùng ĐÁNH DẤU vài điểm mốc trên ảnh của mình →
@@ -2349,12 +2391,11 @@ let mtStream=null;
 async function mtCam(){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Trình duyệt không hỗ trợ camera');return;}
  try{mtStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:MT.kind==='face'?'user':'environment'},audio:false});}
  catch(e){toast('Không mở được camera: '+e.message);return;}
- document.getElementById('camBox').innerHTML=`<h3>📷 ${MT.kind==='face'?'Chụp khuôn mặt — nhìn thẳng, đủ sáng':'Chụp lòng bàn tay — xòe rõ, đủ sáng'}</h3>
-  <video id="mtVid" autoplay playsinline></video>
-  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn btn-o" onclick="mtCamStop()">Hủy</button><button class="btn btn-p" onclick="mtSnap()">📸 Chụp</button></div>
-  <div class="cam-note">🔒 Ảnh chỉ dùng để đối chiếu ngay trong máy, <b>không lưu và không gửi đi đâu</b>.</div>`;
+ document.getElementById('camBox').innerHTML=camUI('mtVid',
+   MT.kind==='face'?'Đưa khuôn mặt vào khung · nhìn thẳng':'Xòe lòng bàn tay vào khung · đủ sáng',
+   'mtSnap()','mtCamStop()',MT.kind);
  document.getElementById('camWrap').classList.add('open');
- document.getElementById('mtVid').srcObject=mtStream;}
+ camStart('mtVid',mtStream);}
 function mtCamStop(){if(mtStream){mtStream.getTracks().forEach(t=>t.stop());mtStream=null;}
  const w=document.getElementById('camWrap');if(w)w.classList.remove('open');
  const b=document.getElementById('camBox');if(b)b.innerHTML='';}
@@ -2757,12 +2798,11 @@ async function hvCam(kind){
  catch(e){toast('Không mở được camera: '+e.message);return;}
  /* Dùng LỚP RIÊNG (#camWrap) — không đụng vào cửa sổ Huyền học đang mở, nhờ đó
     sau khi chụp vẫn còn chỗ để hiện kết quả. */
- document.getElementById('camBox').innerHTML=`<h3>📷 ${kind==='face'?'Chụp khuôn mặt — nhìn thẳng, đủ sáng':'Chụp lòng bàn tay — xòe rõ, đủ sáng'}</h3>
-  <video id="hvVid" autoplay playsinline></video>
-  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn btn-o" onclick="hvCamStop()">Hủy</button><button class="btn btn-p" onclick="hvSnap('${kind}')">📸 Chụp & phân tích</button></div>
-  <div class="cam-note">🔒 Ảnh chỉ dùng để phân tích ngay lúc này, <b>không lưu vào máy và không lưu lên máy chủ</b> — phân tích xong là xóa.</div>`;
+ document.getElementById('camBox').innerHTML=camUI('hvVid',
+   kind==='face'?'Đưa khuôn mặt vào khung · nhìn thẳng':'Xòe lòng bàn tay vào khung · đủ sáng',
+   `hvSnap('${kind}')`,'hvCamStop()',kind);
  document.getElementById('camWrap').classList.add('open');
- document.getElementById('hvVid').srcObject=hvStream;}
+ camStart('hvVid',hvStream);}
 function hvCamStop(){if(hvStream){hvStream.getTracks().forEach(t=>t.stop());hvStream=null;}
  const w=document.getElementById('camWrap');if(w)w.classList.remove('open');
  const b=document.getElementById('camBox');if(b)b.innerHTML='';}
@@ -3373,7 +3413,7 @@ function cpBgFit(v){DB.couplet.bgFit=!!v;if(v){DB.couplet.bgX=50;DB.couplet.bgY=
 window.cpBgZoom=cpBgZoom;window.cpBgReset=cpBgReset;window.cpBgFit=cpBgFit;
 let bgNat={src:null,w:1536,h:1024},bgDrag=null;
 function bgNatLoad(src){if(bgNat.src===src)return;const im=new Image();im.onload=()=>{bgNat={src,w:im.width,h:im.height};};im.src=src;}
-document.addEventListener('mousedown',function(e){if(!e.target.closest)return;
+document.addEventListener('pointerdown',function(e){if(!e.target.closest)return;
  if(e.target.closest('#cpPreview .he-edit'))return;                    // ưu tiên kéo ô chữ
  const hero=e.target.closest('#cpPreview .hero-tho');if(!hero)return;
  const cp=DB.couplet||{};if(!cp.bg||cp.bgFit)return;bgNatLoad(cp.bg);
@@ -3382,12 +3422,13 @@ document.addEventListener('mousedown',function(e){if(!e.target.closest)return;
  bgDrag={sx:e.clientX,sy:e.clientY,x0:cp.bgX!=null?cp.bgX:50,y0:cp.bgY!=null?cp.bgY:50,
   spanX:Math.max(0,bgW-r.width),spanY:Math.max(0,bgH-r.height)};
  hero.style.cursor='grabbing';e.preventDefault();});
-document.addEventListener('mousemove',function(e){if(!bgDrag)return;
+document.addEventListener('pointermove',function(e){if(!bgDrag)return;e.preventDefault();
  const dx=e.clientX-bgDrag.sx,dy=e.clientY-bgDrag.sy;
  if(bgDrag.spanX>0)DB.couplet.bgX=Math.max(0,Math.min(100,bgDrag.x0-dx/bgDrag.spanX*100));
  if(bgDrag.spanY>0)DB.couplet.bgY=Math.max(0,Math.min(100,bgDrag.y0-dy/bgDrag.spanY*100));
  updateCpPreview();});
-document.addEventListener('mouseup',function(){if(!bgDrag)return;bgDrag=null;save();});
+function bgEnd(){if(!bgDrag)return;bgDrag=null;save();}
+document.addEventListener('pointerup',bgEnd);document.addEventListener('pointercancel',bgEnd);
 window.saveCouplet=saveCouplet;
 function cpSyncSize(){if(DB.couplet&&DB.couplet.free&&DB.couplet.objects){const v=cpFormValues();DB.couplet.objects.forEach(o=>{if(o.id==='daitu'){o.size=v.sizeDT;o.ls=v.spaceDT;}else if(o.id==='left'||o.id==='right')o.size=v.sizeCau;});}updateCpPreview();}
 window.cpSyncSize=cpSyncSize;
