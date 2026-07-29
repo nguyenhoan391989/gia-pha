@@ -413,6 +413,29 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box h3{color:var(--gold);font-size:15.5px;margin:0 0 10px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
+/* ===== THƯ VIỆN MINH HỌA TƯỚNG SỐ ===== */
+.lb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.lb-c{position:relative;border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden;transition:.15s}
+.lb-c:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 5px 16px rgba(139,0,0,.12)}
+.lb-c.cmp{border-color:var(--primary);box-shadow:inset 0 0 0 2px var(--primary)}
+.lb-main{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:10px 8px;background:none;border:none;cursor:pointer;font-family:inherit}
+.lb-main:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.lb-svg{width:100%;height:96px;display:block}
+.lb-n{font-size:12px;font-weight:700;color:var(--primary);text-align:center;line-height:1.28}
+.lb-f .badge{font-size:9.5px;padding:1px 6px}
+.lb-star{position:absolute;top:4px;right:5px;z-index:2;width:24px;height:24px;border:none;background:rgba(255,253,246,.9);border-radius:50%;color:#c9972f;font-size:14px;cursor:pointer;line-height:1}
+.lb-star.on{color:#e0a800}
+.lb-star:hover{background:var(--accent)}
+.lb-chk{position:absolute;top:4px;left:5px;width:22px;height:22px;border-radius:50%;background:var(--primary);color:var(--gold);font-size:12px;display:grid;place-items:center}
+.lb-cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.lb-cmpc{border:1px solid var(--border);border-radius:10px;padding:9px;background:var(--bg)}
+.lb-cmpc b{display:block;color:var(--primary);font-size:12.5px;margin:4px 0 3px;text-align:center}
+.lb-cmpc p{font-size:11.5px;line-height:1.5;margin:5px 0 0}
+.lb-cmpc .lb-svg{height:88px}
+.lb-zoom{text-align:center;padding:6px 0 10px}
+.lb-zoom .lb-svg{height:230px}
+.hv-warn{margin-top:12px;font-size:11.5px;line-height:1.6;color:#7a4a10;background:#fdf6e3;border:1px solid rgba(201,151,47,.55);border-radius:10px;padding:9px 11px}
+@media(max-width:520px){.lb-grid{grid-template-columns:repeat(2,1fr);gap:8px}.lb-svg{height:86px}.lb-zoom .lb-svg{height:180px}}
 /* ===== HOẠT ĐỘNG DIỄN RA — dạng thẻ ===== */
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .rcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:inset 0 0 0 2px rgba(212,175,55,.16)}
@@ -1877,118 +1900,451 @@ function hvThanso(){const b=hvBirth();const p=hvP();if(!p.name&&!b)return hvNeed
  +(soul?hvSec('💗 Chỉ số linh hồn (nguyên âm)',`<b>${numRed(soul)}</b> — ${NUMM[numRed(soul)]||''}. Nói về mong muốn bên trong.`):'')
  +(all?hvSec('🗣 Chỉ số biểu đạt (cả tên)',`<b>${numRed(all)}</b> — ${NUMM[numRed(all)]||''}. Nói về cách thể hiện ra bên ngoài.`):'')
  +(py!=null?hvSec(`🔄 Năm cá nhân ${cur.getFullYear()}`,`<b>${py}</b> — chu kỳ ${py}/9: ${py<=3?'khởi đầu, gieo hạt, học hỏi':py<=6?'xây dựng, vun đắp quan hệ và trách nhiệm':'thu hoạch, nhìn lại, hoàn thiện'}.`):'')+HV_NOTE;}
-/* ===== XEM TƯỚNG & CHỈ TAY — CHỌN THEO HÌNH VẼ (sách tướng phương Đông)
-   Không cần internet, không cần API, không gửi ảnh đi đâu. ===== */
-/* --- 1) THẬP NHỊ DIỆN TƯỚNG: 10 dáng mặt cổ điển, đặt tên theo chữ Hán --- */
-const FACE_SHAPES=[
- ['dien','田','Chữ Điền','Mặt vuông, trán và cằm đều rộng',
-  'M50 16 C74 16 84 26 84 44 L84 76 C84 94 74 104 50 104 C26 104 16 94 16 76 L16 44 C16 26 26 16 50 16 Z',
-  'Tướng đôn hậu, vững chãi. Người xưa cho là tướng có căn cơ, làm việc chắc chắn, được người tin cậy. Hợp việc gánh vác, đứng đầu một nhóm. Nên giữ sự mềm mỏng để tránh cứng nhắc.'],
- ['do','由','Chữ Do','Trán hẹp, cằm bạnh rộng',
-  'M50 16 C64 16 70 24 72 38 L82 78 C86 96 74 104 50 104 C26 104 14 96 18 78 L28 38 C30 24 36 16 50 16 Z',
-  'Khởi đầu vất vả nhưng càng về sau càng vững — "hậu vận hưng". Người có dáng này thường tự lập sớm, tích lũy dần rồi an ổn tuổi trung niên trở đi.'],
- ['giap','甲','Chữ Giáp','Trán rộng, cằm thon nhọn',
-  'M50 14 C76 14 86 26 84 44 L74 80 C70 96 62 104 50 104 C38 104 30 96 26 80 L16 44 C14 26 24 14 50 14 Z',
-  'Tư chất thông minh, học nhanh, thiên về trí óc. Hợp nghề chữ nghĩa, nghiên cứu, giảng dạy. Người xưa khuyên rèn thêm sức bền để theo việc đường dài.'],
- ['than','申','Chữ Thân','Trán và cằm hẹp, gò má rộng',
-  'M50 16 C62 16 68 24 70 36 L84 62 C86 72 78 80 70 84 L64 96 C60 102 56 104 50 104 C44 104 40 102 36 96 L30 84 C22 80 14 72 16 62 L30 36 C32 24 38 16 50 16 Z',
-  'Nhanh nhạy, giỏi xoay xở, thích nghi tốt với thay đổi. Hợp việc giao dịch, kết nối. Nên chọn một hướng chính để công sức không bị dàn trải.'],
- ['dung','用','Chữ Dụng','Mặt hơi lệch, cằm rộng một bên',
-  'M50 15 C68 15 78 25 78 42 L82 78 C84 96 72 104 48 104 C26 104 16 96 18 78 L22 42 C22 25 32 15 50 15 Z',
-  'Bươn chải, chịu khó, tự tay gây dựng. Thành quả đến từ bền bỉ chứ không nhờ may. Người thân nên là chỗ dựa tinh thần cho người tướng này.'],
- ['muc','目','Chữ Mục','Mặt dài, hẹp bề ngang',
-  'M50 12 C68 12 76 22 76 40 L76 80 C76 98 66 108 50 108 C34 108 24 98 24 80 L24 40 C24 22 32 12 50 12 Z',
-  'Điềm đạm, kiên nhẫn, làm việc có nề nếp. Người xưa xem là tướng thọ, sống ngăn nắp. Hợp việc cần tỉ mỉ, giữ gìn — như trông coi việc họ, gia phả.'],
- ['vien','圓','Chữ Viên','Mặt tròn đầy',
-  'M50 14 C74 14 88 32 88 60 C88 88 74 106 50 106 C26 106 12 88 12 60 C12 32 26 14 50 14 Z',
-  'Phúc hậu, hòa nhã, dễ gần, được lòng người. Tướng "tụ phúc" theo quan niệm dân gian. Trong họ thường là người hòa giải, gắn kết anh em.'],
- ['vuong','王','Chữ Vương','Gò má cao, trán và cằm cân',
-  'M50 16 C68 16 76 26 76 42 L84 60 C86 70 80 76 74 78 L72 88 C70 100 62 104 50 104 C38 104 30 100 28 88 L26 78 C20 76 14 70 16 60 L24 42 C24 26 32 16 50 16 Z',
-  'Có khí chất, nói có người nghe. Hợp vai trò đứng mũi chịu sào. Người xưa dặn: có uy thì càng phải rộng lượng mới bền.'],
- ['phong','風','Chữ Phong','Trán rộng, hai bên thái dương nở',
-  'M50 14 C78 14 90 28 88 46 L78 74 C74 94 64 104 50 104 C36 104 26 94 22 74 L12 46 C10 28 22 14 50 14 Z',
-  'Nhiều ý tưởng, phóng khoáng, ưa cái mới. Hợp việc mở đường, khởi xướng. Nên có người thực tế bên cạnh để việc đi tới cùng.'],
- ['dong','同','Chữ Đồng','Mặt cân đối, đường nét hài hòa',
-  'M50 15 C72 15 82 28 82 48 L82 74 C82 94 70 105 50 105 C30 105 18 94 18 74 L18 48 C18 28 28 15 50 15 Z',
-  'Cân bằng, chừng mực, biết tiến biết lui. Tướng "trung dung" — ít cực đoan, đời sống ổn định, gia đạo êm ấm.']];
-/* --- 2) CHỈ TAY: 4 đường chính, mỗi đường vài dáng thường gặp --- */
-const PALM_BASE='M22 118 L22 62 C22 50 30 44 38 46 L38 34 C38 24 50 24 50 34 L50 44 L56 44 L56 28 C56 18 68 18 68 28 L68 46 L74 46 L74 32 C74 22 86 22 86 32 L86 62 C86 78 82 92 74 104 L70 118 Z';
-const PALM_Q=[
- ['sinh','Sinh đạo','Đường vòng quanh gò ngón cái — sức sống, thể trạng',[
-  ['dai','Dài, cong rộng','M40 52 C30 66 28 86 34 112','Thể chất bền, sức sống dẻo dai. Người xưa gọi là tướng "trường lực" — theo được việc đường dài. Giữ nếp sinh hoạt điều độ thì càng phát huy.'],
-  ['ngan','Ngắn, ôm sát','M40 52 C34 62 32 74 34 84','Sức bền vừa phải nhưng nhanh nhẹn, biết lượng sức mình. Nên nghỉ ngơi đủ, tránh dồn sức một lúc.'],
-  ['dut','Có đoạn đứt','M40 52 C34 62 32 70 32 76 M34 86 C34 96 34 104 36 112','Dân gian cho là đời có khúc chuyển. Người có đường này thường trải nhiều nên chín chắn sớm.'],
-  ['kep','Có đường song song','M40 52 C30 66 28 86 34 112 M46 58 C38 70 36 86 40 106','Gọi là "đường chị em" — được người thân nâng đỡ, gia đình là chỗ dựa vững chắc.']]],
- ['tri','Trí đạo','Đường ngang giữa lòng bàn tay — cách tư duy',[
-  ['thang','Thẳng, dứt khoát','M34 62 L76 68','Tư duy mạch lạc, thực tế, quyết nhanh. Hợp việc tính toán, tổ chức, quản lý.'],
-  ['cong','Cong xuống mềm','M34 62 C50 70 64 80 72 92','Giàu tưởng tượng, thiên về cảm nhận và sáng tạo. Hợp chữ nghĩa, nghệ thuật, dạy học.'],
-  ['dai','Rất dài','M30 60 L82 72','Suy nghĩ sâu, cân nhắc kỹ. Điểm cần lưu ý: nghĩ nhiều quá dễ chậm quyết.'],
-  ['nhanh','Có nhiều nhánh','M34 62 L76 68 M58 65 L66 56 M66 66 L74 58','Quan tâm nhiều việc cùng lúc, học nhanh. Nên chọn một hướng chính để đi cho tới.']]],
- ['tam','Tâm đạo','Đường trên cùng — tình cảm',[
-  ['cao','Cong lên phía ngón trỏ','M32 46 C48 36 64 34 78 40','Tình cảm nồng hậu, sống thiên về tình. Trong họ thường là người gắn kết mọi người.'],
-  ['thang','Thẳng ngang','M32 46 L80 48','Tình cảm kín đáo, chín chắn, ít bộc lộ nhưng bền lâu.'],
-  ['ngan','Ngắn','M46 46 L80 48','Tự lập trong tình cảm, không phụ thuộc. Nên chủ động bày tỏ với người thân nhiều hơn.'],
-  ['nhanh','Nhiều nhánh hướng lên','M32 46 C48 38 64 36 78 42 M48 41 L52 32 M60 38 L64 30','Rộng lòng, nhiều bạn, hay giúp người.']]],
- ['van','Vận đạo','Đường dọc giữa lòng bàn tay — công việc',[
-  ['ro','Rõ, liền mạch','M54 116 L56 48','Công việc có hướng rõ ràng, thường gắn bó lâu với một nghề.'],
-  ['mo','Mờ hoặc không có','M54 116 L55 92','Đường đời linh hoạt, tự mở lối. Nhiều người thành đạt muộn mà vững.'],
-  ['dut','Đứt rồi nối lại','M54 116 L55 88 M57 78 L58 48','Có chuyển nghề, chuyển hướng giữa đường; mỗi lần chuyển là một bậc mới.'],
-  ['nhieu','Nhiều đường dọc','M52 116 L54 52 M62 110 L64 60 M44 108 L46 64','Làm được nhiều việc, nhiều nguồn thu. Nên sắp thứ tự ưu tiên.']]]];
-/* --- Vẽ --- */
-function faceSVG(d,on){return `<svg viewBox="0 0 100 120" class="fs-img">
-  <path d="${d}" fill="${on?'#fdf3dc':'#fffdf6'}" stroke="${on?'#8B0000':'#c9972f'}" stroke-width="${on?3:2}"/>
-  <ellipse cx="36" cy="52" rx="6" ry="3.4" fill="#7a1010" opacity=".75"/><ellipse cx="64" cy="52" rx="6" ry="3.4" fill="#7a1010" opacity=".75"/>
-  <path d="M28 42 Q36 38 44 42" stroke="#7a1010" stroke-width="2.4" fill="none" opacity=".7"/>
-  <path d="M56 42 Q64 38 72 42" stroke="#7a1010" stroke-width="2.4" fill="none" opacity=".7"/>
-  <path d="M50 56 L50 70 Q54 72 50 74" stroke="#7a1010" stroke-width="2" fill="none" opacity=".6"/>
-  <path d="M41 86 Q50 92 59 86" stroke="#7a1010" stroke-width="2.4" fill="none" opacity=".7"/></svg>`;}
-function palmSVG(line,on){return `<svg viewBox="0 0 100 130" class="fs-img">
-  <path d="${PALM_BASE}" fill="${on?'#fdf3dc':'#fffdf6'}" stroke="${on?'#8B0000':'#c9972f'}" stroke-width="${on?2.6:1.8}"/>
-  <path d="${line}" stroke="#a81414" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;}
-function hvPick(kind){const s=DB.settings||{};return (kind==='palm'?s.hvPalm:s.hvFace)||{};}
-function hvSetPick(kind,k,v){DB.settings=DB.settings||{};const key=kind==='palm'?'hvPalm':'hvFace';
- DB.settings[key]=Object.assign({},hvPick(kind));DB.settings[key][k]=v;save();hvRefresh();}
-function hvClearPick(kind){DB.settings[kind==='palm'?'hvPalm':'hvFace']={};save();hvRefresh();}
-window.hvSetPick=hvSetPick;window.hvClearPick=hvClearPick;
-/* Chọn dáng mặt */
-function faceQuiz(){const cur=hvPick('face').shape;
- return `<div class="fs-grid">${FACE_SHAPES.map(f=>`<button class="fs-c ${cur===f[0]?'on':''}" onclick="hvSetPick('face','shape','${f[0]}')">
-   ${faceSVG(f[4],cur===f[0])}<span class="fs-n">${f[1]} ${esc(f[2])}</span><span class="fs-d">${esc(f[3])}</span></button>`).join('')}</div>`;}
-function faceRead(){const cur=hvPick('face').shape;if(!cur)return '<p class="muted">Soi gương rồi bấm chọn dáng mặt giống mình nhất.</p>';
- const f=FACE_SHAPES.find(x=>x[0]===cur);if(!f)return '';
- const b=hvBirth();let them='';
- if(b){const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();
-  them=hvSec('🌿 Kết hợp bản mệnh',`Bản mệnh <b>${esc(cc.menh)}</b> — hành <b>${esc(hanh)}</b>. ${esc(HANH_GOIY[hanh]||'')}`);}
- return hvSec(f[1]+' Tướng '+f[2],`<div style="font-size:13px;color:var(--muted);margin-bottom:4px">${esc(f[3])}</div>${esc(f[5])}`)+them
-  +hvSec('💡 Lời người xưa','<b>"Tướng tự tâm sinh"</b> — nết ăn ở, cách cư xử mới là thứ đổi được tướng mạo và vận số. Xem tướng cốt để <i>tự soi mình mà sửa</i>, không phải để tin vào định mệnh.');}
-/* Chọn dáng chỉ tay */
-function palmQuiz(){const cur=hvPick('palm');
- return PALM_Q.map(q=>`<div class="hq-b"><div class="hq-h"><b>${esc(q[1])}</b><span>${esc(q[2])}</span></div>
-  <div class="fs-grid sm">${q[3].map(o=>`<button class="fs-c ${cur[q[0]]===o[0]?'on':''}" onclick="hvSetPick('palm','${q[0]}','${o[0]}')">
-    ${palmSVG(o[2],cur[q[0]]===o[0])}<span class="fs-n">${esc(o[1])}</span></button>`).join('')}</div></div>`).join('');}
-function palmRead(){const cur=hvPick('palm');const done=PALM_Q.filter(q=>cur[q[0]]);
- if(!done.length)return '<p class="muted">Xòe bàn tay thuận ra, đối chiếu rồi bấm chọn hình giống nhất.</p>';
- let out=done.map(q=>{const o=q[3].find(x=>x[0]===cur[q[0]]);
-  return hvSec(q[1]+' — '+o[1],esc(o[3]));}).join('');
- if(done.length===PALM_Q.length){const b=hvBirth();let them='';
-  if(b){const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();
-   them=` Kết hợp bản mệnh <b>${esc(cc.menh)}</b> (hành ${esc(hanh)}): ${esc(HANH_GOIY[hanh]||'')}`;}
-  out+=hvSec('🌿 Tổng luận',`Bốn đường hợp lại cho thấy một người có thế mạnh riêng — không đường nào là "xấu".${them}
-   <div style="margin-top:6px">Người xưa dạy <b>"tướng tự tâm sinh"</b>: xem chỉ tay để <i>hiểu mình mà rèn</i>, không phải để tin vào số phận.</div>`);}
- else out+=`<p class="muted" style="font-size:12.5px">Đã chọn ${done.length}/${PALM_Q.length} đường — chọn đủ để xem tổng luận.</p>`;
- return out;}
-function hvTuong(){const has=DB.settings.ai&&DB.settings.ai.key;
- return hvSec('🧭 Diện tướng học (kiến thức văn hóa)','Sách tướng phương Đông chia khuôn mặt thành các <b>dáng cơ bản</b>, đặt tên theo chữ Hán có hình dáng tương tự: 田 Điền, 由 Do, 甲 Giáp, 申 Thân, 目 Mục, 圓 Viên… Mỗi dáng ứng với một khí chất riêng.')
- +hvSec('👉 Chọn dáng mặt giống mình nhất',faceQuiz()+`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('face')">↺ Chọn lại</button></div>`)
- +hvSec('📜 Luận giải',faceRead())
- +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('face',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('face')">📷 Chụp bằng camera</button></div><div id="hvFaceOut" style="margin-top:8px"></div>`):'')
- +HV_NOTE;}
-function hvTay(){const has=DB.settings.ai&&DB.settings.ai.key;
- return hvSec('✋ Bốn đường chính (kiến thức văn hóa)','<b>Sinh đạo</b> (sức sống) · <b>Trí đạo</b> (tư duy) · <b>Tâm đạo</b> (tình cảm) · <b>Vận đạo</b> (công việc). Đối chiếu bàn tay thuận với hình vẽ bên dưới.')
- +hvSec('👉 Chọn hình giống bàn tay mình nhất',palmQuiz()+`<div style="margin-top:8px"><button class="btn btn-o btn-sm" onclick="hvClearPick('palm')">↺ Chọn lại</button></div>`)
- +hvSec('📜 Luận giải',palmRead())
- +(has?hvSec('📷 Thêm: phân tích từ ảnh (AI)',`<div style="display:flex;gap:6px;flex-wrap:wrap"><label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="hvVision('palm',event)"/></label><button class="btn btn-o btn-sm" onclick="hvCam('palm')">📷 Chụp bằng camera</button></div><div id="hvPalmOut" style="margin-top:8px"></div>`):'')
- +HV_NOTE;}
+/* ============================================================
+   THƯ VIỆN MINH HỌA TƯỚNG SỐ PHƯƠNG ĐÔNG
+   • Toàn bộ hình là VECTOR TỰ THIẾT KẾ trong file này (đường path tự vẽ),
+     KHÔNG sao chép hình ảnh hay nguyên văn từ bất kỳ sách nào.
+   • Nội dung diễn giải viết lại theo hiểu biết chung về các trường phái,
+     chỉ mang tính tham khảo văn hóa – dân gian.
+   ============================================================ */
+const HV_DISCLAIMER=`<div class="hv-warn">⚠️ <b>Miễn trừ trách nhiệm:</b> Nội dung trong thư viện này mang tính <b>tham khảo văn hóa và dân gian</b>, <b>không phải cơ sở khoa học, không phải chẩn đoán y học</b> và không dùng để dự đoán tương lai. Hình minh họa do ứng dụng tự thiết kế.</div>`;
+/* ---------- Bộ vẽ ---------- */
+const HAND_OUTLINE='M26 168 C20 150 20 120 22 96 C23 84 26 76 30 70 L30 44 C30 32 44 32 44 44 L44 66 L50 66 L50 30 C50 18 64 18 64 30 L64 66 L70 66 L70 26 C70 14 84 14 84 26 L84 66 L90 66 L90 40 C90 28 104 28 104 40 L104 88 C104 116 98 142 86 164 L82 176 L30 176 Z';
+function drawHand(over,opt){opt=opt||{};
+ return `<svg viewBox="0 0 130 190" class="lb-svg"><g>
+  <path d="${HAND_OUTLINE}" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/>
+  ${opt.faint!==false?`<path d="M40 96 C56 90 74 92 88 100" stroke="#e3d6bb" stroke-width="2.4" fill="none"/>
+  <path d="M36 82 C54 74 74 74 90 82" stroke="#e3d6bb" stroke-width="2.4" fill="none"/>
+  <path d="M40 96 C32 116 32 142 40 166" stroke="#e3d6bb" stroke-width="2.4" fill="none"/>`:''}
+  ${over||''}</g></svg>`;}
+const P=(d,c,w)=>`<path d="${d}" stroke="${c||'#a81414'}" stroke-width="${w||3.2}" fill="none" stroke-linecap="round"/>`;
+const DOT=(x,y,c)=>`<circle cx="${x}" cy="${y}" r="3.4" fill="${c||'#a81414'}"/>`;
+/* Khuôn mặt & bộ phận */
+function drawFace(feat,shape){
+ const S=shape||'M50 16 C74 16 84 28 84 46 L84 74 C84 96 70 108 50 108 C30 108 16 96 16 74 L16 46 C16 28 26 16 50 16 Z';
+ return `<svg viewBox="0 0 100 124" class="lb-svg">
+  <path d="${S}" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/>
+  ${feat||`<ellipse cx="36" cy="54" rx="6" ry="3.4" fill="#ddd0b5"/><ellipse cx="64" cy="54" rx="6" ry="3.4" fill="#ddd0b5"/>
+   <path d="M28 44 Q36 40 44 44" stroke="#ddd0b5" stroke-width="2.4" fill="none"/><path d="M56 44 Q64 40 72 44" stroke="#ddd0b5" stroke-width="2.4" fill="none"/>
+   <path d="M50 58 L50 72 Q54 74 50 76" stroke="#ddd0b5" stroke-width="2" fill="none"/><path d="M41 88 Q50 94 59 88" stroke="#ddd0b5" stroke-width="2.4" fill="none"/>`}
+ </svg>`;}
+const FBASE=`<ellipse cx="36" cy="54" rx="6" ry="3.4" fill="#e3d6bb"/><ellipse cx="64" cy="54" rx="6" ry="3.4" fill="#e3d6bb"/>
+ <path d="M28 44 Q36 40 44 44" stroke="#e3d6bb" stroke-width="2.2" fill="none"/><path d="M56 44 Q64 40 72 44" stroke="#e3d6bb" stroke-width="2.2" fill="none"/>
+ <path d="M50 58 L50 72 Q54 74 50 76" stroke="#e3d6bb" stroke-width="1.8" fill="none"/><path d="M41 88 Q50 94 59 88" stroke="#e3d6bb" stroke-width="2.2" fill="none"/>`;
+/* ---------- DỮ LIỆU: CHỈ TAY ---------- */
+const LIB_PALM=[
+ {g:'Đường chính',items:[
+  {id:'p-sinh',n:'Sinh đạo (Đường sự sống)',f:'Rất phổ biến',
+   d:'Đường vòng cung quanh gò ngón cái, bắt đầu giữa ngón cái và ngón trỏ, chạy xuống cổ tay.',
+   m:'Được xem là chỉ dấu về thể chất, sức bền và nhịp sống. <b>Không</b> chỉ độ dài tuổi thọ — đây là hiểu nhầm phổ biến nhất.',
+   s:[['Trung Hoa','Gọi là "địa văn", ứng với phần Địa trong Tam tài Thiên–Địa–Nhân, xét căn cơ thể chất.'],['Ấn Độ','Liên hệ gò Kim tinh, xét sinh lực và sức sống.'],['Phương Tây','Gọi là Life line, mô tả sức sống và những giai đoạn thay đổi lớn.']],
+   r:'Truyền thống tướng thuật Á Đông · so sánh với ghi chép phương Tây thế kỷ 19–20',
+   sv:()=>drawHand(P('M44 70 C30 88 26 122 34 166'))},
+  {id:'p-tri',n:'Trí đạo (Đường trí tuệ)',f:'Rất phổ biến',
+   d:'Đường chạy ngang giữa lòng bàn tay, thường bắt đầu gần điểm khởi của sinh đạo.',
+   m:'Chỉ cách tư duy: thẳng thì thiên về lý trí – thực tế; cong xuống thì thiên về tưởng tượng – cảm nhận.',
+   s:[['Trung Hoa','Gọi là "nhân văn", ứng với phần Nhân, xét tâm trí và cách xử thế.'],['Phương Tây','Head line — xét phong cách suy nghĩ và ra quyết định.']],
+   r:'Truyền thống tướng thuật Á Đông',
+   sv:()=>drawHand(P('M40 96 C58 90 76 92 92 100'))},
+  {id:'p-tam',n:'Tâm đạo (Đường tình cảm)',f:'Rất phổ biến',
+   d:'Đường ngang phía trên cùng lòng bàn tay, dưới các ngón.',
+   m:'Chỉ đời sống tình cảm, cách biểu lộ và gắn bó với người thân.',
+   s:[['Trung Hoa','Gọi là "thiên văn", ứng với phần Thiên, xét tình cảm và phúc phận.'],['Phương Tây','Heart line — xét đời sống tình cảm và cảm xúc.']],
+   r:'Truyền thống tướng thuật Á Đông',
+   sv:()=>drawHand(P('M34 80 C54 68 76 68 94 78'))},
+  {id:'p-menh',n:'Định mệnh (Đường sự nghiệp)',f:'Phổ biến',
+   d:'Đường dọc chạy từ phía cổ tay lên giữa lòng bàn tay, hướng ngón giữa.',
+   m:'Chỉ hướng đi công việc và mức độ ổn định của con đường sự nghiệp. Nhiều người không có đường này — không phải điều xấu.',
+   s:[['Trung Hoa','Gọi là "ngọc trụ văn", xét trụ cột sự nghiệp.'],['Phương Tây','Fate line / Saturn line — xét con đường sự nghiệp.']],
+   r:'Truyền thống tướng thuật Á Đông',
+   sv:()=>drawHand(P('M62 172 L64 82'))},
+  {id:'p-thaiduong',n:'Thái dương (Đường danh vọng)',f:'Ít gặp',
+   d:'Đường dọc ngắn ở phần dưới ngón áp út, song song với đường định mệnh.',
+   m:'Được xem là chỉ dấu về danh tiếng, khiếu thẩm mỹ và sự ghi nhận của cộng đồng.',
+   s:[['Trung Hoa','Ứng với cung Thái dương, xét tiếng thơm và sự quý hiển.'],['Phương Tây','Sun line / Apollo line — xét danh tiếng và nghệ thuật.']],
+   r:'Truyền thống tướng thuật Á Đông',
+   sv:()=>drawHand(P('M86 148 L88 92'))},
+  {id:'p-thuytinh',n:'Thủy tinh (Đường sức khỏe)',f:'Ít gặp',
+   d:'Đường mảnh chạy chéo từ phía gò Nguyệt lên phía ngón út.',
+   m:'Theo quan niệm cổ, liên hệ tới thể trạng và khả năng giao tiếp – buôn bán. <b>Không</b> dùng để chẩn đoán bệnh.',
+   s:[['Trung Hoa','Xét khí lực và tài giao thiệp.'],['Phương Tây','Health line / Mercury line.']],
+   r:'Truyền thống tướng thuật Á Đông',
+   sv:()=>drawHand(P('M36 156 C58 132 78 112 92 96'))}]},
+ {g:'Gò bàn tay',items:[
+  {id:'g-kim',n:'Gò Kim tinh',f:'Rất phổ biến',d:'Vùng nổi ở gốc ngón cái, được sinh đạo ôm quanh.',
+   m:'Nở đầy: sức sống dồi dào, giàu tình cảm gia đình. Lép: thiên về lý trí, ít bộc lộ.',
+   s:[['Trung Hoa','Ứng cung Kim tinh, xét tình thân và sinh lực.'],['Phương Tây','Mount of Venus.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="46" cy="132" rx="20" ry="30" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)},
+  {id:'g-nguyet',n:'Gò Nguyệt (Thái âm)',f:'Rất phổ biến',d:'Vùng nổi phía đối diện gò Kim tinh, gần mép ngoài cổ tay.',
+   m:'Nở: giàu tưởng tượng, nhạy cảm, ưa dịch chuyển. Lép: thực tế, ít mộng mơ.',
+   s:[['Trung Hoa','Ứng cung Thái âm, xét trí tưởng tượng.'],['Phương Tây','Mount of Luna.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="42" cy="140" rx="16" ry="26" fill="rgba(168,20,20,.05)"/><ellipse cx="92" cy="138" rx="16" ry="26" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)},
+  {id:'g-moc',n:'Gò Mộc tinh',f:'Phổ biến',d:'Vùng dưới ngón trỏ.',
+   m:'Nở: có chí hướng dẫn dắt, tự tin. Quá nở: dễ áp đặt — người xưa khuyên tiết chế.',
+   s:[['Trung Hoa','Xét chí khí và vị thế.'],['Phương Tây','Mount of Jupiter.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="52" cy="76" rx="12" ry="10" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)},
+  {id:'g-tho',n:'Gò Thổ tinh',f:'Phổ biến',d:'Vùng dưới ngón giữa.',
+   m:'Nở: điềm tĩnh, có trách nhiệm, chịu được việc nặng. Lép: sống nhẹ nhàng, ít ràng buộc.',
+   s:[['Trung Hoa','Xét sự trầm ổn.'],['Phương Tây','Mount of Saturn.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="68" cy="72" rx="12" ry="10" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)},
+  {id:'g-thaiduong',n:'Gò Thái dương',f:'Phổ biến',d:'Vùng dưới ngón áp út.',
+   m:'Nở: khiếu thẩm mỹ, dễ được yêu mến. Liên hệ với đường Thái dương.',
+   s:[['Trung Hoa','Xét tài hoa.'],['Phương Tây','Mount of Apollo.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="84" cy="76" rx="12" ry="10" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)},
+  {id:'g-thuy',n:'Gò Thủy tinh',f:'Phổ biến',d:'Vùng dưới ngón út.',
+   m:'Nở: khéo ăn nói, nhanh nhạy trong giao dịch, hợp buôn bán – ngoại giao.',
+   s:[['Trung Hoa','Xét tài khẩu và giao thiệp.'],['Phương Tây','Mount of Mercury.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="98" cy="84" rx="10" ry="9" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)},
+  {id:'g-hoa',n:'Gò Hỏa tinh',f:'Ít gặp',d:'Hai vùng nhỏ ở hai bên giữa lòng bàn tay.',
+   m:'Nở: gan dạ, bền chí trước khó khăn. Người xưa xem là tướng chịu được nghịch cảnh.',
+   s:[['Trung Hoa','Xét dũng khí.'],['Phương Tây','Mounts of Mars.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<ellipse cx="36" cy="104" rx="9" ry="11" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/><ellipse cx="98" cy="106" rx="9" ry="11" fill="rgba(168,20,20,.18)" stroke="#a81414" stroke-width="2"/>`)}]},
+ {g:'Dáng bàn tay',items:[
+  {id:'h-vuong',n:'Tay vuông (hành Thổ)',f:'Rất phổ biến',d:'Lòng bàn tay vuông vức, ngón tay ngắn và chắc.',
+   m:'Thực tế, đáng tin, làm việc có nề nếp. Hợp việc cần kỷ luật và bền bỉ.',
+   s:[['Trung Hoa','Ứng hành Thổ — trầm ổn, giữ gìn.'],['Phương Tây','Earth hand.']],r:'Phân loại ngũ hành trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 130 190" class="lb-svg"><path d="M30 172 L30 92 C30 78 34 72 40 70 L40 46 C40 34 54 34 54 46 L54 68 L62 68 L62 40 C62 28 76 28 76 40 L76 68 L84 68 L84 44 C84 32 98 32 98 44 L98 92 L98 172 Z" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/></svg>`},
+  {id:'h-dai',n:'Tay dài thon (hành Thủy)',f:'Phổ biến',d:'Lòng bàn tay dài, ngón thon dài, da mềm.',
+   m:'Nhạy cảm, giàu trực giác, thiên về nghệ thuật và cảm nhận.',
+   s:[['Trung Hoa','Ứng hành Thủy — mềm mại, linh hoạt.'],['Phương Tây','Water hand.']],r:'Phân loại ngũ hành trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 130 190" class="lb-svg"><path d="M40 176 C34 150 34 110 38 88 C39 78 42 72 46 68 L46 36 C46 24 58 24 58 36 L58 66 L64 66 L64 26 C64 14 76 14 76 26 L76 66 L82 66 L82 30 C82 18 94 18 94 30 L94 88 C96 120 92 152 84 176 Z" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/></svg>`},
+  {id:'h-hinhchop',n:'Tay hình chóp (hành Hỏa)',f:'Phổ biến',d:'Lòng bàn tay rộng, ngón ngắn hơn lòng bàn tay.',
+   m:'Nhiệt tình, hành động nhanh, thích cái mới. Hợp việc cần xông xáo.',
+   s:[['Trung Hoa','Ứng hành Hỏa — bừng lên, mạnh mẽ.'],['Phương Tây','Fire hand.']],r:'Phân loại ngũ hành trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 130 190" class="lb-svg"><path d="M26 172 C22 150 22 116 26 96 C28 84 32 78 38 74 L38 56 C38 46 50 46 50 56 L50 72 L58 72 L58 50 C58 40 70 40 70 50 L70 72 L78 72 L78 54 C78 44 90 44 90 54 L90 96 C98 120 98 150 94 172 Z" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/></svg>`},
+  {id:'h-thanh',n:'Tay thanh mảnh (hành Mộc)',f:'Phổ biến',d:'Bàn tay dài, xương ngón rõ, khớp nổi.',
+   m:'Ham học hỏi, tư duy phân tích, thích tìm hiểu tận gốc.',
+   s:[['Trung Hoa','Ứng hành Mộc — vươn lên, sinh trưởng.'],['Phương Tây','Air hand.']],r:'Phân loại ngũ hành trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 130 190" class="lb-svg"><path d="M38 176 L38 92 C38 80 42 74 46 70 L46 34 C46 22 58 22 58 34 L58 68 L64 68 L64 24 C64 12 76 12 76 24 L76 68 L82 68 L82 28 C82 16 94 16 94 28 L94 92 L94 176 Z" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M50 44 L58 44 M50 54 L58 54 M68 34 L76 34 M68 46 L76 46" stroke="#c9972f" stroke-width="1.6"/></svg>`}]},
+ {g:'Dáng ngón tay',items:[
+  {id:'f-dai',n:'Ngón dài',f:'Phổ biến',d:'Ngón tay dài hơn lòng bàn tay.',m:'Tỉ mỉ, thích chi tiết, kiên nhẫn với việc cần chính xác.',
+   s:[['Trung Hoa','Xét sự tinh tế.'],['Phương Tây','Long fingers — detail oriented.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M50 30 L50 66 M64 22 L64 66 M84 26 L84 66',null,2.6),{faint:false})},
+  {id:'f-ngan',n:'Ngón ngắn',f:'Phổ biến',d:'Ngón tay ngắn hơn lòng bàn tay.',m:'Nhìn tổng thể, quyết nhanh, không sa đà tiểu tiết.',
+   s:[['Trung Hoa','Xét sự quyết đoán.'],['Phương Tây','Short fingers — big picture.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M50 50 L50 66 M64 44 L64 66 M84 48 L84 66',null,2.6),{faint:false})},
+  {id:'f-khopnoi',n:'Khớp ngón nổi',f:'Ít gặp',d:'Các đốt ngón tay nổi rõ.',m:'Suy xét kỹ, ưa lập luận, làm gì cũng có lý lẽ.',
+   s:[['Phương Tây','Knotty fingers — analytical.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(`<circle cx="50" cy="46" r="3" fill="none" stroke="#a81414" stroke-width="2.4"/><circle cx="64" cy="40" r="3" fill="none" stroke="#a81414" stroke-width="2.4"/><circle cx="84" cy="44" r="3" fill="none" stroke="#a81414" stroke-width="2.4"/>`,{faint:false})},
+  {id:'f-nhon',n:'Đầu ngón thon nhọn',f:'Ít gặp',d:'Đầu ngón thu nhỏ dần.',m:'Giàu cảm hứng, thiên về nghệ thuật và cái đẹp.',
+   s:[['Phương Tây','Conic fingertips.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M46 34 L50 26 L54 34 M60 26 L64 18 L68 26 M80 30 L84 22 L88 30',null,2.6),{faint:false})}]},
+ {g:'Dấu hiệu trên đường',items:[
+  {id:'s-dao',n:'Đảo (hình bầu dục)',f:'Phổ biến',d:'Đường tách đôi rồi nhập lại, tạo hình bầu dục nhỏ.',
+   m:'Chỉ một giai đoạn phân tâm hoặc chia sức. Sau khi hai nhánh nhập lại, mọi việc trở lại ổn định.',
+   s:[['Trung Hoa','Xét quãng phân tán tâm lực.'],['Phương Tây','Island — a period of division.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 88 L52 92')+P('M52 92 C60 86 72 86 78 92 C72 98 60 98 52 92')+P('M78 92 L96 96'))},
+  {id:'s-dut',n:'Đứt đoạn',f:'Phổ biến',d:'Đường bị ngắt quãng rồi tiếp tục.',
+   m:'Một bước ngoặt hoặc thay đổi lớn. Nếu hai đầu gối lên nhau thì được xem là chuyển tiếp êm.',
+   s:[['Trung Hoa','Xét khúc chuyển của vận.'],['Phương Tây','Break in the line.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L58 94')+P('M68 96 L96 100'))},
+  {id:'s-sao',n:'Sao (hình tia)',f:'Ít gặp',d:'Nhiều nét nhỏ giao nhau tại một điểm như ngôi sao.',
+   m:'Được xem là dấu của biến cố nổi bật — có thể là cơ hội lớn, tùy vị trí xuất hiện.',
+   s:[['Trung Hoa','Xét sự kiện đột khởi.'],['Phương Tây','Star — a sudden significant event.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L96 98')+P('M64 84 L70 104',null,2.4)+P('M56 100 L78 88',null,2.4)+P('M60 88 L74 102',null,2.4))},
+  {id:'s-chuthap',n:'Chữ thập',f:'Ít gặp',d:'Hai nét nhỏ cắt nhau tạo hình chữ thập.',
+   m:'Dấu của một lần cân nhắc, chọn lựa quan trọng. Cần bình tĩnh xem xét trước khi quyết.',
+   s:[['Trung Hoa','Xét ngã rẽ.'],['Phương Tây','Cross — a decisive point.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L96 98')+P('M62 82 L74 102',null,2.6)+P('M62 102 L74 82',null,2.6))},
+  {id:'s-tamgiac',n:'Tam giác',f:'Ít gặp',d:'Ba nét nhỏ khép thành hình tam giác trên đường.',
+   m:'Thường được xem là dấu tốt: có năng khiếu hoặc kết quả nhờ tính toán khéo.',
+   s:[['Trung Hoa','Xét sự hanh thông.'],['Phương Tây','Triangle — talent, favourable sign.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L96 98')+P('M60 92 L74 92 L67 80 Z',null,2.6))},
+  {id:'s-vuong',n:'Hình vuông',f:'Ít gặp',d:'Bốn nét nhỏ bao quanh một đoạn đường.',
+   m:'Được xem là dấu "bảo hộ" — giai đoạn khó khăn nhưng có chỗ dựa, vượt qua được.',
+   s:[['Trung Hoa','Xét sự che chở.'],['Phương Tây','Square — protection mark.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L96 98')+P('M58 84 L78 86 L77 102 L57 100 Z',null,2.6))},
+  {id:'s-luoi',n:'Lưới (đan chéo)',f:'Phổ biến',d:'Nhiều nét nhỏ đan chéo thành mạng lưới.',
+   m:'Chỉ giai đoạn nhiều việc chồng chéo, dễ phân tâm. Nên sắp thứ tự ưu tiên.',
+   s:[['Trung Hoa','Xét sự rối việc.'],['Phương Tây','Grille — scattered energy.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L96 98')+P('M56 82 L72 104',null,2)+P('M64 82 L80 104',null,2)+P('M54 96 L82 90',null,2)+P('M54 88 L82 82',null,2))},
+  {id:'s-chuoi',n:'Chuỗi mắt xích',f:'Phổ biến',d:'Đường gồm nhiều vòng nhỏ nối tiếp như chuỗi hạt.',
+   m:'Giai đoạn dao động, chưa ổn định. Khi đường trở lại liền mạch là đã qua.',
+   s:[['Trung Hoa','Xét sự chưa yên.'],['Phương Tây','Chained line — unsettled period.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 88 C40 82 48 94 54 88 C60 82 68 94 74 88 C80 82 88 94 96 90',null,3))},
+  {id:'s-nhanhlen',n:'Nhánh hướng lên',f:'Phổ biến',d:'Các nét nhỏ tách khỏi đường chính, hướng lên phía ngón tay.',
+   m:'Được xem là dấu tích cực: nỗ lực có kết quả, việc đi lên.',
+   s:[['Trung Hoa','Xét sự thăng tiến.'],['Phương Tây','Upward branches — favourable.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 92 L96 98')+P('M52 91 L58 80',null,2.4)+P('M68 94 L74 83',null,2.4)+P('M84 96 L90 86',null,2.4))},
+  {id:'s-nhanhxuong',n:'Nhánh hướng xuống',f:'Phổ biến',d:'Các nét nhỏ tách khỏi đường chính, hướng xuống cổ tay.',
+   m:'Chỉ giai đoạn hao tổn sức lực hoặc phân tán. Người xưa khuyên giữ sức, đừng ôm quá nhiều việc.',
+   s:[['Trung Hoa','Xét sự hao khí.'],['Phương Tây','Downward branches.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 88 L96 94')+P('M52 89 L58 100',null,2.4)+P('M68 91 L74 102',null,2.4)+P('M84 93 L90 104',null,2.4))},
+  {id:'s-chia',n:'Chẻ đôi ở cuối (chĩa ba)',f:'Phổ biến',d:'Cuối đường tách thành hai hoặc ba nhánh.',
+   m:'Chỉ sự đa hướng: làm được nhiều việc, hoặc cuối chặng có nhiều lựa chọn.',
+   s:[['Trung Hoa','Xét sự phân lưu.'],['Phương Tây','Fork / trident.']],r:'Truyền thống tướng thuật',
+   sv:()=>drawHand(P('M34 90 L80 96')+P('M80 96 L96 88',null,2.6)+P('M80 96 L96 96',null,2.6)+P('M80 96 L96 104',null,2.6))}]}
+];
+/* ---------- DỮ LIỆU: NHÂN TƯỚNG ---------- */
+const SH={dien:'M50 16 C74 16 84 26 84 44 L84 76 C84 94 74 106 50 106 C26 106 16 94 16 76 L16 44 C16 26 26 16 50 16 Z',
+ do:'M50 16 C64 16 70 24 72 38 L82 78 C86 96 74 106 50 106 C26 106 14 96 18 78 L28 38 C30 24 36 16 50 16 Z',
+ giap:'M50 14 C76 14 86 26 84 44 L74 80 C70 96 62 106 50 106 C38 106 30 96 26 80 L16 44 C14 26 24 14 50 14 Z',
+ vien:'M50 14 C74 14 88 32 88 60 C88 88 74 106 50 106 C26 106 12 88 12 60 C12 32 26 14 50 14 Z',
+ muc:'M50 12 C68 12 76 22 76 40 L76 82 C76 100 66 110 50 110 C34 110 24 100 24 82 L24 40 C24 22 32 12 50 12 Z',
+ than:'M50 16 C62 16 68 24 70 36 L84 62 C86 72 78 80 70 84 L64 96 C60 102 56 106 50 106 C44 106 40 102 36 96 L30 84 C22 80 14 72 16 62 L30 36 C32 24 38 16 50 16 Z',
+ vuong:'M50 16 C68 16 76 26 76 42 L84 60 C86 70 80 76 74 78 L72 88 C70 100 62 106 50 106 C38 106 30 100 28 88 L26 78 C20 76 14 70 16 60 L24 42 C24 26 32 16 50 16 Z',
+ phong:'M50 14 C78 14 90 28 88 46 L78 74 C74 94 64 106 50 106 C36 106 26 94 22 74 L12 46 C10 28 22 14 50 14 Z',
+ dong:'M50 15 C72 15 82 28 82 48 L82 74 C82 94 70 106 50 106 C30 106 18 94 18 74 L18 48 C18 28 28 15 50 15 Z',
+ dung:'M50 15 C68 15 78 25 78 42 L82 78 C84 96 72 106 48 106 C26 106 16 96 18 78 L22 42 C22 25 32 15 50 15 Z'};
+const F=(s)=>drawFace(FBASE,SH[s]);
+const FP=(feat)=>drawFace(FBASE+feat,SH.dong);
+const LIB_FACE=[
+ {g:'Khuôn mặt',items:[
+  {id:'m-dien',n:'田 Chữ Điền',f:'Phổ biến',d:'Mặt vuông, trán và cằm đều rộng, đường nét cân.',
+   m:'Tướng đôn hậu, vững chãi, có căn cơ. Làm việc chắc, được người tin cậy. Nên giữ mềm mỏng để tránh cứng nhắc.',
+   s:[['Trung Hoa','Xếp vào nhóm tướng "hậu trọng" — bền vững, gánh vác được.'],['Việt Nam','Dân gian gọi là tướng "mặt chữ điền", ý chỉ người thật thà, đáng tin.']],
+   r:'Hệ thống thập diện tướng trong tướng thuật Á Đông',sv:()=>F('dien')},
+  {id:'m-do',n:'由 Chữ Do',f:'Phổ biến',d:'Trán hẹp, cằm bạnh rộng.',
+   m:'Khởi đầu vất vả, càng về sau càng vững — quan niệm "hậu vận hưng". Thường tự lập sớm.',
+   s:[['Trung Hoa','Xét tiền vận khó, hậu vận thuận.']],r:'Hệ thống thập diện tướng',sv:()=>F('do')},
+  {id:'m-giap',n:'甲 Chữ Giáp',f:'Phổ biến',d:'Trán rộng, cằm thon nhọn.',
+   m:'Thông minh, học nhanh, thiên về trí óc. Hợp nghề chữ nghĩa, nghiên cứu, giảng dạy.',
+   s:[['Trung Hoa','Xét thượng đình phát — trí tuệ sớm bộc lộ.']],r:'Hệ thống thập diện tướng',sv:()=>F('giap')},
+  {id:'m-vien',n:'圓 Chữ Viên',f:'Rất phổ biến',d:'Mặt tròn đầy, đường nét mềm.',
+   m:'Phúc hậu, hòa nhã, dễ gần. Trong họ thường là người hòa giải, gắn kết anh em.',
+   s:[['Trung Hoa','Xét là tướng "tụ phúc".'],['Việt Nam','Dân gian gọi "mặt phúc hậu".']],r:'Hệ thống thập diện tướng',sv:()=>F('vien')},
+  {id:'m-muc',n:'目 Chữ Mục',f:'Phổ biến',d:'Mặt dài, hẹp bề ngang.',
+   m:'Điềm đạm, kiên nhẫn, làm việc có nề nếp. Hợp việc cần tỉ mỉ, giữ gìn — như trông coi gia phả, việc họ.',
+   s:[['Trung Hoa','Xét là tướng trường thọ, sống ngăn nắp.']],r:'Hệ thống thập diện tướng',sv:()=>F('muc')},
+  {id:'m-than',n:'申 Chữ Thân',f:'Ít gặp',d:'Trán và cằm hẹp, gò má rộng.',
+   m:'Nhanh nhạy, giỏi xoay xở, thích nghi tốt. Nên chọn một hướng chính để công sức không dàn trải.',
+   s:[['Trung Hoa','Xét trung đình vượng.']],r:'Hệ thống thập diện tướng',sv:()=>F('than')},
+  {id:'m-vuong',n:'王 Chữ Vương',f:'Ít gặp',d:'Gò má cao, trán và cằm cân đối.',
+   m:'Có khí chất, nói có người nghe. Hợp vai trò đứng mũi chịu sào. Có uy càng phải rộng lượng.',
+   s:[['Trung Hoa','Xét là tướng có uy quyền.']],r:'Hệ thống thập diện tướng',sv:()=>F('vuong')},
+  {id:'m-phong',n:'風 Chữ Phong',f:'Ít gặp',d:'Trán rộng, hai bên thái dương nở.',
+   m:'Nhiều ý tưởng, phóng khoáng, ưa cái mới. Nên có người thực tế bên cạnh để việc đi tới cùng.',
+   s:[['Trung Hoa','Xét tư duy khoáng đạt.']],r:'Hệ thống thập diện tướng',sv:()=>F('phong')},
+  {id:'m-dung',n:'用 Chữ Dụng',f:'Hiếm',d:'Mặt hơi lệch, một bên cằm rộng hơn.',
+   m:'Bươn chải, chịu khó, tự tay gây dựng. Thành quả đến từ bền bỉ.',
+   s:[['Trung Hoa','Xét là tướng lao tâm nhưng có thành.']],r:'Hệ thống thập diện tướng',sv:()=>F('dung')},
+  {id:'m-dong',n:'同 Chữ Đồng',f:'Phổ biến',d:'Mặt cân đối, đường nét hài hòa.',
+   m:'Chừng mực, biết tiến biết lui. Đời sống ổn định, gia đạo êm ấm.',
+   s:[['Trung Hoa','Xét là tướng trung dung.']],r:'Hệ thống thập diện tướng',sv:()=>F('dong')}]},
+ {g:'Trán',items:[
+  {id:'t-rong',n:'Trán rộng cao',f:'Phổ biến',d:'Vùng trán cao, thoáng, ít nếp.',m:'Sáng dạ, tiếp thu nhanh, thiếu niên thuận lợi. Người xưa gọi là "thượng đình đẹp".',
+   s:[['Trung Hoa','Thượng đình chủ về tiền vận (0–30 tuổi).']],r:'Thuyết tam đình trong tướng thuật',
+   sv:()=>FP(`<path d="M22 34 Q50 22 78 34" stroke="#a81414" stroke-width="3" fill="none"/><path d="M20 40 Q50 28 80 40" stroke="#a81414" stroke-width="1.6" fill="none" opacity=".5"/>`)},
+  {id:'t-hep',n:'Trán hẹp thấp',f:'Phổ biến',d:'Trán thấp, chân tóc gần chân mày.',m:'Thực tế, học qua trải nghiệm hơn sách vở. Thường tự lập sớm.',
+   s:[['Trung Hoa','Thượng đình hẹp — tiền vận vất vả, hậu vận bù lại.']],r:'Thuyết tam đình',
+   sv:()=>FP(`<path d="M26 38 Q50 32 74 38" stroke="#a81414" stroke-width="3" fill="none"/>`)},
+  {id:'t-lo',n:'Trán dô (nở phía trước)',f:'Ít gặp',d:'Trán nhô ra phía trước khi nhìn nghiêng.',m:'Giàu suy tư, hay nghĩ ngợi, có chính kiến riêng.',
+   s:[['Trung Hoa','Xét là tướng đa tư.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M22 36 Q50 18 78 36" stroke="#a81414" stroke-width="3" fill="none"/>`)},
+  {id:'t-vetnhan',n:'Trán có nếp ngang rõ',f:'Phổ biến',d:'Một hoặc vài nếp ngang trên trán.',m:'Từng trải, suy nghĩ nhiều. Người xưa xem một nếp liền và rõ là dấu người có trách nhiệm.',
+   s:[['Trung Hoa','Xét là dấu của người gánh vác.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M28 32 L72 32 M26 38 L74 38" stroke="#a81414" stroke-width="2.4" fill="none"/>`)}]},
+ {g:'Lông mày',items:[
+  {id:'lm-ram',n:'Mày rậm đậm',f:'Phổ biến',d:'Lông mày dày, màu đậm, rõ nét.',m:'Ý chí mạnh, làm việc quyết liệt, giàu năng lượng. Nên tiết chế nóng vội.',
+   s:[['Trung Hoa','Xét là tướng cương nghị.'],['Việt Nam','Dân gian: "mày rậm thì tính nóng mà thẳng".']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M26 42 Q36 36 46 42" stroke="#a81414" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M54 42 Q64 36 74 42" stroke="#a81414" stroke-width="5" fill="none" stroke-linecap="round"/>`)},
+  {id:'lm-thanh',n:'Mày thanh mảnh',f:'Phổ biến',d:'Lông mày mảnh, đều, nhạt hơn.',m:'Tinh tế, nhã nhặn, khéo cư xử. Hợp việc cần mềm mỏng.',
+   s:[['Trung Hoa','Xét là tướng ôn nhu.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M27 42 Q36 38 45 42" stroke="#a81414" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M55 42 Q64 38 73 42" stroke="#a81414" stroke-width="2" fill="none" stroke-linecap="round"/>`)},
+  {id:'lm-dai',n:'Mày dài quá đuôi mắt',f:'Phổ biến',d:'Đuôi mày vượt quá đuôi mắt.',m:'Trọng tình nghĩa, anh em bạn bè nhiều, được nhiều người quý.',
+   s:[['Trung Hoa','Mày là "huynh đệ cung" — dài chủ tình thân dày.']],r:'Thuyết thập nhị cung',
+   sv:()=>FP(`<path d="M22 42 Q34 36 48 43" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M52 43 Q66 36 78 42" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/>`)},
+  {id:'lm-ngan',n:'Mày ngắn',f:'Phổ biến',d:'Mày ngắn hơn chiều dài mắt.',m:'Độc lập, tự lo được, ít dựa dẫm. Nên chủ động giữ liên lạc với người thân.',
+   s:[['Trung Hoa','Xét là tướng tự lập.']],r:'Thuyết thập nhị cung',
+   sv:()=>FP(`<path d="M31 42 Q36 39 42 42" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M58 42 Q64 39 69 42" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/>`)},
+  {id:'lm-giao',n:'Mày giao nhau (giao mi)',f:'Ít gặp',d:'Hai đầu mày gần chạm nhau ở ấn đường.',m:'Tập trung cao, làm gì cũng dốc sức. Người xưa khuyên thư giãn, đừng để tâm quá nặng.',
+   s:[['Trung Hoa','Ấn đường bị án — nên giữ tâm thoáng.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M27 42 Q38 37 48 41 L52 41 Q62 37 73 42" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/>`)}]},
+ {g:'Mắt',items:[
+  {id:'mt-to',n:'Mắt to sáng',f:'Phổ biến',d:'Mắt lớn, con ngươi sáng, ánh nhìn linh hoạt.',m:'Cởi mở, nhiệt thành, dễ gần. Người xưa trọng "mắt có thần" hơn mắt to hay nhỏ.',
+   s:[['Trung Hoa','Mắt là cửa sổ của thần — xét thần khí.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<ellipse cx="36" cy="54" rx="9" ry="5.4" fill="none" stroke="#a81414" stroke-width="3"/><circle cx="36" cy="54" r="2.6" fill="#a81414"/><ellipse cx="64" cy="54" rx="9" ry="5.4" fill="none" stroke="#a81414" stroke-width="3"/><circle cx="64" cy="54" r="2.6" fill="#a81414"/>`)},
+  {id:'mt-nho',n:'Mắt nhỏ sâu',f:'Phổ biến',d:'Mắt nhỏ, hốc mắt sâu.',m:'Kín đáo, quan sát kỹ, làm việc chắc chắn, ít bộc lộ.',
+   s:[['Trung Hoa','Xét là tướng thâm trầm.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<ellipse cx="36" cy="54" rx="5.4" ry="3" fill="none" stroke="#a81414" stroke-width="3"/><ellipse cx="64" cy="54" rx="5.4" ry="3" fill="none" stroke="#a81414" stroke-width="3"/>`)},
+  {id:'mt-phuong',n:'Mắt phượng (đuôi hơi xếch)',f:'Ít gặp',d:'Mắt dài, đuôi mắt hơi hếch lên.',m:'Nhìn xa, có tính toán, hợp việc đối ngoại. Dân gian xem là tướng quý.',
+   s:[['Trung Hoa','"Phượng nhãn" — xếp vào nhóm tướng quý.'],['Việt Nam','Dân gian gọi "mắt phượng mày ngài".']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M27 56 Q36 48 46 51" stroke="#a81414" stroke-width="3" fill="none"/><path d="M27 56 Q36 58 46 51" stroke="#a81414" stroke-width="3" fill="none"/><path d="M54 51 Q64 48 73 56" stroke="#a81414" stroke-width="3" fill="none"/><path d="M54 51 Q64 58 73 56" stroke="#a81414" stroke-width="3" fill="none"/>`)},
+  {id:'mt-hien',n:'Mắt hiền (cụp nhẹ)',f:'Phổ biến',d:'Đuôi mắt hơi cụp xuống, ánh nhìn dịu.',m:'Ôn hòa, nhẫn nại, được lòng người. Thường là người dễ chia sẻ.',
+   s:[['Trung Hoa','Xét là tướng nhân từ.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M27 52 Q36 58 46 56" stroke="#a81414" stroke-width="3" fill="none"/><path d="M54 56 Q64 58 73 52" stroke="#a81414" stroke-width="3" fill="none"/>`)}]},
+ {g:'Mũi',items:[
+  {id:'mu-cao',n:'Mũi cao sống thẳng',f:'Phổ biến',d:'Sống mũi cao, thẳng, đầu mũi gọn.',m:'Có chủ kiến, giữ nguyên tắc, tự trọng cao.',
+   s:[['Trung Hoa','Mũi là "tài bạch cung" — sống thẳng chủ về giữ được của.']],r:'Thuyết thập nhị cung',
+   sv:()=>FP(`<path d="M50 44 L50 72 Q56 75 50 78" stroke="#a81414" stroke-width="3.2" fill="none"/>`)},
+  {id:'mu-tron',n:'Đầu mũi tròn đầy',f:'Rất phổ biến',d:'Đầu mũi tròn, có thịt.',m:'Phúc hậu, biết tích lũy, gia đạo êm. Dân gian xem là tướng có hậu.',
+   s:[['Trung Hoa','"Chuẩn đầu" đầy đặn — chủ tụ tài.'],['Việt Nam','Dân gian: "mũi có thịt thì đời có của".']],r:'Thuyết thập nhị cung',
+   sv:()=>FP(`<path d="M50 46 L50 68" stroke="#a81414" stroke-width="3" fill="none"/><ellipse cx="50" cy="74" rx="7" ry="5.4" fill="none" stroke="#a81414" stroke-width="3"/>`)},
+  {id:'mu-canhno',n:'Cánh mũi nở',f:'Phổ biến',d:'Hai bên cánh mũi rộng, nở rõ.',m:'Rộng rãi, phóng khoáng với người thân. Người xưa xem là tướng biết chi tiêu cho việc nghĩa.',
+   s:[['Trung Hoa','"Lan đài đình úy" nở — chủ về khả năng thu vén.']],r:'Thuyết thập nhị cung',
+   sv:()=>FP(`<path d="M50 46 L50 70" stroke="#a81414" stroke-width="3" fill="none"/><path d="M42 74 Q50 80 58 74" stroke="#a81414" stroke-width="3.2" fill="none"/><path d="M41 71 Q42 76 45 77 M59 71 Q58 76 55 77" stroke="#a81414" stroke-width="2.6" fill="none"/>`)},
+  {id:'mu-nho',n:'Mũi nhỏ thanh',f:'Phổ biến',d:'Mũi nhỏ, sống thanh.',m:'Cẩn thận, chi tiêu có kế hoạch, không phô trương.',
+   s:[['Trung Hoa','Xét là tướng cẩn tài.']],r:'Thuyết thập nhị cung',
+   sv:()=>FP(`<path d="M50 50 L50 70 Q54 72 50 74" stroke="#a81414" stroke-width="2.4" fill="none"/>`)}]},
+ {g:'Miệng',items:[
+  {id:'mi-rong',n:'Miệng rộng môi đầy',f:'Phổ biến',d:'Khẩu hình rộng, môi dày vừa phải.',m:'Ăn nói có duyên, quảng giao, hợp việc đối ngoại của dòng họ.',
+   s:[['Trung Hoa','Miệng là "xuất nạp quan" — rộng chủ về giao tiếp và phúc lộc.']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M34 88 Q50 96 66 88" stroke="#a81414" stroke-width="3.6" fill="none"/><path d="M34 88 Q50 84 66 88" stroke="#a81414" stroke-width="2.6" fill="none"/>`)},
+  {id:'mi-nho',n:'Miệng nhỏ môi mỏng',f:'Phổ biến',d:'Khẩu hình nhỏ, môi mỏng.',m:'Kiệm lời, nói câu nào chắc câu ấy, giữ được bí mật.',
+   s:[['Trung Hoa','Xét là tướng cẩn ngôn.']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M42 88 Q50 92 58 88" stroke="#a81414" stroke-width="2.6" fill="none"/>`)},
+  {id:'mi-congluon',n:'Khóe miệng cong lên',f:'Phổ biến',d:'Hai khóe môi hơi hướng lên khi nghỉ.',m:'Lạc quan, dễ tạo thiện cảm, sống tích cực.',
+   s:[['Trung Hoa','Xét là tướng hỉ sắc.']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M36 90 Q50 96 64 90" stroke="#a81414" stroke-width="3.2" fill="none"/><path d="M36 90 L33 86 M64 90 L67 86" stroke="#a81414" stroke-width="2.6"/>`)},
+  {id:'mi-cong',n:'Khóe miệng trễ xuống',f:'Ít gặp',d:'Khóe môi hơi cụp khi nghỉ.',m:'Nghiêm nghị, khó tính bề ngoài nhưng thường sống có nguyên tắc và trách nhiệm.',
+   s:[['Trung Hoa','Xét là tướng nghiêm cẩn.']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M36 86 Q50 92 64 86" stroke="#a81414" stroke-width="3.2" fill="none"/><path d="M36 86 L33 90 M64 86 L67 90" stroke="#a81414" stroke-width="2.6"/>`)}]},
+ {g:'Tai',items:[
+  {id:'ta-to',n:'Tai to dày',f:'Phổ biến',d:'Vành tai lớn, dày, thùy tai đầy.',m:'Người xưa cho là tướng phúc hậu, sống điềm đạm, được hưởng phúc gia đình.',
+   s:[['Trung Hoa','Tai là "thái thính quan" — to dày chủ phúc thọ.'],['Việt Nam','Dân gian: "tai to dày thì có phúc".']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M16 48 Q6 58 12 74 Q14 82 20 80" stroke="#a81414" stroke-width="4" fill="none"/><path d="M84 48 Q94 58 88 74 Q86 82 80 80" stroke="#a81414" stroke-width="4" fill="none"/>`)},
+  {id:'ta-sat',n:'Tai sát đầu',f:'Phổ biến',d:'Tai áp sát hai bên đầu.',m:'Thực tế, tập trung, ít bị phân tâm bởi lời bàn quanh mình.',
+   s:[['Trung Hoa','Xét là tướng chuyên nhất.']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M17 50 Q12 60 16 74" stroke="#a81414" stroke-width="3.4" fill="none"/><path d="M83 50 Q88 60 84 74" stroke="#a81414" stroke-width="3.4" fill="none"/>`)},
+  {id:'ta-vanhro',n:'Vành tai rõ nét',f:'Phổ biến',d:'Đường vành và gờ trong tai nổi rõ.',m:'Tiếp thu nhanh, ham học hỏi, nghe được nhiều phía.',
+   s:[['Trung Hoa','Xét là tướng thông tuệ.']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M16 48 Q6 60 13 78" stroke="#a81414" stroke-width="3.4" fill="none"/><path d="M16 54 Q11 62 15 72" stroke="#a81414" stroke-width="2.2" fill="none"/><path d="M84 48 Q94 60 87 78" stroke="#a81414" stroke-width="3.4" fill="none"/><path d="M84 54 Q89 62 85 72" stroke="#a81414" stroke-width="2.2" fill="none"/>`)},
+  {id:'ta-thuydai',n:'Thùy tai dài (dái tai to)',f:'Ít gặp',d:'Phần dái tai dài và đầy.',m:'Dân gian xem là tướng thọ và có hậu vận tốt, tính tình khoan hòa.',
+   s:[['Trung Hoa','"Thùy châu" đầy — chủ phúc thọ.'],['Việt Nam','Dân gian gọi là "tai Phật".']],r:'Thuyết ngũ quan',
+   sv:()=>FP(`<path d="M16 48 Q6 60 12 74" stroke="#a81414" stroke-width="3.4" fill="none"/><ellipse cx="15" cy="80" rx="5" ry="6" fill="none" stroke="#a81414" stroke-width="3.4"/><path d="M84 48 Q94 60 88 74" stroke="#a81414" stroke-width="3.4" fill="none"/><ellipse cx="85" cy="80" rx="5" ry="6" fill="none" stroke="#a81414" stroke-width="3.4"/>`)}]},
+ {g:'Cằm',items:[
+  {id:'ca-day',n:'Cằm đầy rộng',f:'Phổ biến',d:'Cằm nở, có thịt, đường viền tròn.',m:'Hậu vận vững, có chỗ dựa tuổi già, sống chan hòa với con cháu.',
+   s:[['Trung Hoa','Hạ đình chủ hậu vận (51 tuổi trở đi) — đầy đặn chủ an nhàn.']],r:'Thuyết tam đình',
+   sv:()=>FP(`<path d="M32 92 Q50 110 68 92" stroke="#a81414" stroke-width="3.4" fill="none"/>`)},
+  {id:'ca-nhon',n:'Cằm thon nhọn',f:'Phổ biến',d:'Cằm thu nhỏ dần, đường nét thanh.',m:'Nhạy cảm, tinh tế, thiên về tinh thần hơn vật chất.',
+   s:[['Trung Hoa','Hạ đình thanh — nên chú ý dưỡng sức tuổi già.']],r:'Thuyết tam đình',
+   sv:()=>FP(`<path d="M38 92 Q50 108 62 92" stroke="#a81414" stroke-width="3.4" fill="none"/>`)},
+  {id:'ca-che',n:'Cằm chẻ',f:'Ít gặp',d:'Có rãnh nhỏ giữa cằm.',m:'Cá tính rõ, có sức hút riêng, làm việc quyết đoán.',
+   s:[['Phương Tây','Cleft chin — thường gắn với cá tính mạnh.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M34 92 Q50 108 66 92" stroke="#a81414" stroke-width="3" fill="none"/><path d="M50 98 L50 104" stroke="#a81414" stroke-width="3"/>`)},
+  {id:'ca-banh',n:'Cằm bạnh (hàm vuông)',f:'Phổ biến',d:'Xương hàm rộng, cằm vuông.',m:'Ý chí bền, chịu được áp lực, giữ lời hứa.',
+   s:[['Trung Hoa','Xét là tướng kiên định.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M28 88 L32 100 Q50 108 68 100 L72 88" stroke="#a81414" stroke-width="3.4" fill="none"/>`)}]},
+ {g:'Gò má',items:[
+  {id:'gm-cao',n:'Gò má cao',f:'Phổ biến',d:'Xương gò má nổi rõ.',m:'Có chủ kiến, dám nhận việc khó, nói có trọng lượng.',
+   s:[['Trung Hoa','Quyền cốt cao — chủ về quyền hành và trách nhiệm.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<ellipse cx="26" cy="66" rx="9" ry="6" fill="none" stroke="#a81414" stroke-width="3"/><ellipse cx="74" cy="66" rx="9" ry="6" fill="none" stroke="#a81414" stroke-width="3"/>`)},
+  {id:'gm-day',n:'Gò má đầy thịt',f:'Phổ biến',d:'Má đầy, không lộ xương.',m:'Hòa nhã, dễ chan hòa, được người thân quý mến.',
+   s:[['Trung Hoa','Xét là tướng hòa khí.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<ellipse cx="27" cy="68" rx="11" ry="9" fill="rgba(168,20,20,.14)" stroke="#a81414" stroke-width="2.4"/><ellipse cx="73" cy="68" rx="11" ry="9" fill="rgba(168,20,20,.14)" stroke="#a81414" stroke-width="2.4"/>`)},
+  {id:'gm-lom',n:'Má hóp',f:'Ít gặp',d:'Vùng má lõm vào.',m:'Sống thiên về nội tâm, cần chú ý giữ sức khỏe và nghỉ ngơi đủ.',
+   s:[['Trung Hoa','Khuyên dưỡng khí, giữ sức.']],r:'Truyền thống tướng thuật',
+   sv:()=>FP(`<path d="M24 62 Q30 70 26 78" stroke="#a81414" stroke-width="3" fill="none"/><path d="M76 62 Q70 70 74 78" stroke="#a81414" stroke-width="3" fill="none"/>`)}]},
+ {g:'Nốt ruồi',items:[
+  {id:'nr-andduong',n:'Nốt ruồi ấn đường (giữa hai mày)',f:'Ít gặp',d:'Nằm chính giữa hai đầu lông mày.',m:'Dân gian xem là dấu người có chí, đường đời có bước ngoặt đáng nhớ.',
+   s:[['Trung Hoa','Ấn đường là nơi tụ khí — có nốt chủ về sự nổi bật.']],r:'Quan niệm dân gian về nốt ruồi',
+   sv:()=>FP(DOT(50,44))},
+  {id:'nr-khoemat',n:'Nốt ruồi đuôi mắt',f:'Phổ biến',d:'Nằm ở đuôi mắt, vùng "gian môn".',m:'Đa cảm, đời sống tình cảm phong phú. Người xưa khuyên giữ chừng mực.',
+   s:[['Trung Hoa','Gian môn thuộc "thê thiếp cung".']],r:'Quan niệm dân gian về nốt ruồi',
+   sv:()=>FP(DOT(76,54))},
+  {id:'nr-canhmui',n:'Nốt ruồi cánh mũi',f:'Phổ biến',d:'Nằm trên cánh mũi.',m:'Dân gian cho rằng nên cẩn thận trong chi tiêu, giữ của cho bền.',
+   s:[['Trung Hoa','Lan đài có nốt — chủ về tài lộc ra vào.']],r:'Quan niệm dân gian về nốt ruồi',
+   sv:()=>FP(DOT(42,74))},
+  {id:'nr-cam',n:'Nốt ruồi ở cằm',f:'Phổ biến',d:'Nằm ở vùng cằm.',m:'Xem là dấu người có hậu vận ổn, gắn bó với nhà cửa, ruộng vườn.',
+   s:[['Trung Hoa','Địa các có nốt — chủ về điền trạch.']],r:'Quan niệm dân gian về nốt ruồi',
+   sv:()=>FP(DOT(50,98))},
+  {id:'nr-gома',n:'Nốt ruồi gò má',f:'Phổ biến',d:'Nằm trên gò má.',m:'Dấu người có tiếng nói trong nhóm; cần khéo léo để tránh va chạm.',
+   s:[['Trung Hoa','Quyền cốt có nốt — chủ về quyền và thị phi.']],r:'Quan niệm dân gian về nốt ruồi',
+   sv:()=>FP(DOT(28,66))}]},
+ {g:'Dáng đi & tư thế',items:[
+  {id:'dd-vung',n:'Dáng đi vững chậm',f:'Phổ biến',d:'Bước chân đều, chắc, không vội.',m:'Người xưa xem là tướng "hành như thủy" — trầm ổn, đáng tin, làm việc có tính toán.',
+   s:[['Trung Hoa','Xét khí độ qua bước đi.']],r:'Quan sát khí độ trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="50" cy="22" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M50 32 L50 70" stroke="#a81414" stroke-width="4"/><path d="M50 44 L34 58 M50 44 L66 58" stroke="#a81414" stroke-width="3.4" stroke-linecap="round"/><path d="M50 70 L40 102 M50 70 L60 102" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/><path d="M34 106 L46 106 M54 106 L68 106" stroke="#c9972f" stroke-width="2.6"/></svg>`},
+  {id:'dd-nhanh',n:'Dáng đi nhanh nhẹ',f:'Phổ biến',d:'Bước nhanh, người hơi chồm về trước.',m:'Xông xáo, làm nhiều việc, quý thời gian. Nên chú ý nghỉ ngơi.',
+   s:[['Trung Hoa','Xét là tướng cần mẫn.']],r:'Quan sát khí độ trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="56" cy="22" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M56 32 L48 70" stroke="#a81414" stroke-width="4"/><path d="M53 44 L34 52 M53 44 L72 50" stroke="#a81414" stroke-width="3.4" stroke-linecap="round"/><path d="M48 70 L32 98 M48 70 L64 96" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/></svg>`},
+  {id:'tt-thang',n:'Tư thế lưng thẳng',f:'Phổ biến',d:'Đứng ngồi lưng thẳng, vai mở.',m:'Tự tin, có kỷ luật bản thân. Người xưa xem là biểu hiện của khí độ.',
+   s:[['Trung Hoa','"Tọa như chung" — ngồi vững như chuông.']],r:'Quan sát khí độ trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="50" cy="22" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M50 32 L50 76" stroke="#a81414" stroke-width="4"/><path d="M32 42 L68 42" stroke="#a81414" stroke-width="3.4" stroke-linecap="round"/><path d="M50 76 L38 102 M50 76 L62 102" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/></svg>`},
+  {id:'tt-khom',n:'Tư thế hơi khom',f:'Phổ biến',d:'Vai hơi đổ về trước.',m:'Thường do làm việc nhiều, hay suy nghĩ. Nên chú ý tư thế để giữ sức khỏe lâu dài.',
+   s:[['Trung Hoa','Khuyên dưỡng thân, chỉnh tư thế.']],r:'Quan sát khí độ trong tướng thuật',
+   sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="54" cy="24" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M54 34 Q46 54 48 76" stroke="#a81414" stroke-width="4" fill="none"/><path d="M36 46 Q54 40 68 48" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M48 76 L38 102 M48 76 L60 102" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/></svg>`}]}
+];
+/* ---------- GIAO DIỆN THƯ VIỆN ---------- */
+let lbQ={palm:'',face:''}, lbG={palm:'',face:''}, lbCmp={palm:[],face:[]}, lbCmpOn={palm:false,face:false};
+function lbData(k){return k==='palm'?LIB_PALM:LIB_FACE;}
+function lbFav(){DB.settings.hvFav=DB.settings.hvFav||[];return DB.settings.hvFav;}
+function lbToggleFav(id){const f=lbFav();const i=f.indexOf(id);i<0?f.push(id):f.splice(i,1);save();hvRefresh();}
+function lbSet(k,what,v){if(what==='q')lbQ[k]=v;else lbG[k]=v;
+ const b=document.getElementById('lb-'+k);if(b){b.innerHTML=lbGrid(k);applyPerms();}}
+function lbCmpToggle(k,id){const a=lbCmp[k];const i=a.indexOf(id);
+ if(i<0){if(a.length>=4){toast('So sánh tối đa 4 mẫu');return;}a.push(id);}else a.splice(i,1);hvRefresh();}
+function lbCmpMode(k){lbCmpOn[k]=!lbCmpOn[k];if(!lbCmpOn[k])lbCmp[k]=[];hvRefresh();}
+function lbClearCmp(k){lbCmp[k]=[];hvRefresh();}
+window.lbSet=lbSet;window.lbToggleFav=lbToggleFav;window.lbCmpToggle=lbCmpToggle;window.lbCmpMode=lbCmpMode;window.lbClearCmp=lbClearCmp;
+function lbAll(k){const out=[];lbData(k).forEach(g=>g.items.forEach(it=>out.push(Object.assign({_g:g.g},it))));return out;}
+function lbFind(id){return lbAll('palm').concat(lbAll('face')).find(x=>x.id===id);}
+function lbMatch(it,q){if(!q)return true;const n=stripVN(q).toLowerCase().trim();
+ const hay=stripVN([it.n,it._g,it.d,it.m,it.f,(it.s||[]).map(x=>x.join(' ')).join(' ')].join(' ')).toLowerCase();
+ return n.split(/\s+/).every(p=>hay.indexOf(p)>=0);}
+const FREQ_C={'Rất phổ biến':'badge-ok','Phổ biến':'badge-gold','Ít gặp':'badge-warn','Hiếm':'badge-warn'};
+function lbGrid(k){const q=lbQ[k],g=lbG[k];const fav=lbFav();
+ let items=lbAll(k).filter(it=>lbMatch(it,q));
+ if(g==='__fav')items=items.filter(it=>fav.indexOf(it.id)>=0);
+ else if(g)items=items.filter(it=>it._g===g);
+ if(!items.length)return `<div class="empty">${q?'Không tìm thấy “'+esc(q)+'”.':'Chưa có mục nào.'}</div>`;
+ return `<div class="muted" style="font-size:12.5px;margin:8px 0">${items.length} mẫu minh họa</div>
+ <div class="lb-grid">${items.map(it=>{const isF=fav.indexOf(it.id)>=0;const inC=lbCmp[k].indexOf(it.id)>=0;
+   return `<div class="lb-c ${inC?'cmp':''}">
+    <button class="lb-star ${isF?'on':''}" onclick="lbToggleFav('${it.id}')" title="${isF?'Bỏ yêu thích':'Đánh dấu yêu thích'}" aria-label="Yêu thích">${isF?'★':'☆'}</button>
+    <button class="lb-main" onclick="${lbCmpOn[k]?`lbCmpToggle('${k}','${it.id}')`:`lbZoom('${it.id}')`}">
+      ${it.sv()}
+      <span class="lb-n">${esc(it.n)}</span>
+      <span class="lb-f"><span class="badge ${FREQ_C[it.f]||'badge-gold'}">${esc(it.f)}</span></span>
+    </button>
+    ${lbCmpOn[k]?`<span class="lb-chk">${inC?'✓':''}</span>`:''}
+   </div>`;}).join('')}</div>`;}
+function lbCmpBar(k){if(!lbCmpOn[k])return '';
+ const sel=lbCmp[k].map(lbFind).filter(Boolean);
+ return `<div class="card pad" style="margin:10px 0;border-color:var(--gold)">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+   <b style="color:var(--primary)">⚖ So sánh (${sel.length}/4)</b>
+   <span class="muted" style="font-size:12.5px">Bấm vào các mẫu bên dưới để thêm</span>
+   <span style="margin-left:auto"></span>
+   ${sel.length?`<button class="btn btn-o btn-sm" onclick="lbClearCmp('${k}')">Bỏ chọn hết</button>`:''}
+   <button class="btn btn-o btn-sm" onclick="lbCmpMode('${k}')">✕ Thoát so sánh</button></div>
+  ${sel.length?`<div class="lb-cmp">${sel.map(it=>`<div class="lb-cmpc">
+    ${it.sv()}<b>${esc(it.n)}</b>
+    <span class="badge ${FREQ_C[it.f]||'badge-gold'}">${esc(it.f)}</span>
+    <p><b>Đặc điểm:</b> ${esc(it.d)}</p>
+    <p><b>Ý nghĩa:</b> ${it.m}</p>
+   </div>`).join('')}</div>`:''}</div>`;}
+function lbZoom(id){const it=lbFind(id);if(!it)return;const isF=lbFav().indexOf(id)>=0;
+ document.getElementById('modalBox').innerHTML=`<div class="pop-h"><span class="pi">🔍</span>
+   <div><b>${esc(it.n)}</b><span>${esc(it._g)} · ${esc(it.f)}</span></div>
+   <button class="pop-x" onclick="closeModal()" aria-label="Đóng">✕</button></div>
+  <div class="lb-zoom">${it.sv()}</div>
+  <div class="lb-info">
+   <div class="hv-sec"><b class="h">Đặc điểm nhận biết</b><div style="margin-top:4px">${esc(it.d)}</div></div>
+   <div class="hv-sec"><b class="h">Ý nghĩa tham khảo</b><div style="margin-top:4px">${it.m}</div></div>
+   ${(it.s||[]).length?`<div class="hv-sec"><b class="h">Theo các trường phái</b>
+     ${it.s.map(x=>`<div style="margin-top:5px"><b>${esc(x[0])}:</b> ${esc(x[1])}</div>`).join('')}</div>`:''}
+   <div class="hv-sec"><b class="h">Nguồn tham khảo</b><div style="margin-top:4px">${esc(it.r)}</div>
+     <div class="muted" style="font-size:11.5px;margin-top:4px">Hình minh họa do ứng dụng tự thiết kế, không sao chép từ sách.</div></div>
+   ${HV_DISCLAIMER}
+   <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+     <button class="btn btn-o" onclick="lbToggleFav('${id}');closeModal()">${isF?'★ Bỏ yêu thích':'☆ Đánh dấu yêu thích'}</button>
+     <button class="btn btn-p" style="margin-left:auto" onclick="closeModal()">Đóng</button></div>
+  </div>`;
+ document.getElementById('modal').classList.add('open');}
+window.lbZoom=lbZoom;
+function lbBrowser(k,title,intro){const groups=lbData(k).map(g=>g.g);const fav=lbFav();
+ const nFav=lbAll(k).filter(it=>fav.indexOf(it.id)>=0).length;
+ return hvSec(title,intro)
+ +`<div class="card pad" style="margin-top:10px">
+   <div class="toolbar" style="margin:0">
+     <div class="srch" style="flex:1 1 190px"><span class="si">🔍</span>
+       <input type="search" value="${esc(lbQ[k])}" placeholder="Tìm theo tên, đặc điểm…" oninput="lbSet('${k}','q',this.value)" aria-label="Tìm trong thư viện"/></div>
+     <button class="btn ${lbCmpOn[k]?'btn-p':'btn-o'} btn-sm" onclick="lbCmpMode('${k}')">⚖ So sánh</button>
+   </div>
+   <div class="tabs" style="margin:8px 0 0">
+     <span class="chip ${lbG[k]===''?'on':''}" onclick="lbSet('${k}','g','')">Tất cả</span>
+     ${groups.map(g=>`<span class="chip ${lbG[k]===g?'on':''}" onclick="lbSet('${k}','g','${g}')">${esc(g)}</span>`).join('')}
+     <span class="chip ${lbG[k]==='__fav'?'on':''}" onclick="lbSet('${k}','g','__fav')">★ Yêu thích${nFav?' ('+nFav+')':''}</span>
+   </div>
+   ${lbCmpBar(k)}
+   <div id="lb-${k}">${lbGrid(k)}</div>
+  </div>`+HV_DISCLAIMER;}
+/* ---------- Hai mục trong Huyền học ---------- */
+function hvTay(){return lbBrowser('palm','✋ Thư viện chỉ tay',
+ 'Sáu đường chính, các gò bàn tay, dáng tay – dáng ngón và các dấu hiệu thường gặp. Bấm một mẫu để xem hình lớn cùng diễn giải theo từng trường phái.');}
+function hvTuong(){return lbBrowser('face','🧑 Thư viện nhân tướng',
+ 'Khuôn mặt, trán, mày, mắt, mũi, miệng, tai, cằm, gò má, nốt ruồi, dáng đi và tư thế. Bấm một mẫu để xem hình lớn cùng diễn giải.');}
 function hvPhong(){const b=hvBirth();const p=hvP();if(!b)return hvNeedDate();
  const cc=canChi(b.y);const hanh=cc.menh.split(' ').pop();const q=cungPhi(b.y,p.gender);const mau=MAU_HANH[hanh]||['',''];
  return hvSec('🌊 Ngũ hành bản mệnh',`Mệnh <b>${cc.menh}</b> — hành <b>${hanh}</b>. ${HANH_GOIY[hanh]}.`)
