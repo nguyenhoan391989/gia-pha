@@ -435,6 +435,57 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-sp{width:76px}
 .cam-lock{position:absolute;left:0;right:0;bottom:112px;text-align:center;color:rgba(255,255,255,.82);font-size:11.5px;
  text-shadow:0 1px 5px rgba(0,0,0,.9);padding:0 20px;pointer-events:none}
+/* ===== THÔNG BÁO HỆ THỐNG (bảo trì, quá tải…) ===== */
+.sysn{position:fixed;left:0;right:0;top:0;z-index:120;display:flex;align-items:center;gap:10px;
+ padding:9px 14px;font-size:13px;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.2);animation:sl .2s ease}
+.sysn.info{background:#e8f0fb;color:#1a4a7a;border-bottom:1px solid #b8cfe8}
+.sysn.warn{background:#fdf6e3;color:#7a5a2a;border-bottom:1px solid #e3c98a}
+.sysn.error{background:#fdecec;color:#8f1414;border-bottom:1px solid #e6b8b8}
+.sysn span{flex:1}
+.sysn button{flex:none;width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,.08);cursor:pointer;font-size:12px}
+.sysn button:hover{background:rgba(0,0,0,.16)}
+/* ===== BẢNG GIÁ ===== */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 10px;border-radius:12px;
+ border:1px solid var(--border);background:var(--card);text-align:center}
+.pcard.on{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold);background:#fdf7e8}
+.pcard b{color:var(--primary);font-size:14px}
+.pcard .pp{font-family:'Noto Serif',Georgia,serif;font-size:19px;font-weight:700;color:var(--gold-dark);margin-top:4px}
+.pcard .pu{font-size:11.5px;color:var(--muted)}
+.pcard .pn{font-size:11.5px;color:var(--muted);margin:4px 0 7px}
+/* ===== XOAY NGANG MÀN HÌNH (điện thoại nằm ngang) =====
+   Màn hình thấp mà rộng → thu gọn chiều cao, tận dụng bề ngang. */
+@media (orientation:landscape) and (max-height:520px){
+ #mtop{height:44px}
+ .hero-tho{padding:10px}
+ .tho-frame{padding:8px}
+ .hoanhphi{padding:8px 24px}
+ .hoanhphi .hp-text{font-size:26px}
+ .tho-center h1{font-size:19px;margin:4px 0}
+ .tho-center .eye,.tho-center p{font-size:11px}
+ .cauic{padding:8px 9px}
+ .cauic .han{font-size:calc(var(--cau,29px) * .42)}
+ .pha-view{height:74vh;min-height:220px}
+ .pha-sheet{height:78vh}
+ .fund-hero{padding:12px}
+ .fund-hero .fh-main .v{font-size:24px}
+ .fund-hero .fh-sub{grid-template-columns:repeat(4,1fr)}
+ .hero4{grid-template-columns:repeat(4,1fr)}
+ #modal{padding:10px}
+ #modalBox{max-height:92vh;overflow:auto}
+ .two,.side{grid-template-columns:1fr 1fr}
+ main{padding:12px}
+ .cam-ctrl{height:100px}
+ .cam-shot{width:60px;height:60px}
+ .cam-shot span{width:46px;height:46px}
+ .cam-frame{top:44%;width:min(38vw,300px)}
+ .cam-frame.oval{width:min(30vw,240px)}
+}
+/* Máy tính bảng nằm ngang: tận dụng bề ngang cho lưới */
+@media (orientation:landscape) and (min-width:900px){
+ .lb-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+ .res-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+}
 /* ===== ĐỐI CHIẾU ẢNH THẬT ===== */
 .mt-card{border-color:var(--gold);background:linear-gradient(#fffdf6,#fdf6e6)}
 .mt-drop{text-align:center;padding:22px 14px;border:2px dashed rgba(201,151,47,.6);border-radius:14px;background:#fffdf6}
@@ -3404,7 +3455,7 @@ V.settings=()=>{let body='';
    <div class="field"><label>Quy tắc đánh số ${esc(T.gen.toLowerCase())}</label><textarea id="gpGen" rows="2">${esc(DB.clan.genRule)}</textarea></div>
    <div class="field"><label>Quy tắc đặt mã thành viên</label><textarea id="gpCode" rows="2">${esc(DB.clan.codeRule)}</textarea></div>
    <button class="btn btn-p" onclick="saveGp()">Lưu</button>`;
- else if(setTab==='data')body=syncPanel()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file.</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
+ else if(setTab==='data')body=syncPanel()+pricePane()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file.</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
  else if(setTab==='log')body=DB.activity.slice(0,50).map(a=>`<div class="row"><span class="muted" style="font-size:12px;width:150px">${esc(a.time)}</span><span>${esc(a.action)}</span></div>`).join('')||'<p class="muted">Chưa có nhật ký.</p>';
  else body=`<div class="field"><label>Nhà cung cấp AI</label><select id="aiP"><option ${DB.settings.ai.provider==='Chưa cấu hình'?'selected':''}>Chưa cấu hình</option><option ${DB.settings.ai.provider==='OpenAI (GPT)'?'selected':''}>OpenAI (GPT)</option><option ${DB.settings.ai.provider==='Anthropic (Claude)'?'selected':''}>Anthropic (Claude)</option></select></div><div class="field"><label>API Key</label><input class="input" id="aiK" type="password" value="${esc(DB.settings.ai.key)}"/></div><p class="muted" style="font-size:12px">Khóa lưu trong máy, dùng cho hỏi đáp AI khi deploy server.</p><button class="btn btn-p" onclick="saveAi()">Lưu</button>`;
  return `<div class="h1">⚙️ Cài đặt</div><div class="tabbar"><div class="tabs" style="margin-bottom:0">${STABS.map(t=>`<span class="chip ${setTab===t[0]?'on':''}" onclick="setTab='${t[0]}';render()">${t[1]}</span>`).join('')}</div></div><div class="card pad" style="margin-top:10px">${body}</div>`;};
@@ -3460,6 +3511,74 @@ window.saveCouplet=saveCouplet;
 function cpSyncSize(){if(DB.couplet&&DB.couplet.free&&DB.couplet.objects){const v=cpFormValues();DB.couplet.objects.forEach(o=>{if(o.id==='daitu'){o.size=v.sizeDT;o.ls=v.spaceDT;}else if(o.id==='left'||o.id==='right')o.size=v.sizeCau;});}updateCpPreview();}
 window.cpSyncSize=cpSyncSize;
 function val(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+/* ===================== CẤU HÌNH TỪ XA =====================
+   App đọc cấu hình từ máy chủ (bảng giá, giới hạn, thông báo, bật/tắt tính năng).
+   Nhờ vậy đổi giá hay ra thông báo KHÔNG cần phát hành bản mới lên CH Play.
+   Mất mạng → dùng bản đã lưu lần trước, hoặc giá trị mặc định. */
+const CFG_DEF={features:{sync:true,payment:false,ai:true,photoStudio:true,fortune:true},
+ pricing:[{plan:'TRIAL',name:'Dùng thử',price:0,unit:'30 ngày',note:'Đầy đủ tính năng'},
+  {plan:'YEARLY',name:'Gói năm',price:299000,unit:'năm',note:'Tiết kiệm nhất'},
+  {plan:'LIFETIME',name:'Trọn đời',price:1990000,unit:'một lần',note:'Dùng mãi mãi'}],
+ notice:{text:'',level:'info'},capacity:{maxBooks:5000,warnAt:.85},load:{books:0,pct:0,over:false}};
+let CFG=CFG_DEF;
+try{const c=JSON.parse(localStorage.getItem('giapha_cfg')||'null');if(c&&c.features)CFG=Object.assign({},CFG_DEF,c);}catch(e){}
+function cfgFeat(k){return !CFG.features||CFG.features[k]!==false;}
+async function cfgLoad(){
+ try{const r=await fetch('/api/config',{cache:'no-store'});if(!r.ok)return;
+  const j=await r.json();if(!j||!j.features)return;
+  CFG=Object.assign({},CFG_DEF,j);
+  try{localStorage.setItem('giapha_cfg',JSON.stringify(CFG));}catch(e){}
+  cfgNotice();
+ }catch(e){/* mất mạng → giữ bản cũ */}}
+/* Thanh thông báo hệ thống (bảo trì, quá tải, tin mới…) */
+function cfgNotice(){
+ const n=CFG.notice||{};const old=document.getElementById('sysNotice');
+ if(old)old.remove();
+ if(!n.text)return;
+ if(localStorage.getItem('giapha_notice_off')===n.text)return;
+ const d=document.createElement('div');d.id='sysNotice';d.className='sysn '+(n.level||'info');
+ d.innerHTML=`<span>${esc(n.text)}</span><button onclick="cfgNoticeOff()" aria-label="Đóng">✕</button>`;
+ document.body.appendChild(d);}
+function cfgNoticeOff(){const n=CFG.notice||{};try{localStorage.setItem('giapha_notice_off',n.text||'');}catch(e){}
+ const el=document.getElementById('sysNotice');if(el)el.remove();}
+window.cfgNoticeOff=cfgNoticeOff;
+/* Thông báo lỗi thân thiện khi máy chủ quá tải / mất mạng */
+function netMsg(status,fallback){
+ if(status===503)return 'Hệ thống đang quá tải. Vui lòng thử lại sau ít phút.';
+ if(status===429)return 'Bạn thao tác hơi nhanh. Vui lòng chờ một chút rồi thử lại.';
+ if(status===401)return 'Phiên đã hết hạn. Hãy đăng nhập lại.';
+ if(status===0)return 'Không có kết nối mạng. Dữ liệu vẫn được lưu trong máy.';
+ return fallback||'Không kết nối được máy chủ. Vui lòng thử lại.';}
+/* ---- Bảng giá & nâng gói (chỉ hiện khi chủ hệ thống bật) ---- */
+const PLAN_VN={FREE:'Miễn phí',TRIAL:'Dùng thử',MONTHLY:'Gói tháng',YEARLY:'Gói năm',LIFETIME:'Trọn đời',GIFT_LIFETIME:'Tặng trọn đời'};
+function planName(p){return PLAN_VN[p]||p||'—';}
+function pricePane(){
+ if(!cfgFeat('payment'))return '';
+ const s=syncGet();const cur=s&&s.plan?s.plan:'FREE';
+ return `<div class="card pad" style="margin-top:12px;border-color:var(--gold)">
+  <div class="h3">💎 Gói dịch vụ</div>
+  <p class="muted" style="font-size:12.5px;margin:4px 0 10px">Gói hiện tại: <b>${esc(planName(cur))}</b></p>
+  <div class="price-grid">${(CFG.pricing||[]).map(p=>`
+    <div class="pcard ${cur===p.plan?'on':''}">
+      <b>${esc(p.name)}</b>
+      <span class="pp">${p.price?vnd(p.price):'Miễn phí'}</span>
+      <span class="pu">/ ${esc(p.unit)}</span>
+      <span class="pn">${esc(p.note||'')}</span>
+      ${cur===p.plan?'<span class="badge badge-ok">Đang dùng</span>'
+        :`<button class="btn btn-p btn-sm" onclick="planBuy('${p.plan}')">Nâng gói</button>`}
+    </div>`).join('')}</div>
+  </div>`;}
+/* Mua gói — trên CH Play bắt buộc dùng Google Play Billing.
+   Ở bản web hiện thời chỉ hướng dẫn liên hệ; khi đóng gói app sẽ nối vào Billing. */
+function planBuy(plan){
+ if(window.Capacitor&&window.GiaPhaBilling&&window.GiaPhaBilling.purchase){
+  window.GiaPhaBilling.purchase(plan);return;}
+ document.getElementById('modalBox').innerHTML=`<h3>💎 Nâng ${esc(planName(plan))}</h3>
+  <p style="font-size:13.5px;line-height:1.8">Để nâng gói cho dòng họ, vui lòng liên hệ quản trị hệ thống.</p>
+  <p class="muted" style="font-size:12.5px">Mã dòng họ của bạn: <b>${esc((syncGet()||{}).code||'—')}</b></p>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-p" onclick="closeModal()">Đóng</button></div>`;
+ document.getElementById('modal').classList.add('open');}
+window.planBuy=planBuy;
 /* ================== ĐỒNG BỘ NHIỀU MÁY (mã dòng họ + mật khẩu) ==================
    Vé đăng nhập lưu ở máy này; mọi thao tác đi qua API của app (không giữ khoá server). */
 const SKEY='giapha_sync_v1';
@@ -3468,7 +3587,7 @@ function syncSet(v){v?localStorage.setItem(SKEY,JSON.stringify(v)):localStorage.
 async function syncApi(path,body){
  const r=await fetch('/api/book/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
  let j={};try{j=await r.json();}catch(e){}
- if(!r.ok||j.ok===false)throw new Error(j.error||('Lỗi kết nối ('+r.status+')'));
+ if(!r.ok||j.ok===false)throw new Error(j.error||netMsg(r.status));
  return j;}
 function syncPanel(){const s=syncGet();
  if(!s)return `<div class="card pad" style="border-color:var(--gold)">
@@ -3637,6 +3756,8 @@ window.addEventListener('hashchange',render);render();
 histLast=JSON.stringify(DB);updateUndoBar();
 /* Lần mở đầu tiên (chưa đăng nhập, chưa bấm "dùng thử") → hiện màn hình đăng nhập */
 if(!syncGet()&&!localStorage.getItem('giapha_skip_auth'))setTimeout(()=>auOpen('in'),250);
+/* Cấu hình từ xa: đọc lúc mở và mỗi giờ */
+cfgLoad();setInterval(cfgLoad,3600000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)cfgLoad();});
 if(typeof lcCheckReminders==='function')lcCheckReminders();
 document.addEventListener('keydown',function(e){if(!(e.ctrlKey||e.metaKey))return;const tag=(e.target.tagName||'').toLowerCase();const inField=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;const k=(e.key||'').toLowerCase();
  const psOn=document.getElementById('psWrap')&&document.getElementById('psWrap').classList.contains('open');

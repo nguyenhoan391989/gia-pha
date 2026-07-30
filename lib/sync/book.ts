@@ -117,6 +117,15 @@ export async function createBook(args: {
   if (!args.adminPass || args.adminPass.length < 6) {
     return { ok: false as const, reason: 'WEAK_PASSWORD' as const };
   }
+  /* Chống quá tải: hệ thống đầy thì tạm ngừng nhận sổ mới; và chặn tạo hàng loạt.
+     Nếu chưa chạy SQL cấu hình thì bỏ qua, không chặn người dùng. */
+  try {
+    const { data: capOk } = await sb.rpc('fn_capacity_ok');
+    if (capOk === false) return { ok: false as const, reason: 'CAPACITY_FULL' as const };
+    const { data: rateOk } = await sb.rpc('fn_rate_ok', { p_bucket: 'create', p_limit: 30, p_minutes: 60 });
+    if (rateOk === false) return { ok: false as const, reason: 'RATE_LIMIT' as const };
+  } catch { /* chưa cài phần chống quá tải → bỏ qua */ }
+
   const { data: exists, error: eEx } = await sb.from('family_books').select('id').eq('code', code).maybeSingle();
   if (eEx) {
     if (/relation .*family_books.* does not exist|schema cache/i.test(eEx.message)) {
