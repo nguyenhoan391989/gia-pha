@@ -417,6 +417,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-box video{width:100%;border-radius:10px;background:#000;max-height:60vh;object-fit:cover}
 .cam-note{font-size:11.5px;color:#bdaa8c;margin-top:8px;line-height:1.6}
 /* ===== Camera toàn màn hình kiểu ứng dụng máy ảnh điện thoại ===== */
+.imgpick{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .cam-live{position:fixed;inset:0;z-index:5;background:#000;display:flex;flex-direction:column}
 .cam-live video{flex:1;width:100%;height:100%;object-fit:cover;background:#000;border-radius:0;max-height:none}
 .cam-frame{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:min(78vw,420px);aspect-ratio:1/1;
@@ -1094,14 +1095,22 @@ function openForm(key,id){const c=CRUD[key];const cur=id?(DB[c.store].find(x=>x.
     if(type==='selectId'){const o=(typeof opts==='function'?opts():opts)||[];return fld(label,`<select data-k="${k}" data-num="1">${o.map(x=>`<option value="${x.v}" ${(+val)===x.v?'selected':''}>${esc(x.t)}</option>`).join('')}</select>`);}
     if(type==='textarea')return fld(label,`<textarea data-k="${k}" rows="3">${esc(val)}</textarea>`,1);
     if(type==='check')return fld('',`<label><input type="checkbox" data-k="${k}" ${cur[k]!==false?'checked':''}/> ${label}</label>`,1);
-    if(type==='image')return fld(label,`<input type="file" accept="image/*" onchange="imgPick(event,this)"/><input type="hidden" data-k="${k}" value="${esc(val)}"/>${val?`<img src="${val}" style="height:56px;border-radius:8px;margin-top:6px"/>`:''}`,1);
+    if(type==='image')return fld(label,`<div class="imgpick">
+      <label class="btn btn-o btn-sm" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="imgPick(event,this)"/></label>
+      <label class="btn btn-o btn-sm" style="cursor:pointer">📷 Chụp ảnh<input type="file" accept="image/*" capture="user" style="display:none" onchange="imgPick(event,this)"/></label>
+      <input type="hidden" data-k="${k}" value="${esc(val)}"/>
+      ${val?`<img src="${val}" style="height:56px;border-radius:8px"/>`:''}</div>`,1);
     return fld(label,`<input class="input" type="${type}" data-k="${k}" value="${esc(val)}"/>`);
   }).join('');
   document.getElementById('modalBox').innerHTML=`<h3>${id?'Sửa':'Thêm'} · ${c.title}</h3><div class="fgrid">${html}</div>
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn btn-o" onclick="closeModal()">Hủy</button><button class="btn btn-p" onclick="saveForm('${key}',${id||0})">Lưu</button></div>`;
   document.getElementById('modal').classList.add('open');}
 function fld(label,inner,full){return `<div class="field" ${full?'style="grid-column:1/-1"':''}>${label?`<label>${label}</label>`:''}${inner}</div>`;}
-function imgPick(ev,inp){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{inp.parentElement.querySelector('[data-k]').value=r.result;let img=inp.parentElement.querySelector('img');if(!img){img=document.createElement('img');img.style.cssText='height:56px;border-radius:8px;margin-top:6px';inp.parentElement.appendChild(img);}img.src=r.result;};r.readAsDataURL(f);}
+function imgPick(ev,inp){const f=ev.target.files[0];if(!f)return;
+ const box=ev.target.closest('.imgpick')||inp.parentElement;
+ const r=new FileReader();r.onload=()=>{box.querySelector('[data-k]').value=r.result;
+  let img=box.querySelector('img');if(!img){img=document.createElement('img');img.style.cssText='height:56px;border-radius:8px';box.appendChild(img);}
+  img.src=r.result;};r.readAsDataURL(f);}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 function saveForm(key,id){const c=CRUD[key];const box=document.getElementById('modalBox');const obj={};
   box.querySelectorAll('[data-k]').forEach(el=>{const k=el.dataset.k;obj[k]=el.type==='checkbox'?el.checked:(el.dataset.num?Number(el.value):(el.type==='number'?(el.value===''?'':Number(el.value)):(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'?el.value:el.value)));if(typeof obj[k]==='string')obj[k]=obj[k].trim?obj[k]:obj[k];});
@@ -2322,6 +2331,25 @@ const LIB_FACE=[
    s:[['Trung Hoa','Khuyên dưỡng thân, chỉnh tư thế.']],r:'Quan sát khí độ trong tướng thuật',
    sv:()=>`<svg viewBox="0 0 100 124" class="lb-svg"><circle cx="54" cy="24" r="10" fill="#fffdf6" stroke="#c9972f" stroke-width="2"/><path d="M54 34 Q46 54 48 76" stroke="#a81414" stroke-width="4" fill="none"/><path d="M36 46 Q54 40 68 48" stroke="#a81414" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M48 76 L38 102 M48 76 L60 102" stroke="#a81414" stroke-width="3.6" stroke-linecap="round"/></svg>`}]}
 ];
+/* ===== CHỤP ẢNH =====
+   Điện thoại  → gọi thẳng ỨNG DỤNG MÁY ẢNH của máy (input capture).
+                 Cách này không phát video trong trang nên KHÔNG bao giờ hiện nút ▶,
+                 và chạy được cả trong trình duyệt của Zalo / Facebook / Messenger.
+   Máy tính    → xem trực tiếp qua webcam, có nút chụp tròn.
+   Nếu webcam lỗi → tự quay về cách gọi máy ảnh của máy. */
+function isTouchDevice(){return /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(navigator.userAgent)
+ ||(navigator.maxTouchPoints>1&&!/Windows NT/i.test(navigator.userAgent));}
+function camNative(kind,cb){
+ const inp=document.createElement('input');
+ inp.type='file';inp.accept='image/*';
+ inp.setAttribute('capture',kind==='face'?'user':'environment');
+ inp.style.display='none';document.body.appendChild(inp);
+ inp.onchange=()=>{const f=inp.files&&inp.files[0];inp.remove();if(f)cb(f);};
+ inp.click();}
+/* Điểm vào duy nhất cho mọi chỗ cần chụp ảnh */
+function camCapture(kind,cbFile,cbLive){
+ if(isTouchDevice()||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return camNative(kind,cbFile);
+ cbLive();}
 /* ===== GIAO DIỆN CAMERA TOÀN MÀN HÌNH (giống ứng dụng máy ảnh của điện thoại) ===== */
 function camUI(vid,hint,onSnap,onCancel,kind){
  return `<div class="cam-live">
@@ -2388,9 +2416,10 @@ function mtLoad(f){const r=new FileReader();r.onload=()=>{const im=new Image();
 window.mtPick=mtPick;
 /* Camera riêng cho đối chiếu */
 let mtStream=null;
-async function mtCam(){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Trình duyệt không hỗ trợ camera');return;}
+function mtCam(){camCapture(MT.kind,mtLoad,mtCamLive);}
+async function mtCamLive(){
  try{mtStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:MT.kind==='face'?'user':'environment'},audio:false});}
- catch(e){toast('Không mở được camera: '+e.message);return;}
+ catch(e){toast('Không mở được webcam — dùng máy ảnh của máy');camNative(MT.kind,mtLoad);return;}
  document.getElementById('camBox').innerHTML=camUI('mtVid',
    MT.kind==='face'?'Đưa khuôn mặt vào khung · nhìn thẳng':'Xòe lòng bàn tay vào khung · đủ sáng',
    'mtSnap()','mtCamStop()',MT.kind);
@@ -2406,7 +2435,7 @@ function mtSnap(){const v=document.getElementById('mtVid');if(!v||!v.videoWidth)
  const c2=document.createElement('canvas');c2.width=Math.round(c.width*sc);c2.height=Math.round(c.height*sc);
  c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);
  MT.img=c2.toDataURL('image/jpeg',.88);MT.iw=c2.width;MT.ih=c2.height;MT.pts=[];MT.step=0;MT.res=null;mtRender();}
-window.mtCam=mtCam;window.mtCamStop=mtCamStop;window.mtSnap=mtSnap;
+window.mtCam=mtCam;window.mtCamLive=mtCamLive;window.camNative=camNative;window.mtCamStop=mtCamStop;window.mtSnap=mtSnap;
 /* Bấm lên ảnh để đặt điểm mốc */
 function mtTap(ev){if(!MT.img)return;const steps=MT_STEPS[MT.kind];if(MT.step>=steps.length)return;
  const box=ev.currentTarget.getBoundingClientRect();
@@ -2461,8 +2490,8 @@ function mtRender(){const box=document.getElementById('modalBox');if(!box)return
    <div style="font-size:34px">${MT.kind==='face'?'🧑':'✋'}</div>
    <p>Tải ảnh có sẵn hoặc chụp trực tiếp.<br><span class="muted">${MT.kind==='face'?'Chụp chính diện, tóc vén gọn, đủ sáng.':'Xòe bàn tay thuận, lòng bàn tay hướng lên, đủ sáng.'}</span></p>
    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
-    <label class="btn btn-o" style="cursor:pointer">📁 Chọn ảnh<input type="file" accept="image/*" style="display:none" onchange="mtPick(event)"/></label>
-    <button class="btn btn-p" onclick="mtCam()">📷 Chụp ngay</button></div></div>${HV_DISCLAIMER}`;
+    <label class="btn btn-o" style="cursor:pointer">📁 Chọn ảnh có sẵn<input type="file" accept="image/*" style="display:none" onchange="mtPick(event)"/></label>
+    <button class="btn btn-p" onclick="mtCam()">📷 Mở máy ảnh</button></div></div>${HV_DISCLAIMER}`;
  }else if(!done){
   const st=steps[MT.step];
   body=`<div class="mt-guide"><b>Bước ${MT.step+1}/${steps.length}: ${esc(st[0])}</b><span>${esc(st[1])}</span></div>
@@ -2792,12 +2821,10 @@ async function hvTong(){const b=hvBirth();const p=hvP();const out=document.getEl
  }catch(e){out.innerHTML=local+`<p class="muted">⚠ Lỗi AI: ${esc(e.message)} — đã dùng bản tự động.</p>`;}}
 function hvVision(kind,ev){const f=ev.target.files[0];if(f)hvVisionFile(kind,f);}
 let hvStream=null;
-async function hvCam(kind){
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Trình duyệt không hỗ trợ camera');return;}
+function hvCam(kind){camCapture(kind,(f)=>hvVisionFile(kind,f),()=>hvCamLive(kind));}
+async function hvCamLive(kind){
  try{hvStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:kind==='face'?'user':'environment'},audio:false});}
- catch(e){toast('Không mở được camera: '+e.message);return;}
- /* Dùng LỚP RIÊNG (#camWrap) — không đụng vào cửa sổ Huyền học đang mở, nhờ đó
-    sau khi chụp vẫn còn chỗ để hiện kết quả. */
+ catch(e){toast('Không mở được webcam — dùng máy ảnh của máy');camNative(kind,(f)=>hvVisionFile(kind,f));return;}
  document.getElementById('camBox').innerHTML=camUI('hvVid',
    kind==='face'?'Đưa khuôn mặt vào khung · nhìn thẳng':'Xòe lòng bàn tay vào khung · đủ sáng',
    `hvSnap('${kind}')`,'hvCamStop()',kind);
@@ -2858,7 +2885,7 @@ function hvDetail(tab){const HVIEW={tuvi:hvTuvi,thanso:hvThanso,tuong:hvTuong,ta
  return (tab&&HVIEW[tab])?HVIEW[tab]():'';}
 V.hv=()=>`<div class="h1">🔮 Huyền học · Lịch vạn niên</div><div class="sub">Tử vi, thần số học, phong thủy, lịch vạn niên và ngày tốt theo văn hóa Á Đông.</div>${hvBody()}`;
 V.vankhan=()=>`<div class="h1">📜 Văn khấn · Lễ nghi gia tộc</div><div class="sub">Bài khấn theo từng lễ: giỗ chạp, tết, tang lễ, cưới hỏi, tân gia, khai trương…</div>${rlBody()}`;
-window.hvOpen=hvOpen;window.hvSet=hvSet;window.hvVision=hvVision;window.hvTongRun=hvTong;window.hvCam=hvCam;window.hvCamStop=hvCamStop;window.hvSnap=hvSnap;
+window.hvCamLive=hvCamLive;window.hvOpen=hvOpen;window.hvSet=hvSet;window.hvVision=hvVision;window.hvTongRun=hvTong;window.hvCam=hvCam;window.hvCamStop=hvCamStop;window.hvSnap=hvSnap;
 
 /* ============ THƯ VIỆN VĂN KHẤN & NGHI LỄ GIA TỘC ============ */
 const RL_CATS=[['nam','🏮 Lễ tiết thường niên'],['ho','🏛 Lễ dòng họ'],['nhatho','🏠 Nhà thờ họ'],['mo','⚱️ Mộ phần'],['giadinh','👨‍👩‍👧 Gia đình']];
