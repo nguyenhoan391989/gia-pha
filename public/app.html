@@ -3675,16 +3675,31 @@ async function syncPull(){const s=syncGet();if(!s)return;
   if(r.data&&typeof r.data==='object'&&Object.keys(r.data).length){DB=r.data;for(const k in SEED)if(!(k in DB))DB[k]=structuredClone(SEED[k]);T=DB.terms||T;localStorage.setItem(KEY,JSON.stringify(DB));}
   syncSet(Object.assign(s,{role:r.role,plan:r.plan,name:r.name,version:r.version,updatedAt:r.updatedAt}));
   toast('Đã tải dữ liệu chung về máy này');render();}catch(e){alert('Không tải được: '+e.message);}}
+/* Chỉ cho MỘT lần gửi chạy tại một thời điểm. Trước đây nhiều lần lưu liên tiếp
+   (kéo thanh trượt, sửa nhiều ô) gây gửi chồng nhau, lần sau mang số phiên bản cũ
+   → máy chủ báo nhầm là "có người khác sửa". */
+let _syncBusy=false,_syncAgain=false;
 async function syncPush(quiet){const s=syncGet();if(!s||s.role!=='admin')return;
+ if(_syncBusy){_syncAgain=true;return;}          /* đang gửi → hẹn gửi lại sau */
+ _syncBusy=true;
  try{if(!quiet)toast('Đang đưa lên…');
   const r=await syncApi('push',{token:s.token,data:DB,baseVersion:s.version,by:(typeof curRole==='function'?curRole():'')});
-  syncSet(Object.assign(s,{version:r.version,updatedAt:r.updatedAt}));
-  if(!quiet){toast('Đã lưu lên máy chủ (v'+r.version+')');render();}
- }catch(e){if(!quiet)alert('Không lưu được: '+e.message);else toast('⚠ Chưa đồng bộ được: '+e.message);}}
+  syncSet(Object.assign(syncGet()||s,{version:r.version,updatedAt:r.updatedAt}));
+  if(!quiet){toast('Đã lưu lên máy chủ');render();}
+ }catch(e){
+  const conflict=/máy khác|bản mới hơn/i.test(e.message||'');
+  if(!quiet)alert(e.message);
+  else if(conflict)toast('⚠ Có thay đổi từ máy khác — bấm Tải về');
+  else toast('⚠ Chưa đồng bộ được');
+ }finally{
+  _syncBusy=false;
+  if(_syncAgain){_syncAgain=false;setTimeout(()=>syncPush(true),400);}  /* gửi nốt thay đổi mới */
+ }}
 function syncAuto(on){const s=syncGet();if(!s)return;s.auto=!!on;syncSet(s);toast(on?'Đã bật tự đồng bộ':'Đã tắt tự đồng bộ');}
 function syncOut(){if(!confirm('Đăng xuất? Dữ liệu trên máy này vẫn giữ nguyên.'))return;syncSet(null);localStorage.removeItem('giapha_skip_auth');toast('Đã đăng xuất');render();if(typeof auOpen==='function')auOpen('in');}
 let _syncT=null;
-function syncMaybe(){const s=syncGet();if(!s||!s.auto||s.role!=='admin')return;clearTimeout(_syncT);_syncT=setTimeout(()=>syncPush(true),1500);}
+/* Chờ 2,5 giây sau lần sửa cuối mới gửi — tránh gửi liên tục khi kéo thanh trượt */
+function syncMaybe(){const s=syncGet();if(!s||!s.auto||s.role!=='admin')return;clearTimeout(_syncT);_syncT=setTimeout(()=>syncPush(true),2500);}
 window.syncCreate=syncCreate;window.syncLogin=syncLogin;window.syncPull=syncPull;window.syncPush=syncPush;window.syncAuto=syncAuto;window.syncOut=syncOut;
 /* ================== MÀN HÌNH ĐĂNG NHẬP ================== */
 let auMode='in';

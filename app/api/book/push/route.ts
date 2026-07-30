@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       const map: Record<string, { m: string; s: number }> = {
         BAD_TICKET: { m: 'Phiên đã hết hạn. Hãy đăng nhập lại.', s: 401 },
         FORBIDDEN: { m: 'Tài khoản này chỉ được xem, không được sửa dữ liệu chung.', s: 403 },
-        CONFLICT: { m: 'Trên máy chủ đã có bản mới hơn (người khác vừa cập nhật). Hãy bấm "Tải về" trước rồi sửa lại.', s: 409 },
+        CONFLICT: { m: 'Có thay đổi từ máy khác. Hãy bấm "Tải về" trước.', s: 409 },
         LIMIT_MEMBERS: {
           m: `Gói ${'plan' in r ? r.plan : ''} chỉ cho phép ${'limit' in r ? r.limit : ''} thành viên (sổ đang có ${'count' in r ? r.count : ''}). Hãy nâng gói để lưu lên máy chủ.`,
           s: 402,
