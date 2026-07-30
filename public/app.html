@@ -839,7 +839,7 @@ function ioTemplate(key){const fs=ioFields(key);
 let ioData=null,ioKey='';
 function ioImport(key){ioKey=key;ioData=null;
  document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập ${esc(CRUD[key].title)}</h3>
-  <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>. Dòng đầu là tiêu đề cột — không cần đúng thứ tự, không cần dấu.</p>
+  <p class="muted" style="font-size:12.5px">Chọn file .xlsx / .xls / .csv — dòng đầu là tiêu đề cột.</p>
   <div style="margin:6px 0 10px"><button class="btn btn-o btn-sm" onclick="ioTemplate('${key}')">⬇ Tải file mẫu</button></div>
   <div class="field"><input type="file" accept=".xlsx,.xls,.csv" onchange="ioFile(event)"/></div>
   <div id="ioPrev" class="muted" style="font-size:12.5px;min-height:24px"></div>
@@ -1044,7 +1044,7 @@ function memFromRow(o){const g=stripVN(String(o.gender||'')).toLowerCase();
   _spouse:String(o._spouse||'').split(/[\n\r]/)[0].replace(/^\s*\d+\.\s*/,'').replace(/\([^)]*\)/g,'').trim()};}
 let memImportData=null;
 function memImport(){document.getElementById('modalBox').innerHTML=`<h3>⬆ Nhập danh sách thành viên</h3>
- <p class="muted" style="font-size:12.5px">Chọn file <b>.xlsx / .xls / .csv</b>, dòng đầu là tiêu đề cột. Bấm <b>⬇ Mẫu Excel</b> để tải file mẫu đúng định dạng. Cột <b>Cha</b> và <b>Vợ/Chồng</b> điền <b>họ tên</b> (khớp người đã có hoặc trong cùng file).</p>
+ <p class="muted" style="font-size:12.5px">Chọn file .xlsx / .xls / .csv. Cột Cha, Mẹ, Vợ/Chồng điền họ tên.</p>
  <div class="field"><input type="file" accept=".xlsx,.xls,.csv" onchange="memImportFile(event)"/></div>
  <div id="memImpPrev" style="font-size:12.5px;margin-top:6px"></div>
  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px"><button class="btn btn-o" onclick="closeModal()">Hủy</button><button class="btn btn-p" id="memImpBtn" onclick="memImportCommit()" disabled>Nhập</button></div>`;
@@ -1269,7 +1269,7 @@ const OBJ_NUM=['size','w','h','rot','textRot','opacity','lh','ls'];
 const OBJ_CONT=['text','size','w','h','rot','textRot','opacity','lh','ls','color','border','bg'];
 function updObj(prop,v){const o=selO();if(!o)return;o[prop]=OBJ_NUM.includes(prop)?(+v):v;save();updateCpPreview();if(!OBJ_CONT.includes(prop))renderObjBar();}
 function renderObjBar(){const bar=document.getElementById('objBar');if(!bar)return;const o=selO();
- if(!o){bar.innerHTML='<span class="muted" style="font-size:12px">Bấm vào một ô chữ trong khung xem trước để chọn — rồi chỉnh mọi thuộc tính ở bảng này (kéo để di chuyển, kéo 8 nút để đổi cỡ, kéo nút tròn phía trên để xoay).</span>';return;}
+ if(!o){bar.innerHTML='<span class="muted" style="font-size:12px">Chọn một ô chữ trong khung xem trước để chỉnh.</span>';return;}
  const FS=[['khai','Khải'],['hanh','Bút lông'],['xing','Hành'],['long','Hành thảo'],['thao','Thảo'],['xiaowei','Thanh mảnh'],['dam','Đậm'],['chan','Tống']];
  const VF=[['serif','Serif (có chân)'],['title','Tiêu đề đậm'],['sans','Sans (không chân)']];
  const TY=[['hoanhphi','Hoành phi'],['cauic','Câu đối'],['title','Tiêu đề'],['subtitle','Phụ đề'],['text','Văn bản'],['translation','Bản dịch']];
@@ -1386,7 +1386,7 @@ function videoEmbed(u){const yt=String(u).match(/(?:youtu\.be\/|youtube\.com\/(?
  if(/\.(mp4|webm|ogg)(\?|$)/i.test(u))return `<video src="${esc(u)}" controls style="width:100%;border-radius:8px"></video>`;
  return `<a href="${esc(u)}" target="_blank" class="btn btn-o btn-sm">▶ ${esc(u)}</a>`;}
 V.nhatho=()=>{const h=hget(heritageTab);
- const body=`${h.text?`<div style="white-space:pre-line;line-height:1.7">${esc(h.text)}</div>`:'<p class="muted">Chưa có nội dung. Bấm "Sửa nội dung" để đăng bài (chữ + ảnh + video).</p>'}
+ const body=`${h.text?`<div style="white-space:pre-line;line-height:1.7">${esc(h.text)}</div>`:'<p class="muted">Chưa có nội dung.</p>'}
    ${h.images.length?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">${h.images.map(src=>`<img src="${src}" style="width:100%;border-radius:8px"/>`).join('')}</div>`:''}
    ${h.videos.length?`<div style="margin-top:12px;display:grid;gap:10px">${h.videos.map(videoEmbed).join('')}</div>`:''}
    <div style="margin-top:14px"><button class="btn btn-p btn-sm" onclick="editHeritage('${heritageTab}')">✎ Sửa nội dung</button></div>`;
@@ -1754,7 +1754,7 @@ function fundReportPane(){const rows=fundRows();const t=fundTotals(rows);
 function fundCatPane(){const list=cats();
  return `<div class="card pad"><div class="h3" style="display:flex;align-items:center;gap:8px">🏷 Hạng mục quỹ
    <button class="btn btn-o btn-sm" style="margin-left:auto" onclick="catAdd()">➕ Thêm hạng mục</button></div>
-  <p class="muted" style="font-size:12.5px;margin:0 0 8px">Mỗi giao dịch thuộc một hạng mục. Đổi tên thì các giao dịch cũ tự đổi theo.</p>
+  <p class="muted" style="font-size:12.5px;margin:0 0 8px"></p>
   ${list.map((c,i)=>{const n=(DB.fund||[]).filter(x=>catClean(x.cat)===c);
     const thu=n.filter(x=>x.type!=='Chi').reduce((s2,x)=>s2+(+x.amount||0),0);
     const chi=n.filter(x=>x.type==='Chi').reduce((s2,x)=>s2+(+x.amount||0),0);
@@ -1858,7 +1858,7 @@ V.ai=()=>{const opts=DB.members.map(m=>`<option value="${m.id}">${esc(m.name)}${
    <div id="aiAns" style="margin-top:10px"></div>
    <p class="muted" style="font-size:11.5px;margin-top:6px">${hasKey?'Đang dùng '+esc(DB.settings.ai.provider)+' cho câu hỏi mở.':'Chưa cấu hình API — trợ lý trả lời từ dữ liệu gia phả trong máy. Muốn hỏi đáp mở rộng, thêm API key ở Cài đặt → AI.'}</p></div>
   <div class="card frame-gold pad" style="cursor:pointer" onclick="psOpen('auto')"><div class="h3">🎞 Chỉnh sửa - phục chế ảnh</div>
-   <p class="muted" style="font-size:12.5px;line-height:1.8">Studio như chuyên gia Photoshop lâu năm: phân tích hư hại tự động, 13 preset phục chế, 11 thanh chỉnh realtime, so sánh trước/sau, phục chế AI, xuất chất lượng cao — hỗ trợ nhiều ảnh cùng lúc.</p>
+   <p class="muted" style="font-size:12.5px;line-height:1.8">Phục chế ảnh cũ: phân tích hư hại, 13 kiểu phục chế, so sánh trước/sau, xuất chất lượng cao.</p>
    <button class="btn btn-p btn-sm">🎞 Mở Studio</button></div></div>
  <div class="card frame-gold pad" style="margin-top:12px"><div class="h3">🔎 Truy xuất quan hệ</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="rA" style="width:200px">${opts}</select><span>↔</span><select id="rB" style="width:200px">${opts}</select><button class="btn btn-p" onclick="findRel()">Tra cứu</button></div><div id="relResult" style="margin-top:14px"></div></div>`;};
 function anc(id){const c=[];let x=id,g=new Set();while(x&&!g.has(x)){g.add(x);c.push(x);const m=DB.members.find(o=>o.id===x);x=m?(m.fatherId||m.motherId||0):0;}return c;}
@@ -1962,7 +1962,7 @@ function hvTuvi(){const b=hvBirth();const p=hvP();if(!b)return hvNeedDate();
  const now=new Date().getFullYear();const age=now-b.y+1;
  let dv='';for(let i=0;i<6;i++){const y0=b.y+i*10;const c=canChi(y0);dv+=`<span class="hv-pill">${i*10}–${i*10+9} tuổi · ${c.can} ${c.chi} (${c.menh.split(' ').pop()})</span>`;}
  const sao=saoNam(age,p.gender);const hanh=cy.menh.split(' ').pop();
- return hvSec('🗓 Tứ trụ (giản lược)',tru)+hvSec('📈 Đại vận theo thập niên',dv+'<div class="muted" style="font-size:11.5px;margin-top:4px">Chu kỳ 10 năm theo Can Chi — cách nhìn văn hóa về các giai đoạn cuộc đời.</div>')
+ return hvSec('🗓 Tứ trụ (giản lược)',tru)+hvSec('📈 Đại vận theo thập niên',dv+'<div class="muted" style="font-size:11.5px;margin-top:4px"></div>')
  +(sao?hvSec(`⭐ Sao năm ${now} (tuổi mụ ${age})`,`Sao <b>${sao}</b> — ${SAO_Y[sao]||''}.`):'')
  +hvSec('🌱 Gợi ý phát triển bản thân',`Người mệnh <b>${hanh}</b> theo quan niệm ngũ hành: ${HANH_GOIY[hanh]}. Tuổi ${cy.chi}: ${CHITRAIT[cy.chi]||''}.`)+HV_NOTE;}
 function hvThanso(){const b=hvBirth();const p=hvP();if(!p.name&&!b)return hvNeedDate();
@@ -2660,7 +2660,7 @@ function lbBrowser(k,title,intro){const groups=lbData(k).map(g=>g.g);const fav=l
 function mtCard(kind){const has=DB.settings.ai&&DB.settings.ai.key;
  return `<div class="card pad mt-card">
   <div class="h3">📷 Đối chiếu ảnh của bạn với thư viện</div>
-  <p class="muted" style="font-size:12.5px;margin:4px 0 9px">Tải ảnh hoặc chụp ${kind==='face'?'khuôn mặt':'bàn tay'}, đánh dấu vài điểm mốc — ứng dụng đo tỉ lệ và tìm <b>3–5 mẫu giống nhất</b>. Mọi việc làm ngay trong máy, <b>ảnh không lưu, không gửi đi đâu</b>.</p>
+  <p class="muted" style="font-size:12.5px;margin:4px 0 9px">Chụp hoặc chọn ảnh, đánh dấu vài điểm mốc để tìm mẫu giống nhất. Ảnh xử lý trong máy, không lưu.</p>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
    <button class="btn btn-p" onclick="mtOpen('${kind}')">🎯 Bắt đầu đối chiếu</button>
    ${has?`<button class="btn btn-o" onclick="hvCam('${kind==='face'?'face':'palm'}')">🤖 Nhờ AI mô tả thêm</button><div id="hv${kind==='face'?'Face':'Palm'}Out" style="width:100%;margin-top:8px"></div>`:''}
@@ -2767,7 +2767,7 @@ function lcGoodView(){const now=new Date();const base=lcGoodM==null?new Date(now
  return `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
   <select onchange="lcPurpose=this.value;render()">${LC_PURPOSE.map(p=>`<option value="${p[0]}" ${lcPurpose===p[0]?'selected':''}>${p[1]}</option>`).join('')}</select>
   <button class="btn btn-o btn-sm" onclick="lcGoodM=new Date(${y},${m-1},1);render()">‹</button><b>Tháng ${m+1}/${y}</b><button class="btn btn-o btn-sm" onclick="lcGoodM=new Date(${y},${m+1},1);render()">›</button></div>
- <p class="muted" style="font-size:11.5px">Chấm điểm theo lệ dân gian phổ thông (hoàng/hắc đạo, Tam nương, Nguyệt kỵ) — giải thích rõ ràng, không thuật ngữ phức tạp.</p>
+ <p class="muted" style="font-size:11.5px">Theo lệ dân gian phổ thông — chỉ để tham khảo.</p>
  ${rows.slice(0,12).map(x=>`<div class="hv-sec" style="margin-top:8px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
    <b style="font-size:15px">${['CN','T2','T3','T4','T5','T6','T7'][x.t.getDay()]} ${x.t.getDate()}/${m+1}</b>
    <span class="muted" style="font-size:12px">(âm ${x.i.lu.d}/${x.i.lu.m} · ${x.i.cd.can} ${x.i.cd.chi})</span>
@@ -2785,7 +2785,7 @@ function lcClanView(){const s=DB.settings;s.remind=s.remind||{le:true,ho:true,da
   <label><input type="checkbox" ${s.remind.le?'checked':''} onchange="DB.settings.remind.le=this.checked;save()"/> Lễ truyền thống</label>
   <label><input type="checkbox" ${s.remind.ho?'checked':''} onchange="DB.settings.remind.ho=this.checked;save()"/> Việc họ / giỗ</label>
   <span>Nhắc trước: ${[30,7,3,1,0].map(dd=>`<label style="margin-right:6px"><input type="checkbox" ${s.remind.days.includes(dd)?'checked':''} onchange="const a=DB.settings.remind.days;this.checked?a.push(${dd}):a.splice(a.indexOf(${dd}),1);save()"/> ${dd===0?'đúng ngày':dd+' ngày'}</label>`).join('')}</span></div>
-  <div class="muted" style="font-size:11px;margin-top:4px">Nhắc hiện khi mở app (bản offline). Bản server sẽ thêm push/email.</div></div>
+  <div class="muted" style="font-size:11px;margin-top:4px"></div></div>
  <div style="margin-top:8px">${up.length?up.map(e=>{const diff=Math.round((e.t-now)/864e5);
   return `<div class="row"><span class="dot">${e.src==='le'?'🏮':'👪'}</span><span style="flex:1"><b>${esc(e.title)}</b><div class="muted" style="font-size:11.5px">${e.type} · ${['CN','T2','T3','T4','T5','T6','T7'][e.t.getDay()]} ${e.t.getDate()}/${e.t.getMonth()+1}/${e.t.getFullYear()}</div></span><span class="hv-pill" style="${diff<=3?'background:var(--primary);color:#fff;border:0':''}">${diff===0?'Hôm nay':'còn '+diff+' ngày'}</span></div>`;}).join(''):'<p class="muted">Không có sự kiện trong 120 ngày tới.</p>'}</div>`;}
 function lcCheckReminders(){try{const s=DB.settings;if(!s.remind)return;const today=new Date().toDateString();
@@ -3003,7 +3003,7 @@ function rlBody(){const s=DB.settings;const fav=s.rlFav||[],rec=s.rlRecent||[];
  let detail='';
  if(rlSel){const it=rlItem(rlSel);if(it)detail=rlDetail(it);}
  return `<div class="card frame-gold pad" style="margin-top:12px"><div class="h3">📜 Thư viện Văn khấn & Nghi lễ Gia tộc</div>
- <p class="muted" style="font-size:12px;margin-bottom:8px">Cẩm nang nghi lễ thờ cúng tổ tiên — nội dung phổ thông tham khảo, mỗi dòng họ có thể tùy biến theo tục nhà.</p>
+ <p class="muted" style="font-size:12px;margin-bottom:8px">Nghi lễ thờ cúng tổ tiên — có thể tùy biến theo tục lệ dòng họ.</p>
  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
   <input class="input" style="flex:1;min-width:180px" placeholder="🔎 Tìm lễ, văn khấn… (VD: giao thừa, tảo mộ)" value="${esc(rlQ)}" oninput="rlQ=this.value;render()"/>
  </div>
@@ -3045,7 +3045,7 @@ function rlDetail(it){const[id,cat,name,am,khai]=it;const sp=RL_SPEC[id]||{};con
    <input class="input" id="rlHost" placeholder="Người chủ lễ (VD: Nguyễn Văn A)" style="min-width:180px"/>
    <input class="input" id="rlWish" placeholder="Mong cầu (VD: cầu bình an, thi cử đỗ đạt…)" style="flex:1;min-width:200px"/>
    <button class="btn btn-p btn-sm" onclick="rlGen('${id}')">Tạo văn khấn</button>${(DB.settings.ai&&DB.settings.ai.key)?`<button class="btn btn-o btn-sm" onclick="rlGenAI('${id}')">🤖 Soạn bằng AI</button>`:''}
-  </div><div class="muted" style="font-size:11.5px;margin-top:4px">Tự điền tên ${esc(DB.org.display)}, ngày âm lịch hôm nay (${rlLunarNow()}), địa chỉ nhà thờ.</div><div id="rlGenOut" style="margin-top:8px"></div>`)}
+  </div><div class="muted" style="font-size:11.5px;margin-top:4px"></div><div id="rlGenOut" style="margin-top:8px"></div>`)}
  ${hvSec('🎎 Nghi thức & kiêng kỵ','Trang phục chỉnh tề, sạch sẽ, màu nhã.<br>Chủ lễ: trưởng họ/gia chủ; con cháu theo thứ bậc trưởng–ấu đứng sau.<br>Hương thắp số lẻ 1–3–5 nén; gia tiên vái 3 vái – 2 lạy (tang lễ 4 lạy).<br>Hóa vàng sau khi hương cháy 2/3, thần trước – gia tiên sau.<br><b>Kiêng:</b> ăn mặc xuề xòa, cười đùa to tiếng, nếm đồ cúng trước, thổi tắt hương/nến bằng miệng, xê dịch bát hương.')}
  ${hvSec('🗾 Phong tục ba miền',RL_MIEN)}
  ${HV_NOTE}</div>`;}
@@ -3084,7 +3084,7 @@ async function rlGenAI(id){const it=rlItem(id);const host=val('rlHost'),wish=val
 function rlRemind(id){const it=rlItem(id);DB.events.unshift({id:nextId(DB.events),title:it[2],type:'Lễ tiết',date:'Âm lịch '+it[3],location:DB.clan.church||'Nhà thờ họ',note:'Nhắc từ Thư viện nghi lễ'});logAct('Thêm nhắc lễ: '+it[2]);save();toast('Đã thêm vào Sự kiện — xem lịch ở mục Sự kiện');}
 function rlEdit(id){const it=rlItem(id);const cu=rlCustom(id);
  document.getElementById('modalBox').innerHTML=`<h3>✏️ Tùy biến "${it[2]}" theo ${esc(DB.org.display)}</h3>
- <p class="muted" style="font-size:12px">Nội dung riêng của dòng họ — không ảnh hưởng bản chuẩn. Để trống = dùng bản chuẩn.</p>
+ <p class="muted" style="font-size:12px">Để trống = dùng bản chuẩn.</p>
  <div class="field"><label>Văn khấn truyền thống (bản riêng)</label><textarea id="rcTrad" rows="6">${esc(cu.trad||'')}</textarea></div>
  <div class="field"><label>Văn khấn hiện đại (bản riêng)</label><textarea id="rcMod" rows="4">${esc(cu.modern||'')}</textarea></div>
  <div class="field"><label>Lễ vật theo tục riêng</label><input class="input" id="rcOffer" value="${esc(cu.offer||'')}" placeholder="VD: Họ ta cúng thêm bánh dày, không dùng vàng mã"/></div>
@@ -3362,7 +3362,7 @@ V.roles=()=>{const RS=roleList(),cur=curRole();const canEdit=curLevel()>=3;
  return `<div class="h1">🔐 Phân quyền & Nhật ký</div><div class="sub">Bật/tắt quyền cho từng vai trò bằng ô tích — áp dụng ngay (nút Thêm/Sửa/Xóa/Duyệt tự ẩn hiện). "Vai trò hiện tại" để xem thử app dưới vai trò đó.</div>
  <div class="card pad" style="margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>Vai trò hiện tại:</b><select onchange="setRole(this.value)" style="width:210px">${RS.map(r=>`<option value="${r.key}" ${cur===r.key?'selected':''}>${esc(r.name)}</option>`).join('')}</select><span class="muted" style="font-size:12.5px">Xem thử giao diện dưới quyền vai trò này</span></div>
  <div class="card pad" style="margin-bottom:12px"><div class="h3">🛡️ Bảng phân quyền${canEdit?'':' (chỉ xem — cần vai trò Ban quản trị / Trưởng họ để chỉnh)'}</div><p class="muted" style="font-size:12px;margin-bottom:8px">Trưởng họ luôn toàn quyền (khóa). Tick = cho phép.</p>${matrix}${canEdit?`<div style="margin-top:10px"><button class="btn btn-o btn-sm" onclick="rolePermReset()">↺ Đặt lại mặc định</button></div>`:''}
-   <p class="muted" style="font-size:11px;margin-top:8px">Đây là phân quyền cục bộ trên máy này (dùng cho 1 người soạn). Phân quyền nhiều tài khoản đăng nhập thật sẽ có ở bản triển khai máy chủ (Supabase).</p></div>
+   <p class="muted" style="font-size:11px;margin-top:8px">Phân quyền áp dụng trên thiết bị này.</p></div>
  <div class="card pad"><div class="h3">🕒 Nhật ký hoạt động</div>${DB.activity.slice(0,20).map(a=>`<div class="row"><span class="muted" style="font-size:12px;width:150px">${esc(a.time)}</span><span>${esc(a.action)}</span></div>`).join('')||'<p class="muted">Chưa có hoạt động.</p>'}</div>`;};
 
 /* ---- Cài đặt (nhiều nhóm) ---- */
@@ -3377,7 +3377,7 @@ V.settings=()=>{let body='';
    <div class="h3" style="margin-top:16px">Thông tin nhà thờ / cơ sở</div>
    <div class="field"><label>Tên nhà thờ</label><input class="input" id="setChurch" value="${esc(DB.clan.church)}"/></div><div class="field"><label>Địa chỉ</label><input class="input" id="setAddr" value="${esc(DB.clan.address)}"/></div><div class="fgrid"><div class="field"><label>Năm khởi dựng</label><input class="input" id="setBuilt" value="${esc(DB.clan.built)}"/></div><div class="field"><label>Diện tích</label><input class="input" id="setArea" value="${esc(DB.clan.area)}"/></div></div>`;}
  else if(setTab==='hp'){const c=DB.couplet||{};cpBgTmp=null;const FS=[['khai','Khải thư 楷 — chân phương, mềm'],['hanh','Bút lông 楷行 (Ma Shan)'],['xing','Hành thư 行'],['long','Hành thảo 行草'],['thao','Thảo thư 草'],['xiaowei','Thanh mảnh'],['dam','Đậm nét'],['chan','Tống 宋 — kiểu in']];
-   body=`<p class="muted" style="font-size:12.5px;margin-bottom:10px">Gõ bằng <b>Hán‑Việt (chữ Việt)</b>, hệ thống tự chuyển sang <b>chữ Hán</b> hiển thị ở trang chủ. VD: "Đức Lưu Quang".</p>
+   body=`<p class="muted" style="font-size:12.5px;margin-bottom:10px">Gõ Hán‑Việt, hệ thống tự chuyển sang chữ Hán. VD: Đức Lưu Quang</p>
    <div class="field"><label>Đại tự (hoành phi)</label><input class="input" id="cpDT" value="${esc(c.daitu||'')}" oninput="updateCpPreview()"/></div>
    <div class="fgrid"><div class="field"><label>Câu đối phải</label><input class="input" id="cpR" value="${esc(c.right||'')}" oninput="updateCpPreview()"/></div><div class="field"><label>Câu đối trái</label><input class="input" id="cpL" value="${esc(c.left||'')}" oninput="updateCpPreview()"/></div></div>
    <div class="field"><label>Dòng châm ngôn (trên tên)</label><input class="input" id="cpEye" value="${esc(c.eyebrow!=null?c.eyebrow:'Uống nước nhớ nguồn · Tôn vinh tổ tiên')}" oninput="updateCpPreview()"/></div>
@@ -3390,7 +3390,7 @@ V.settings=()=>{let body='';
    <div class="field"><label>Cỡ chữ câu đối</label><input type="range" id="cpSizeCau" min="18" max="44" value="${c.sizeCau||29}" oninput="cpSyncSize()"/></div></div>
    <div class="field"><label>Giãn cách chữ đại tự (khung tự ôm theo chữ)</label><input type="range" id="cpSpaceDT" min="0" max="0.7" step="0.02" value="${c.spaceDT!=null?c.spaceDT:0.24}" oninput="cpSyncSize()"/></div>
    <div class="field"><label>Ảnh nền trang chủ</label><input type="file" accept="image/*" onchange="cpBgPick(event)"/><div id="cpBgPrev" style="margin-top:6px">${c.bg?`<img src="${c.bg}" style="height:60px;border-radius:8px"/> <button class="btn btn-d btn-sm" onclick="cpBgClear()">Xóa nền</button>`:''}</div>
-   ${c.bg?`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><label style="font-size:12px;white-space:nowrap"><input type="checkbox" ${c.bgFit?'checked':''} onchange="cpBgFit(this.checked)"/> 🖼 Vừa khung (hiện trọn ảnh)</label><b style="font-size:12px">🔍 Phóng nền:</b><input type="range" min="100" max="300" step="5" value="${c.bgZoom||100}" oninput="cpBgZoom(this.value)" style="width:140px" ${c.bgFit?'disabled':''}/><button class="btn btn-o btn-sm" onclick="cpBgReset()">↺ Giữa</button><span class="muted" style="font-size:11.5px">✋ Kéo trực tiếp vùng nền trống trong khung xem trước để dời ảnh</span></div>`:''}</div>
+   ${c.bg?`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><label style="font-size:12px;white-space:nowrap"><input type="checkbox" ${c.bgFit?'checked':''} onchange="cpBgFit(this.checked)"/> 🖼 Vừa khung (hiện trọn ảnh)</label><b style="font-size:12px">🔍 Phóng nền:</b><input type="range" min="100" max="300" step="5" value="${c.bgZoom||100}" oninput="cpBgZoom(this.value)" style="width:140px" ${c.bgFit?'disabled':''}/><button class="btn btn-o btn-sm" onclick="cpBgReset()">↺ Giữa</button><span class="muted" style="font-size:11.5px"></span></div>`:''}</div>
    <div class="field"><label><input type="checkbox" ${c.free?'checked':''} onchange="toggleFree(this.checked)"/> Bố cục tự do — soạn như Canva/PowerPoint (mỗi dòng chữ là 1 ô)</label>
    ${c.free?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn btn-o btn-sm" onclick="addObj(true)">➕ Ô chữ Hán</button><button class="btn btn-o btn-sm" onclick="addObj(false)">➕ Ô chữ thường</button><button class="btn btn-o btn-sm" onclick="resetLayout()">↺ Đặt lại</button></div><div id="objBar" class="card" style="padding:8px;margin-top:8px;background:var(--accent)"></div>`:''}</div>
    <div class="field"><label>Xem trước trang chủ ${c.free?'— bấm 1 ô để chọn; kéo để di chuyển; kéo 8 nút xanh để đổi cỡ; nút tròn phía trên để xoay':''}</label><div id="cpPreview" style="border:1px solid var(--border);border-radius:12px;overflow:hidden">${heroHTML(c,true,selObj)}</div></div>
@@ -3404,7 +3404,7 @@ V.settings=()=>{let body='';
    <div class="field"><label>Quy tắc đánh số ${esc(T.gen.toLowerCase())}</label><textarea id="gpGen" rows="2">${esc(DB.clan.genRule)}</textarea></div>
    <div class="field"><label>Quy tắc đặt mã thành viên</label><textarea id="gpCode" rows="2">${esc(DB.clan.codeRule)}</textarea></div>
    <button class="btn btn-p" onclick="saveGp()">Lưu</button>`;
- else if(setTab==='data')body=syncPanel()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file (dùng khi chuyển máy hoặc chưa bật đồng bộ).</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
+ else if(setTab==='data')body=syncPanel()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file.</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
  else if(setTab==='log')body=DB.activity.slice(0,50).map(a=>`<div class="row"><span class="muted" style="font-size:12px;width:150px">${esc(a.time)}</span><span>${esc(a.action)}</span></div>`).join('')||'<p class="muted">Chưa có nhật ký.</p>';
  else body=`<div class="field"><label>Nhà cung cấp AI</label><select id="aiP"><option ${DB.settings.ai.provider==='Chưa cấu hình'?'selected':''}>Chưa cấu hình</option><option ${DB.settings.ai.provider==='OpenAI (GPT)'?'selected':''}>OpenAI (GPT)</option><option ${DB.settings.ai.provider==='Anthropic (Claude)'?'selected':''}>Anthropic (Claude)</option></select></div><div class="field"><label>API Key</label><input class="input" id="aiK" type="password" value="${esc(DB.settings.ai.key)}"/></div><p class="muted" style="font-size:12px">Khóa lưu trong máy, dùng cho hỏi đáp AI khi deploy server.</p><button class="btn btn-p" onclick="saveAi()">Lưu</button>`;
  return `<div class="h1">⚙️ Cài đặt</div><div class="tabbar"><div class="tabs" style="margin-bottom:0">${STABS.map(t=>`<span class="chip ${setTab===t[0]?'on':''}" onclick="setTab='${t[0]}';render()">${t[1]}</span>`).join('')}</div></div><div class="card pad" style="margin-top:10px">${body}</div>`;};
@@ -3473,7 +3473,7 @@ async function syncApi(path,body){
 function syncPanel(){const s=syncGet();
  if(!s)return `<div class="card pad" style="border-color:var(--gold)">
   <div class="h3">☁ Đồng bộ cả dòng họ (nhiều máy / điện thoại)</div>
-  <p class="muted" style="font-size:12.5px;margin:6px 0 10px">Bật đồng bộ để mọi người trong họ cùng xem <b>một dữ liệu chung</b>: sửa ở máy tính, điện thoại thấy ngay. Truy cập bằng <b>mã dòng họ + mật khẩu</b>, không cần email.</p>
+  <p class="muted" style="font-size:12.5px;margin:6px 0 10px">Cả họ cùng xem một dữ liệu chung trên mọi thiết bị.</p>
   <div class="two">
    <div><div class="h3" style="font-size:14px">Đã có mã dòng họ → Vào sổ</div>
     <div class="field"><label>Mã dòng họ</label><input id="skCode" placeholder="VD: NGUYEN-AN-HOA"/></div>
@@ -3533,7 +3533,7 @@ function auBody(){const el=document.getElementById('auBody');if(!el)return;
   <div class="field"><label>Mã dòng họ</label><input id="auCode" placeholder="VD: NGUYEN-THUONG" autocapitalize="characters" onkeydown="if(event.key==='Enter')auDoLogin()"/></div>
   <div class="field"><label>Mật khẩu</label><input id="auPass" type="password" placeholder="Mật khẩu được cấp" onkeydown="if(event.key==='Enter')auDoLogin()"/></div>
   <button class="au-btn" onclick="auDoLogin()">🔑 Đăng nhập</button>
-  <div class="au-hint">Dùng mã dòng họ và mật khẩu do trưởng tộc cung cấp. Mật khẩu quản trị được sửa dữ liệu; mật khẩu chung chỉ để xem.</div>
+  <div class="au-hint"></div>
   <div class="au-alt"><button onclick="auTab('up')">Chưa có? Đăng ký dòng họ mới</button> · <button onclick="auSkip()">Dùng thử không cần tài khoản</button></div>`;
  else el.innerHTML=`<div id="auMsg" class="au-msg"></div>
   <div class="field"><label>Mã dòng họ (chữ không dấu, số, gạch ngang)</label><input id="auNCode" placeholder="NGUYEN-AN-HOA" autocapitalize="characters"/></div>
@@ -3541,7 +3541,7 @@ function auBody(){const el=document.getElementById('auBody');if(!el)return;
   <div class="field"><label>Mật khẩu quản trị (trưởng tộc — được sửa)</label><input id="auNAdmin" type="password" placeholder="từ 6 ký tự"/></div>
   <div class="field"><label>Mật khẩu cho cả họ (chỉ xem — không bắt buộc)</label><input id="auNMem" type="password"/></div>
   <button class="au-btn" onclick="auDoRegister()">➕ Tạo dòng họ</button>
-  <div class="au-hint">Mã dòng họ là thứ cả họ dùng để vào xem gia phả — hãy đặt dễ nhớ và báo lại cho con cháu.</div>
+  <div class="au-hint"></div>
   <div class="au-alt"><button onclick="auTab('in')">Đã có mã? Đăng nhập</button> · <button onclick="auSkip()">Dùng thử không cần tài khoản</button></div>`;}
 function auOpen(m){auMode=m||'in';const w=document.getElementById('authWrap');if(!w)return;
  w.classList.add('open');auTab(auMode);setTimeout(()=>{const f=document.getElementById(auMode==='in'?'auCode':'auNCode');if(f)f.focus();},60);}
