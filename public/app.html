@@ -435,6 +435,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .cam-sp{width:76px}
 .cam-lock{position:absolute;left:0;right:0;bottom:112px;text-align:center;color:rgba(255,255,255,.82);font-size:11.5px;
  text-shadow:0 1px 5px rgba(0,0,0,.9);padding:0 20px;pointer-events:none}
+/* ===== Hướng dẫn lấy khóa API ===== */
+.ai-help{background:var(--accent);border:1px solid rgba(201,151,47,.5);border-radius:10px;padding:10px 12px;margin:4px 0 10px;font-size:12.5px;line-height:1.75}
+.ai-help b{color:var(--primary)}
+.ai-help>b{display:block;margin-bottom:5px}
+.ai-help a{color:var(--primary);text-decoration:underline;word-break:break-all}
 /* ===== THÔNG BÁO HỆ THỐNG (bảo trì, quá tải…) ===== */
 .sysn{position:fixed;left:0;right:0;top:0;z-index:120;display:flex;align-items:center;gap:10px;
  padding:9px 14px;font-size:13px;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.2);animation:sl .2s ease}
@@ -1302,6 +1307,12 @@ function objHTML(o,editable,selId){const sel=selId===o.id;const fc=o.han?('f-'+(
  const handles=(editable&&sel)?['nw','n','ne','e','se','s','sw','w'].map(h=>`<span class="he-h he-${h}" data-h="${h}"></span>`).join('')+'<span class="he-rot" data-h="rot"></span>':'';
  return `<div class="he-item ${editable?'he-edit':''} ${sel?'he-sel':''} ${fc}" data-k="${o.id}" style="${box}"><div class="${fill}" style="justify-content:${jc};align-items:${ai}">${objInner(o)}</div>${handles}</div>`;}
 function scaleHeroes(){document.querySelectorAll('.hero-canvas').forEach(c=>{const wrap=c.parentElement;if(!wrap)return;const s=wrap.clientWidth/(c.offsetWidth||1000);c.style.transform='scale('+s+')';wrap.style.height=(c.offsetHeight*s)+'px';});}
+/* Đổi khổ khung bố cục tự do — ảnh nền sẽ hiển thị theo khổ này,
+   nhờ đó chỉnh được cho giống bản mặc định khi xem trên điện thoại. */
+function setCanvasH(h){DB.couplet=DB.couplet||{};DB.couplet.canvasH=Math.max(360,Math.min(1000,+h||450));
+ save();updateCpPreview();renderObjBar();
+ const el=document.querySelector('#cpPreview');if(el)scaleHeroes();}
+window.setCanvasH=setCanvasH;
 function toggleFree(on){DB.couplet.free=on;if(on)ensureObjects();else selObj=null;save();render();}
 function refreshEditor(){updateCpPreview();renderObjBar();}
 function resetLayout(){DB.couplet.objects=defaultObjects();selObj=null;save();refreshEditor();}
@@ -1922,6 +1933,23 @@ function findRel(){const aid=+document.getElementById('rA').value,bid=+document.
  document.getElementById('relResult').innerHTML=`<div style="border:1px solid rgba(212,175,55,.4);background:var(--accent);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:12px">KẾT QUẢ</div><div style="margin-top:4px">${txt}</div>${anceName?`<div class="muted" style="margin-top:6px">Tổ tiên chung: <b>${esc(anceName)}</b></div>`:''}</div>`;}
 window.findRel=findRel;
 
+/* ---- Gọi Google Gemini (dùng chung cho mọi nơi cần AI) ---- */
+async function aiGoogle(ai,sys,user,maxTok,img){
+ const model=ai.model||'gemini-2.0-flash';
+ const parts=[];
+ if(img){const b64=img.split(',')[1];const mime=(img.match(/^data:(.*?);/)||[])[1]||'image/jpeg';
+  parts.push({inline_data:{mime_type:mime,data:b64}});}
+ parts.push({text:user});
+ const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=`+encodeURIComponent(ai.key),
+  {method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({system_instruction:{parts:[{text:sys}]},contents:[{role:'user',parts}],
+    generationConfig:{maxOutputTokens:maxTok||600}})});
+ const j=await r.json();
+ if(j.error)throw new Error(j.error.message||'Lỗi Gemini');
+ const c=j.candidates&&j.candidates[0];
+ const t=c&&c.content&&c.content.parts&&c.content.parts.map(x=>x.text||'').join('');
+ if(!t)throw new Error('Gemini không trả về nội dung');
+ return t;}
 /* ---- Trợ lý AI: thần số học, Can Chi, chat, chỉnh ảnh ---- */
 function stripVN(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D');}
 function numRed(n){while(n>9&&n!==11&&n!==22)n=String(n).split('').reduce((a,c)=>a+(+c),0);return n;}
@@ -1952,7 +1980,8 @@ async function aiAsk(){const q=(document.getElementById('aiQ')||{}).value||'';if
  out.innerHTML=box('⏳ Đang hỏi '+esc(ai.provider)+'…');
  try{const sys=`Bạn là trợ lý gia phả của ${DB.org.display}. Dữ liệu: ${DB.members.length} thành viên: `+DB.members.slice(0,40).map(m=>`${m.name} (${m.gender},${m.birthYear||'?'},đời ${m.generation})`).join('; ')+`. Số dư quỹ: ${fundBal()} đ. Trả lời ngắn gọn bằng tiếng Việt.`;
   let txt='';
-  if(/OpenAI/i.test(ai.provider)){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:q}],max_tokens:500})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
+  if(/Google|Gemini/i.test(ai.provider)){txt=await aiGoogle(ai,sys,q,500);}
+  else if(/OpenAI/i.test(ai.provider)){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:q}],max_tokens:500})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
   else{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ai.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:500,system:sys,messages:[{role:'user',content:q}]})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.content[0].text;}
   out.innerHTML=box(esc(txt).replace(/\n/g,'<br>'));
  }catch(e){out.innerHTML=box('⚠ Lỗi gọi AI: '+esc(e.message)+'. Kiểm tra API key/mạng.');}}window.aiAsk=aiAsk;
@@ -2866,7 +2895,8 @@ async function hvTong(){const b=hvBirth();const p=hvP();const out=document.getEl
  out.innerHTML=hvSec('🪷 Tổng luận','⏳ Đang tổng hợp bằng '+esc(ai.provider)+'…');
  try{const sys='Bạn là chuyên gia văn hóa phương Đông. Phân tích mang tính tham khảo văn hóa & phát triển bản thân, giọng ôn hòa tích cực; TUYỆT ĐỐI không khẳng định tương lai, không mê tín/hù dọa, không khuyên cúng lễ giải hạn, không tư vấn y tế/pháp lý/tài chính. Trả lời tiếng Việt, có các mục: Điểm mạnh, Điểm cần cải thiện, Gợi ý học tập – nghề nghiệp – sức khỏe – quan hệ.';
   const qq=`Dữ liệu của ${p.name||'người xem'}: ${data}. Hãy tổng luận.`;let txt='';
-  if(/OpenAI/i.test(ai.provider)){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:qq}],max_tokens:700})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
+  if(/Google|Gemini/i.test(ai.provider)){txt=await aiGoogle(ai,sys,qq,700);}
+  else if(/OpenAI/i.test(ai.provider)){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:qq}],max_tokens:700})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
   else{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ai.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:700,system:sys,messages:[{role:'user',content:qq}]})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.content[0].text;}
   out.innerHTML=hvSec('🪷 AI Tổng luận',esc(txt).replace(/\n/g,'<br>'))+HV_NOTE;
  }catch(e){out.innerHTML=local+`<p class="muted">⚠ Lỗi AI: ${esc(e.message)} — đã dùng bản tự động.</p>`;}}
@@ -2912,7 +2942,8 @@ async function hvVisionFile(kind,f){if(!f)return;const out=document.getElementBy
  const r=new FileReader();r.onload=async()=>{let durl=r.result;let b64=durl.split(',')[1];const mime=(durl.match(/^data:(.*?);/)||[])[1]||'image/jpeg';
   const sys='Bạn là nhà nghiên cứu văn hóa Á Đông. Mô tả theo góc nhìn '+(kind==='face'?'nhân tướng học (ngũ quan: mắt, mày, mũi, miệng, tai)':'xem chỉ tay dân gian (sinh đạo, trí đạo, tâm đạo, vận mệnh)')+' một cách ôn hòa, tích cực, mang tính tham khảo văn hóa; không khẳng định tương lai, không mê tín, không nhận dạng danh tính, không đánh giá ngoại hình đẹp/xấu, không tư vấn y tế. Kết bằng 2–3 gợi ý phát triển bản thân. Tiếng Việt, ngắn gọn.';
   try{let txt='';
-   if(/OpenAI/i.test(ai.provider)){const r2=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',max_tokens:600,messages:[{role:'system',content:sys},{role:'user',content:[{type:'text',text:'Phân tích ảnh này.'},{type:'image_url',image_url:{url:durl}}]}]})});const j=await r2.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
+   if(/Google|Gemini/i.test(ai.provider)){txt=await aiGoogle(ai,sys,'Phân tích ảnh này.',600,durl);}
+   else if(/OpenAI/i.test(ai.provider)){const r2=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',max_tokens:600,messages:[{role:'system',content:sys},{role:'user',content:[{type:'text',text:'Phân tích ảnh này.'},{type:'image_url',image_url:{url:durl}}]}]})});const j=await r2.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
    else{const r2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ai.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:sys,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:'Phân tích ảnh này.'}]}]})});const j=await r2.json();if(j.error)throw new Error(j.error.message);txt=j.content[0].text;}
    out.innerHTML=hvSec('Kết quả',esc(txt).replace(/\n/g,'<br>'))+`<p class="muted" style="font-size:11.5px;margin-top:6px">🔒 Ảnh đã được xóa khỏi bộ nhớ, không lưu lại.</p>`+HV_NOTE;
   }catch(e){out.innerHTML='<p class="muted">⚠ '+esc(e.message)+'</p>';}
@@ -3128,7 +3159,8 @@ async function rlGenAI(id){const it=rlItem(id);const host=val('rlHost'),wish=val
  const sys='Bạn là chuyên gia văn hóa thờ cúng Việt Nam. Soạn văn khấn trang trọng đúng lối truyền thống (mở đầu Nam mô A Di Đà Phật, kính lạy Trời Phật – Tôn thần – Gia tiên, ngày tháng âm lịch, tín chủ, lý do lễ, lời cầu, kết lễ bạc tâm thành). Không mê tín hù dọa, không hứa hẹn tuyệt đối.';
  const q=`Soạn văn khấn "${it[2]}" cho ${DB.org.display}. Người chủ lễ: ${host||'gia chủ'}. Hôm nay: ${rlLunarNow()}. Địa điểm: ${DB.clan.address||'tư gia'}. Mong cầu: ${wish||'bình an, hưng thịnh'}.`;
  try{let txt='';
-  if(/OpenAI/i.test(ai.provider)){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:q}],max_tokens:800})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
+  if(/Google|Gemini/i.test(ai.provider)){txt=await aiGoogle(ai,sys,q,800);}
+  else if(/OpenAI/i.test(ai.provider)){const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:q}],max_tokens:800})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.choices[0].message.content;}
   else{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ai.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,system:sys,messages:[{role:'user',content:q}]})});const j=await r.json();if(j.error)throw new Error(j.error.message);txt=j.content[0].text;}
   out.innerHTML=`<div style="white-space:pre-line;line-height:1.9;font-family:'Noto Serif',serif;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px">${esc(txt).replace(/\n/g,'<br>')}</div>`;
  }catch(e){out.innerHTML='<p class="muted">⚠ '+esc(e.message)+' — dùng nút "Tạo văn khấn" (mẫu chuẩn).</p>';}}
@@ -3443,7 +3475,11 @@ V.settings=()=>{let body='';
    <div class="field"><label>Ảnh nền trang chủ</label><input type="file" accept="image/*" onchange="cpBgPick(event)"/><div id="cpBgPrev" style="margin-top:6px">${c.bg?`<img src="${c.bg}" style="height:60px;border-radius:8px"/> <button class="btn btn-d btn-sm" onclick="cpBgClear()">Xóa nền</button>`:''}</div>
    ${c.bg?`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><label style="font-size:12px;white-space:nowrap"><input type="checkbox" ${c.bgFit?'checked':''} onchange="cpBgFit(this.checked)"/> 🖼 Vừa khung (hiện trọn ảnh)</label><b style="font-size:12px">🔍 Phóng nền:</b><input type="range" min="100" max="300" step="5" value="${c.bgZoom||100}" oninput="cpBgZoom(this.value)" style="width:140px" ${c.bgFit?'disabled':''}/><button class="btn btn-o btn-sm" onclick="cpBgReset()">↺ Giữa</button><span class="muted" style="font-size:11.5px"></span></div>`:''}</div>
    <div class="field"><label><input type="checkbox" ${c.free?'checked':''} onchange="toggleFree(this.checked)"/> Bố cục tự do — soạn như Canva/PowerPoint (mỗi dòng chữ là 1 ô)</label>
-   ${c.free?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn btn-o btn-sm" onclick="addObj(true)">➕ Ô chữ Hán</button><button class="btn btn-o btn-sm" onclick="addObj(false)">➕ Ô chữ thường</button><button class="btn btn-o btn-sm" onclick="resetLayout()">↺ Đặt lại</button></div><div id="objBar" class="card" style="padding:8px;margin-top:8px;background:var(--accent)"></div>`:''}</div>
+   ${c.free?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn btn-o btn-sm" onclick="addObj(true)">➕ Ô chữ Hán</button><button class="btn btn-o btn-sm" onclick="addObj(false)">➕ Ô chữ thường</button><button class="btn btn-o btn-sm" onclick="resetLayout()">↺ Đặt lại</button></div>
+   <div class="field" style="margin-top:8px"><label>Khổ khung (ảnh nền hiển thị theo khổ này)</label>
+    <div class="tabs" style="margin-bottom:6px">${[['Ngang rộng',430],['Cân đối',560],['Hơi cao',700],['Dọc (hợp điện thoại)',860]].map(k=>`<span class="chip ${Math.abs((c.canvasH||450)-k[1])<40?'on':''}" onclick="setCanvasH(${k[1]})">${k[0]}</span>`).join('')}</div>
+    <input type="range" min="360" max="1000" step="10" value="${c.canvasH||450}" oninput="setCanvasH(this.value)"/>
+    <span class="muted" style="font-size:11.5px">Khổ hiện tại: 1000 × ${c.canvasH||450} — tỉ lệ ${( 1000/(c.canvasH||450) ).toFixed(2)}:1</span></div><div id="objBar" class="card" style="padding:8px;margin-top:8px;background:var(--accent)"></div>`:''}</div>
    <div class="field"><label>Xem trước trang chủ ${c.free?'— bấm 1 ô để chọn; kéo để di chuyển; kéo 8 nút xanh để đổi cỡ; nút tròn phía trên để xoay':''}</label><div id="cpPreview" style="border:1px solid var(--border);border-radius:12px;overflow:hidden">${heroHTML(c,true,selObj)}</div></div>
    <button class="btn btn-p" onclick="saveCouplet()">Lưu</button>`;}
  else if(setTab==='gp')body=`<p class="muted" style="font-size:12.5px;margin-bottom:10px">Cấu hình <b>tên gọi</b> theo dòng họ của bạn (chọn sẵn hoặc tự nhập). Dữ liệu vẫn lưu theo trường chuẩn — đổi tên gọi không làm mất dữ liệu.</p>
@@ -3457,7 +3493,15 @@ V.settings=()=>{let body='';
    <button class="btn btn-p" onclick="saveGp()">Lưu</button>`;
  else if(setTab==='data')body=syncPanel()+pricePane()+`<p class="muted" style="margin:16px 0 10px">Sao lưu / phục hồi bằng file.</p><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn btn-o" onclick="backup()">⬇ Sao lưu (JSON)</button><label class="btn btn-o" style="cursor:pointer">⬆ Phục hồi<input type="file" accept="application/json" style="display:none" onchange="restore(event)"/></label><button class="btn btn-o" onclick="exportCsv()">⬇ Xuất CSV thành viên</button><button class="btn btn-d" onclick="resetDb()">↺ Về dữ liệu mẫu</button></div>`;
  else if(setTab==='log')body=DB.activity.slice(0,50).map(a=>`<div class="row"><span class="muted" style="font-size:12px;width:150px">${esc(a.time)}</span><span>${esc(a.action)}</span></div>`).join('')||'<p class="muted">Chưa có nhật ký.</p>';
- else body=`<div class="field"><label>Nhà cung cấp AI</label><select id="aiP"><option ${DB.settings.ai.provider==='Chưa cấu hình'?'selected':''}>Chưa cấu hình</option><option ${DB.settings.ai.provider==='OpenAI (GPT)'?'selected':''}>OpenAI (GPT)</option><option ${DB.settings.ai.provider==='Anthropic (Claude)'?'selected':''}>Anthropic (Claude)</option></select></div><div class="field"><label>API Key</label><input class="input" id="aiK" type="password" value="${esc(DB.settings.ai.key)}"/></div><p class="muted" style="font-size:12px">Khóa lưu trong máy, dùng cho hỏi đáp AI khi deploy server.</p><button class="btn btn-p" onclick="saveAi()">Lưu</button>`;
+ else body=`<div class="field"><label>Nhà cung cấp AI</label><select id="aiP"><option ${DB.settings.ai.provider==='Chưa cấu hình'?'selected':''}>Chưa cấu hình</option><option ${DB.settings.ai.provider==='OpenAI (GPT)'?'selected':''}>OpenAI (GPT)</option><option ${DB.settings.ai.provider==='Anthropic (Claude)'?'selected':''}>Anthropic (Claude)</option><option ${DB.settings.ai.provider==='Google (Gemini)'?'selected':''}>Google (Gemini)</option></select></div><div class="field"><label>API Key</label><input class="input" id="aiK" type="password" value="${esc(DB.settings.ai.key)}" placeholder="Dán khóa API vào đây"/></div>
+  <div class="field"><label>Mô hình (để trống = mặc định)</label><input class="input" id="aiM" value="${esc(DB.settings.ai.model||'')}" placeholder="VD: gemini-2.0-flash / gpt-4o-mini"/></div>
+  <div class="ai-help">
+   <b>Lấy khóa API ở đâu</b>
+   <div><b>Google (Gemini)</b> — <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> · có mức dùng <b>miễn phí</b>, phù hợp nhất</div>
+   <div><b>OpenAI (GPT)</b> — <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a> · trả phí theo lượt</div>
+   <div><b>Anthropic (Claude)</b> — <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> · trả phí theo lượt</div>
+   <div class="muted" style="margin-top:5px">🔒 Khóa chỉ lưu trong máy này, không gửi lên máy chủ của ứng dụng.</div>
+  </div><button class="btn btn-p" onclick="saveAi()">Lưu</button>`;
  return `<div class="h1">⚙️ Cài đặt</div><div class="tabbar"><div class="tabs" style="margin-bottom:0">${STABS.map(t=>`<span class="chip ${setTab===t[0]?'on':''}" onclick="setTab='${t[0]}';render()">${t[1]}</span>`).join('')}</div></div><div class="card pad" style="margin-top:10px">${body}</div>`;};
 function saveClan(){const d=val('orgDisplay');if(!d){toast('Nhập Tên hiển thị');return;}DB.org={type:val('orgType')||'Dòng họ',name:val('orgName'),display:d,short:val('orgShort')||d};DB.clan.name=DB.org.name;DB.clan.church=val('setChurch');DB.clan.address=val('setAddr');DB.clan.built=val('setBuilt');DB.clan.area=val('setArea');logAct('Sửa hồ sơ đơn vị: '+d);save();toast('Đã lưu');render();}
 function newProject(){const OT=['Dòng họ','Dòng tộc','Chi họ','Ngành họ','Gia đình','Khác'];
@@ -3473,7 +3517,7 @@ function doNewProject(){const d=val('npDisplay');if(!d){toast('Nhập Tên hiể
  DB.org={type,name:short,display:d,short};logAct('Tạo dự án mới: '+d);save();closeModal();location.hash='home';render();toast('Đã tạo dự án: '+d);}
 window.newProject=newProject;window.doNewProject=doNewProject;
 function saveGp(){DB.terms={b1:val('tB1')||'Ngành',b2:val('tB2')||'Chi',gen:val('tGen')||'Đời'};DB.branchesL1=document.getElementById('gpBr1').value.split('\n').map(s=>s.trim()).filter(Boolean);DB.branches=document.getElementById('gpBr').value.split('\n').map(s=>s.trim()).filter(Boolean);DB.clan.genRule=val('gpGen');DB.clan.codeRule=val('gpCode');T=DB.terms;logAct('Sửa cấu hình tên gọi & gia phả');save();toast('Đã lưu — giao diện đổi theo tên gọi mới');render();}
-function saveAi(){DB.settings.ai.provider=val('aiP');DB.settings.ai.key=val('aiK');save();toast('Đã lưu cấu hình AI');}
+function saveAi(){DB.settings.ai.provider=val('aiP');DB.settings.ai.key=val('aiK');DB.settings.ai.model=val('aiM');save();toast('Đã lưu cấu hình AI');render();}
 let cpBgTmp=null;
 function cpBgPick(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{cpBgTmp=r.result;const p=document.getElementById('cpBgPrev');if(p)p.innerHTML=`<img src="${r.result}" style="height:60px;border-radius:8px"/> <button class="btn btn-d btn-sm" onclick="cpBgClear()">Xóa nền</button>`;toast('Đã chọn ảnh nền — bấm Lưu');updateCpPreview();};r.readAsDataURL(f);}
 function cpBgClear(){cpBgTmp='';const p=document.getElementById('cpBgPrev');if(p)p.innerHTML='<span class="muted" style="font-size:12px">Đã bỏ ảnh nền — bấm Lưu</span>';updateCpPreview();}
