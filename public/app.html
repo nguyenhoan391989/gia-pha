@@ -449,15 +449,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
 .sysn span{flex:1}
 .sysn button{flex:none;width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,.08);cursor:pointer;font-size:12px}
 .sysn button:hover{background:rgba(0,0,0,.16)}
-/* ===== BẢNG GIÁ ===== */
+/* ===== BẢNG GIÁ ===== (đặt tên riêng, KHÔNG dùng .pcard vì trùng thẻ thành viên trong sơ đồ) */
 .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.pcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 10px;border-radius:12px;
+.plancard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 10px;border-radius:12px;
  border:1px solid var(--border);background:var(--card);text-align:center}
-.pcard.on{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold);background:#fdf7e8}
-.pcard b{color:var(--primary);font-size:14px}
-.pcard .pp{font-family:'Noto Serif',Georgia,serif;font-size:19px;font-weight:700;color:var(--gold-dark);margin-top:4px}
-.pcard .pu{font-size:11.5px;color:var(--muted)}
-.pcard .pn{font-size:11.5px;color:var(--muted);margin:4px 0 7px}
+.plancard.on{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold);background:#fdf7e8}
+.plancard b{color:var(--primary);font-size:14px}
+.plancard .pp{font-family:'Noto Serif',Georgia,serif;font-size:19px;font-weight:700;color:var(--gold-dark);margin-top:4px}
+.plancard .pu{font-size:11.5px;color:var(--muted)}
+.plancard .pn{font-size:11.5px;color:var(--muted);margin:4px 0 7px}
 /* ===== XOAY NGANG MÀN HÌNH (điện thoại nằm ngang) =====
    Màn hình thấp mà rộng → thu gọn chiều cao, tận dụng bề ngang. */
 @media (orientation:landscape) and (max-height:520px){
@@ -3603,7 +3603,7 @@ function pricePane(){
   <div class="h3">💎 Gói dịch vụ</div>
   <p class="muted" style="font-size:12.5px;margin:4px 0 10px">Gói hiện tại: <b>${esc(planName(cur))}</b></p>
   <div class="price-grid">${(CFG.pricing||[]).map(p=>`
-    <div class="pcard ${cur===p.plan?'on':''}">
+    <div class="plancard ${cur===p.plan?'on':''}">
       <b>${esc(p.name)}</b>
       <span class="pp">${p.price?vnd(p.price):'Miễn phí'}</span>
       <span class="pu">/ ${esc(p.unit)}</span>
